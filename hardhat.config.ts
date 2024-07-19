@@ -21,7 +21,6 @@ const { INFURA_KEY, MNEMONIC, ETHERSCAN_API_KEY, PK, ALCHEMY_KEY } =
   process.env;
 
 import "./tasks/singleton-deployment";
-import "./tasks/deploy-replay";
 
 const DEFAULT_MNEMONIC =
   "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
@@ -121,7 +120,7 @@ export default {
     base: {
       ...sharedNetworkConfig,
       url: "https://mainnet.base.org",
-    }
+    },
   },
   namedAccounts: {
     deployer: 0,
