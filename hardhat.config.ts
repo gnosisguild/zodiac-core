@@ -119,6 +119,9 @@ export default {
       ...sharedNetworkConfig,
       url: "https://mainnet.base.org",
     },
+    hardhat: {
+      ...sharedNetworkConfig,
+    },
   },
   namedAccounts: {
     deployer: 0,
