@@ -14,10 +14,12 @@ import {
 } from "../typechain-types";
 
 export default function populateDeployModuleAsProxy({
+  factory = moduleFactoryAddress,
   mastercopy,
   setupArgs,
   salt,
 }: {
+  factory?: string;
   mastercopy: string;
   setupArgs: { types: any[]; values: any[] };
   salt: string;
@@ -25,7 +27,7 @@ export default function populateDeployModuleAsProxy({
   const iface = ModuleProxyFactory__factory.createInterface();
 
   return {
-    to: moduleFactoryAddress,
+    to: factory,
     data: iface.encodeFunctionData("deployModule", [
       mastercopy,
       initializer({ setupArgs }),
@@ -35,16 +37,18 @@ export default function populateDeployModuleAsProxy({
 }
 
 export function predictAddress({
+  factory = moduleFactoryAddress,
   mastercopy,
   setupArgs,
   salt,
 }: {
+  factory?: string;
   mastercopy: string;
   setupArgs: { types: any[]; values: any[] };
   salt: string;
 }) {
   return getCreate2Address(
-    moduleFactoryAddress,
+    factory,
     internalSalt({ setupArgs, salt }),
     keccak256(creationBytecode({ mastercopy }))
   );

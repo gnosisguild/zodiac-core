@@ -2,8 +2,8 @@ import { AddressOne } from "@gnosis.pm/safe-contracts";
 import { expect } from "chai";
 import { AbiCoder, Contract, ZeroAddress } from "ethers";
 import { ethers } from "hardhat";
-
-import { calculateProxyAddress } from "../sdk/factory";
+import { predictModuleAddress } from "../src/deployModuleAsProxy";
+import { address } from "../src/factories/moduleFactory";
 
 const AddressZero = ZeroAddress;
 
@@ -12,6 +12,7 @@ describe("ModuleProxyFactory", async () => {
   let moduleMasterCopy: Contract;
   let avatarAddress: string;
   let initData: string;
+  let setupArgs: { types: any[]; values: any[] };
 
   const saltNonce = "0x7255";
 
@@ -34,17 +35,21 @@ describe("ModuleProxyFactory", async () => {
     initData = moduleMasterCopy.interface.encodeFunctionData("setUp", [
       encodedInitParams,
     ]);
+    setupArgs = {
+      types: ["address", "address"],
+      values: [await avatar.getAddress(), await avatar.getAddress()],
+    };
     avatarAddress = await avatar.getAddress();
   });
 
   describe("createProxy", () => {
     it("should deploy the expected address ", async () => {
-      const expectedAddress = await calculateProxyAddress(
-        moduleFactory,
-        await moduleMasterCopy.getAddress(),
-        initData,
-        saltNonce
-      );
+      const expectedAddress = await predictModuleAddress({
+        factory: await moduleFactory.getAddress(),
+        mastercopy: await moduleMasterCopy.getAddress(),
+        setupArgs,
+        salt: saltNonce,
+      });
 
       const deploymentTx = await moduleFactory.deployModule(
         await moduleMasterCopy.getAddress(),
@@ -54,6 +59,7 @@ describe("ModuleProxyFactory", async () => {
 
       const transaction = await deploymentTx.wait();
       const [moduleAddress] = transaction.logs[2].args;
+
       expect(moduleAddress).to.be.equal(expectedAddress);
     });
 
@@ -104,12 +110,12 @@ describe("ModuleProxyFactory", async () => {
     });
 
     it("should emit event on module deployment", async () => {
-      const moduleAddress = await calculateProxyAddress(
-        moduleFactory,
-        await moduleMasterCopy.getAddress(),
-        initData,
-        saltNonce
-      );
+      const moduleAddress = await predictModuleAddress({
+        factory: await moduleFactory.getAddress(),
+        mastercopy: await moduleMasterCopy.getAddress(),
+        setupArgs,
+        salt: saltNonce,
+      });
       await expect(
         moduleFactory.deployModule(
           await moduleMasterCopy.getAddress(),

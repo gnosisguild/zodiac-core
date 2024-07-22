@@ -12,13 +12,14 @@ import { Create2Args } from "./types";
 import { SingletonFactory__factory } from "../typechain-types";
 
 export default function populateDeployMastercopy({
+  factory = singletonFactoryAddress,
   bytecode,
   constructorArgs,
   salt,
-}: Create2Args): TransactionRequest {
+}: Create2Args & { factory?: string }): TransactionRequest {
   const iface = SingletonFactory__factory.createInterface();
   return {
-    to: singletonFactoryAddress,
+    to: factory,
     data: iface.encodeFunctionData("deploy", [
       creationBytecode({ bytecode, constructorArgs }),
       salt,
@@ -27,12 +28,13 @@ export default function populateDeployMastercopy({
 }
 
 export function predictAddress({
+  factory = singletonFactoryAddress,
   bytecode,
   constructorArgs,
   salt,
-}: Create2Args) {
+}: Create2Args & { factory?: string }) {
   return getCreate2Address(
-    singletonFactoryAddress,
+    factory,
     salt,
     keccak256(creationBytecode({ bytecode, constructorArgs }))
   );
