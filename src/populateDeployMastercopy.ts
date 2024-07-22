@@ -1,4 +1,11 @@
-import { AbiCoder, concat, getCreate2Address, keccak256 } from "ethers";
+import {
+  AbiCoder,
+  concat,
+  getCreate2Address,
+  keccak256,
+  TransactionRequest,
+} from "ethers";
+
 import { address as singletonFactoryAddress } from "./factories/singletonFactory";
 
 import { Create2Args } from "./types";
@@ -8,7 +15,7 @@ export default function populateDeployMastercopy({
   bytecode,
   constructorArgs,
   salt,
-}: Create2Args) {
+}: Create2Args): TransactionRequest {
   const iface = SingletonFactory__factory.createInterface();
   return {
     to: singletonFactoryAddress,
@@ -36,5 +43,5 @@ function creationBytecode({
   constructorArgs,
 }: Omit<Create2Args, "salt">) {
   const { types, values } = constructorArgs;
-  return concat([bytecode, new AbiCoder().encode(types, values)]);
+  return concat([bytecode, AbiCoder.defaultAbiCoder().encode(types, values)]);
 }

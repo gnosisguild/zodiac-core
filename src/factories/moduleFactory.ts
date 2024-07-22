@@ -8,22 +8,17 @@ const creationBytecode =
 const salt =
   "0xb8db55294bb8fea809aee38a26aad7ce1ab40d019486aa51af3a3de7e7434530";
 
-function createDeployTransaction() {
-  const iface = SingletonFactory__factory.createInterface();
-  return {
-    to: singletonFactoryAddress,
-    data: iface.encodeFunctionData("deploy", [creationBytecode, salt]),
-    gasLimit: 10000000,
-  };
-}
+export const address = getCreate2Address(
+  singletonFactoryAddress,
+  salt,
+  keccak256(creationBytecode)
+);
 
-function predictAddress() {
-  return getCreate2Address(
-    singletonFactoryAddress,
-    salt,
-    keccak256(creationBytecode)
-  );
-}
-
-export const address = predictAddress();
-export const deployTransaction = createDeployTransaction();
+export const deployTransaction = {
+  to: singletonFactoryAddress,
+  data: SingletonFactory__factory.createInterface().encodeFunctionData(
+    "deploy",
+    [creationBytecode, salt]
+  ),
+  gasLimit: 10000000,
+};

@@ -11,15 +11,6 @@ import {
   deployTransaction as deployModuleFactoryTx,
 } from "./factories/moduleFactory";
 
-/**
- * Get the singleton factory contract (ERC-2470).
- * If it is not deployed on the network, then also deploy it.
- *
- * https://eips.ethereum.org/EIPS/eip-2470
- * @param hardhat
- * @returns Singleton Factory contract
- */
-
 export default async function (hre: HardhatRuntimeEnvironment) {
   const [signer] = await hre.ethers.getSigners();
   {
