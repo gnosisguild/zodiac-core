@@ -25,7 +25,6 @@ export default function populateDeployModuleAsProxy({
   salt: string;
 }): TransactionRequest {
   const iface = ModuleProxyFactory__factory.createInterface();
-
   return {
     to: factory,
     data: iface.encodeFunctionData("deployModule", [
@@ -47,9 +46,12 @@ export function predictAddress({
   setupArgs: { types: any[]; values: any[] };
   salt: string;
 }) {
+  const internalSalt = keccak256(
+    concat([keccak256(initializer({ setupArgs })), salt])
+  );
   return getCreate2Address(
     factory,
-    internalSalt({ setupArgs, salt }),
+    internalSalt,
     keccak256(creationBytecode({ mastercopy }))
   );
 }
@@ -59,16 +61,6 @@ function creationBytecode({ mastercopy }: { mastercopy: string }) {
   const right = "5af43d82803e903d91602b57fd5bf3";
   const center = mastercopy.toLowerCase().replace(/^0x/, "");
   return `${left}${center}${right}`;
-}
-
-function internalSalt({
-  setupArgs,
-  salt,
-}: {
-  setupArgs: { types: any[]; values: any[] };
-  salt: string;
-}) {
-  return keccak256(concat([keccak256(initializer({ setupArgs })), salt]));
 }
 
 function initializer({
