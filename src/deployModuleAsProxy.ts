@@ -1,24 +1,25 @@
+import { BigNumberish } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import populateDeployModuleAsProxy, {
-  predictAddress,
+  predictModuleAddress,
 } from "./populateDeployModuleAsProxy";
 
 export default async function deployModuleAsProxy(
   {
     mastercopy,
     setupArgs,
-    salt,
+    saltNonce,
   }: {
     mastercopy: string;
     setupArgs: { types: any[]; values: any[] };
-    salt: string;
+    saltNonce: BigNumberish;
   },
   hre: HardhatRuntimeEnvironment
 ) {
   const [signer] = await hre.ethers.getSigners();
 
-  const address = predictAddress({ mastercopy, setupArgs, salt });
+  const address = predictModuleAddress({ mastercopy, setupArgs, saltNonce });
   {
     const code = await signer.provider.getCode(address);
     if (code != "0x") {
@@ -48,7 +49,7 @@ export default async function deployModuleAsProxy(
     ...populateDeployModuleAsProxy({
       mastercopy,
       setupArgs,
-      salt,
+      saltNonce,
     }),
     gasLimit,
   };
@@ -63,5 +64,3 @@ export default async function deployModuleAsProxy(
     }
   }
 }
-
-export const predictModuleAddress = predictAddress;

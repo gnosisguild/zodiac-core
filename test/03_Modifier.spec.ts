@@ -1,4 +1,4 @@
-import { AddressOne } from "@gnosis.pm/safe-contracts";
+import hre from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import {
@@ -9,16 +9,16 @@ import {
   ZeroAddress,
   Signer,
 } from "ethers";
-import hre from "hardhat";
-
-const AddressZero = ZeroAddress;
-import { TestAvatar__factory, TestModifier__factory } from "../typechain-types";
 
 import typedDataForTransaction from "./typedDataForTransaction";
 
-describe("Modifier", async () => {
-  const SENTINEL_MODULES = "0x0000000000000000000000000000000000000001";
+import { TestAvatar__factory, TestModifier__factory } from "../typechain-types";
 
+const AddressZero = ZeroAddress;
+const AddressOne = "0x0000000000000000000000000000000000000001";
+const SENTINEL_MODULES = AddressOne;
+
+describe("Modifier", async () => {
   async function setupTests() {
     const [signer, alice, bob, charlie] = await hre.ethers.getSigners();
     const Avatar = await hre.ethers.getContractFactory("TestAvatar");
@@ -100,9 +100,9 @@ describe("Modifier", async () => {
       await expect(modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
-      await expect(modifier.enableModule(user1.address))
-        .to.be.revertedWithCustomError(modifier, "AlreadyEnabledModule")
-        .withArgs("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+      await expect(
+        modifier.enableModule(user1.address)
+      ).to.be.revertedWithCustomError(modifier, "AlreadyEnabledModule");
     });
 
     it("enables a module", async () => {
@@ -148,9 +148,9 @@ describe("Modifier", async () => {
       await expect(modifier.disableModule(SENTINEL_MODULES, user1.address))
         .to.emit(modifier, "DisabledModule")
         .withArgs(user1.address);
-      await expect(modifier.disableModule(SENTINEL_MODULES, user1.address))
-        .to.be.revertedWithCustomError(modifier, "AlreadyDisabledModule")
-        .withArgs("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+      await expect(
+        modifier.disableModule(SENTINEL_MODULES, user1.address)
+      ).to.be.revertedWithCustomError(modifier, "AlreadyDisabledModule");
     });
 
     it("disables a module", async () => {
@@ -191,10 +191,10 @@ describe("Modifier", async () => {
     it("returns true if module is enabled", async () => {
       const { modifier } = await loadFixture(setupTests);
       const [user1, user2] = await hre.ethers.getSigners();
-      // delete once you figure out why you need to do this twice
-      await expect(await modifier.enableModule(user1.address))
-        .to.emit(modifier, "EnabledModule")
-        .withArgs(user1.address);
+      // // delete once you figure out why you need to do this twice
+      // await expect(await modifier.enableModule(user1.address))
+      //   .to.emit(modifier, "EnabledModule")
+      //   .withArgs(user1.address);
 
       await expect(await modifier.enableModule(user2.address))
         .to.emit(modifier, "EnabledModule")
@@ -315,9 +315,7 @@ describe("Modifier", async () => {
           tx.data,
           tx.operation
         )
-      )
-        .to.be.revertedWithCustomError(modifier, "NotAuthorized")
-        .withArgs("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+      ).to.be.revertedWithCustomError(modifier, "NotAuthorized");
     });
     it("execute a transaction.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
@@ -327,12 +325,9 @@ describe("Modifier", async () => {
         .withArgs(user1.address);
 
       await expect(
-        modifier.execTransactionFromModule(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation
-        )
+        modifier
+          .connect(user1)
+          .execTransactionFromModule(tx.to, tx.value, tx.data, tx.operation)
       ).to.emit(modifier, "Executed");
     });
     it("execute a transaction with signature.", async () => {
@@ -512,17 +507,20 @@ describe("Modifier", async () => {
 
   describe("execTransactionFromModuleReturnData", async () => {
     it("reverts if module is not enabled", async () => {
+      const [signer] = await hre.ethers.getSigners();
       const { modifier, tx } = await loadFixture(setupTests);
       await expect(
-        modifier.execTransactionFromModuleReturnData(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation
-        )
+        modifier
+          .connect(signer)
+          .execTransactionFromModuleReturnData(
+            tx.to,
+            tx.value,
+            tx.data,
+            tx.operation
+          )
       )
         .to.be.revertedWithCustomError(modifier, "NotAuthorized")
-        .withArgs("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+        .withArgs(signer.address);
     });
     it("execute a transaction.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);

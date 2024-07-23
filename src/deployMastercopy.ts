@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import populateDeployMastercopy, {
-  predictAddress,
+  predictMastercopyAddress,
 } from "./populateDeployMastercopy";
 
 import { Create2Args } from "./types";
@@ -12,7 +12,7 @@ export default async function deployMastercopy(
 ) {
   const [signer] = await hre.ethers.getSigners();
 
-  const address = predictAddress({ bytecode, constructorArgs, salt });
+  const address = predictMastercopyAddress({ bytecode, constructorArgs, salt });
   {
     const code = await signer.provider.getCode(address);
     if (code != "0x") {
@@ -56,5 +56,3 @@ export default async function deployMastercopy(
     }
   }
 }
-
-export const predictMastercopyAddress = predictAddress;

@@ -27,7 +27,7 @@ export default function populateDeployMastercopy({
   };
 }
 
-export function predictAddress({
+export function predictMastercopyAddress({
   factory = singletonFactoryAddress,
   bytecode,
   constructorArgs,

@@ -1,5 +1,6 @@
 import {
   AbiCoder,
+  BigNumberish,
   concat,
   getCreate2Address,
   keccak256,
@@ -17,12 +18,12 @@ export default function populateDeployModuleAsProxy({
   factory = moduleFactoryAddress,
   mastercopy,
   setupArgs,
-  salt,
+  saltNonce,
 }: {
   factory?: string;
   mastercopy: string;
   setupArgs: { types: any[]; values: any[] };
-  salt: string;
+  saltNonce: BigNumberish;
 }): TransactionRequest {
   const iface = ModuleProxyFactory__factory.createInterface();
   return {
@@ -30,28 +31,31 @@ export default function populateDeployModuleAsProxy({
     data: iface.encodeFunctionData("deployModule", [
       mastercopy,
       initializer({ setupArgs }),
-      salt,
+      saltNonce,
     ]),
   };
 }
 
-export function predictAddress({
+export function predictModuleAddress({
   factory = moduleFactoryAddress,
   mastercopy,
   setupArgs,
-  salt,
+  saltNonce,
 }: {
   factory?: string;
   mastercopy: string;
   setupArgs: { types: any[]; values: any[] };
-  salt: string;
+  saltNonce: BigNumberish;
 }) {
-  const internalSalt = keccak256(
-    concat([keccak256(initializer({ setupArgs })), salt])
+  const salt = keccak256(
+    concat([
+      keccak256(initializer({ setupArgs })),
+      AbiCoder.defaultAbiCoder().encode(["uint256"], [saltNonce]),
+    ])
   );
   return getCreate2Address(
     factory,
-    internalSalt,
+    salt,
     keccak256(creationBytecode({ mastercopy }))
   );
 }

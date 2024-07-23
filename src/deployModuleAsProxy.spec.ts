@@ -2,11 +2,11 @@ import { expect } from "chai";
 import hre from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
+import { predictMastercopyAddress } from "./populateDeployMastercopy";
+import { predictModuleAddress } from "./populateDeployModuleAsProxy";
 import deployFactories from "./deployFactories";
-import deployMastercopy, { predictMastercopyAddress } from "./deployMastercopy";
-import deployModuleAsProxy, {
-  predictModuleAddress,
-} from "./deployModuleAsProxy";
+import deployMastercopy from "./deployMastercopy";
+import deployModuleAsProxy from "./deployModuleAsProxy";
 
 import { TestModule__factory } from "../typechain-types";
 
@@ -46,19 +46,17 @@ describe("deployModuleAsProxy", () => {
       types: ["address", "address"],
       values: [avatar, target],
     };
-    const salt =
-      "0x0000000000000000000000000000000000000000000000000000000000000001";
 
     const address = predictModuleAddress({
       mastercopy,
       setupArgs,
-      salt,
+      saltNonce: 1,
     });
 
     expect(await provider.getCode(mastercopy)).to.not.equal("0x");
     expect(await provider.getCode(address)).to.equal("0x");
 
-    await deployModuleAsProxy({ mastercopy, setupArgs, salt }, hre);
+    await deployModuleAsProxy({ mastercopy, setupArgs, saltNonce: 1 }, hre);
 
     expect(await provider.getCode(address)).to.not.equal("0x");
 

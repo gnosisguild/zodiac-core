@@ -2,8 +2,9 @@ import { expect } from "chai";
 import hre from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
+import { predictMastercopyAddress } from "./populateDeployMastercopy";
 import deployFactories from "./deployFactories";
-import deployMastercopy, { predictMastercopyAddress } from "./deployMastercopy";
+import deployMastercopy from "./deployMastercopy";
 
 import { TestModule__factory } from "../typechain-types";
 

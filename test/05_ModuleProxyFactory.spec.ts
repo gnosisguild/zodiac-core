@@ -1,9 +1,9 @@
 import { AddressOne } from "@gnosis.pm/safe-contracts";
 import { expect } from "chai";
-import { AbiCoder, Contract, ZeroAddress } from "ethers";
+import { AbiCoder, Contract, getAddress, ZeroAddress } from "ethers";
 import { ethers } from "hardhat";
-import { predictModuleAddress } from "../src/deployModuleAsProxy";
-import { address } from "../src/factories/moduleFactory";
+
+import { predictModuleAddress } from "../src";
 
 const AddressZero = ZeroAddress;
 
@@ -44,11 +44,13 @@ describe("ModuleProxyFactory", async () => {
 
   describe("createProxy", () => {
     it("should deploy the expected address ", async () => {
+      const mastercopy = getAddress(await moduleMasterCopy.getAddress());
+
       const expectedAddress = await predictModuleAddress({
         factory: await moduleFactory.getAddress(),
-        mastercopy: await moduleMasterCopy.getAddress(),
+        mastercopy,
         setupArgs,
-        salt: saltNonce,
+        saltNonce,
       });
 
       const deploymentTx = await moduleFactory.deployModule(
@@ -58,9 +60,9 @@ describe("ModuleProxyFactory", async () => {
       );
 
       const transaction = await deploymentTx.wait();
-      const [moduleAddress] = transaction.logs[2].args;
+      const [actualAddress] = transaction.logs[2].args;
 
-      expect(moduleAddress).to.be.equal(expectedAddress);
+      expect(expectedAddress).to.be.equal(actualAddress);
     });
 
     it("should fail to deploy module because address is zero ", async () => {
@@ -114,7 +116,7 @@ describe("ModuleProxyFactory", async () => {
         factory: await moduleFactory.getAddress(),
         mastercopy: await moduleMasterCopy.getAddress(),
         setupArgs,
-        salt: saltNonce,
+        saltNonce,
       });
       await expect(
         moduleFactory.deployModule(
