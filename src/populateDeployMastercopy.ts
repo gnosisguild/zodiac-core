@@ -6,10 +6,10 @@ import {
   TransactionRequest,
 } from "ethers";
 
-import { address as singletonFactoryAddress } from "./factories/singletonFactory";
-
-import { Create2Args } from "./types";
 import { SingletonFactory__factory } from "../typechain-types";
+
+import { address as singletonFactoryAddress } from "./factories/singletonFactory";
+import { Create2Args } from "./types";
 
 export default function populateDeployMastercopy({
   factory = singletonFactoryAddress,

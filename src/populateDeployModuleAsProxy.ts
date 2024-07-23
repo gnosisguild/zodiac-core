@@ -7,12 +7,12 @@ import {
   TransactionRequest,
 } from "ethers";
 
-import { address as moduleFactoryAddress } from "./factories/moduleFactory";
-
 import {
   FactoryFriendly__factory,
   ModuleProxyFactory__factory,
 } from "../typechain-types";
+
+import { address as moduleFactoryAddress } from "./factories/moduleFactory";
 
 export default function populateDeployModuleAsProxy({
   factory = moduleFactoryAddress,

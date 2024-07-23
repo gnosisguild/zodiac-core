@@ -1,15 +1,14 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import {
+  address as moduleFactoryAddress,
+  deployTransaction as deployModuleFactoryTx,
+} from "./factories/moduleFactory";
+import {
   address as singletonFactoryAddress,
   signedDeployTransaction as deploySingletonFactorySignedTx,
   fundingTransaction as singletonFundingTx,
 } from "./factories/singletonFactory";
-
-import {
-  address as moduleFactoryAddress,
-  deployTransaction as deployModuleFactoryTx,
-} from "./factories/moduleFactory";
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   const [signer] = await hre.ethers.getSigners();

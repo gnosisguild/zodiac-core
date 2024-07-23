@@ -1,14 +1,14 @@
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
-import { predictMastercopyAddress } from "./populateDeployMastercopy";
-import { predictModuleProxyAddress } from "./populateDeployModuleAsProxy";
+import { TestModule__factory } from "../typechain-types";
+
 import deployFactories from "./deployFactories";
 import deployMastercopy from "./deployMastercopy";
 import deployModuleAsProxy from "./deployModuleAsProxy";
-
-import { TestModule__factory } from "../typechain-types";
+import { predictMastercopyAddress } from "./populateDeployMastercopy";
+import { predictModuleProxyAddress } from "./populateDeployModuleAsProxy";
 
 async function setup() {
   const bytecode = TestModule__factory.bytecode;

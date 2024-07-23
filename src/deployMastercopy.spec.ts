@@ -1,12 +1,12 @@
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-
-import { predictMastercopyAddress } from "./populateDeployMastercopy";
-import deployFactories from "./deployFactories";
-import deployMastercopy from "./deployMastercopy";
 
 import { TestModule__factory } from "../typechain-types";
+
+import deployFactories from "./deployFactories";
+import deployMastercopy from "./deployMastercopy";
+import { predictMastercopyAddress } from "./populateDeployMastercopy";
 
 async function setup() {
   await deployFactories(hre);

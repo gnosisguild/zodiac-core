@@ -1,15 +1,14 @@
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
 import deployFactories from "./deployFactories";
-
+import { address as moduleFactoryAddress } from "./factories/moduleFactory";
 import {
   address as singletonFactoryAddress,
   fundingTransaction as singletonFundingTx,
   signedDeployTransaction as singletonDeployRawTx,
 } from "./factories/singletonFactory";
-import { address as moduleFactoryAddress } from "./factories/moduleFactory";
 
 function reset() {}
 

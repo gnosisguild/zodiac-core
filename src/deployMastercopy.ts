@@ -3,7 +3,6 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import populateDeployMastercopy, {
   predictMastercopyAddress,
 } from "./populateDeployMastercopy";
-
 import { Create2Args } from "./types";
 
 export default async function deployMastercopy(

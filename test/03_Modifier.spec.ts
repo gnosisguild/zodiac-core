@@ -1,4 +1,3 @@
-import hre from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import {
@@ -9,10 +8,11 @@ import {
   ZeroAddress,
   Signer,
 } from "ethers";
-
-import typedDataForTransaction from "./typedDataForTransaction";
+import hre from "hardhat";
 
 import { TestAvatar__factory, TestModifier__factory } from "../typechain-types";
+
+import typedDataForTransaction from "./typedDataForTransaction";
 
 const AddressZero = ZeroAddress;
 const AddressOne = "0x0000000000000000000000000000000000000001";
@@ -190,11 +190,7 @@ describe("Modifier", async () => {
 
     it("returns true if module is enabled", async () => {
       const { modifier } = await loadFixture(setupTests);
-      const [user1, user2] = await hre.ethers.getSigners();
-      // // delete once you figure out why you need to do this twice
-      // await expect(await modifier.enableModule(user1.address))
-      //   .to.emit(modifier, "EnabledModule")
-      //   .withArgs(user1.address);
+      const [, user2] = await hre.ethers.getSigners();
 
       await expect(await modifier.enableModule(user2.address))
         .to.emit(modifier, "EnabledModule")
