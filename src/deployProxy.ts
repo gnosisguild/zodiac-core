@@ -1,5 +1,4 @@
-import { BigNumberish } from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { BigNumberish, Signer } from "ethers";
 
 import populateDeployProxy, {
   predictProxyAddress,
@@ -15,24 +14,23 @@ export default async function deployModuleAsProxy(
     setupArgs: { types: any[]; values: any[] };
     saltNonce: BigNumberish;
   },
-  hre: HardhatRuntimeEnvironment
+  signer: Signer
 ) {
-  const [signer] = await hre.ethers.getSigners();
-
+  const provider = signer.provider!;
   const address = predictProxyAddress({
     mastercopy,
     setupArgs,
     saltNonce,
   });
   {
-    const code = await signer.provider.getCode(address);
+    const code = await provider.getCode(address);
     if (code != "0x") {
       throw new Error(`ModuleProxy already deployed at ${address}`);
     }
   }
 
   let gasLimit;
-  switch ((await signer.provider.getNetwork()).name) {
+  switch ((await provider.getNetwork()).name) {
     case "optimism":
       gasLimit = 6000000;
       break;
@@ -62,7 +60,7 @@ export default async function deployModuleAsProxy(
   await receipt.wait();
 
   {
-    const code = await signer.provider.getCode(address);
+    const code = await provider.getCode(address);
     if (code == "0x") {
       throw new Error(`ModuleProxy not found at ${address}`);
     }
