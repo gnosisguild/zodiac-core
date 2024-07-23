@@ -1,6 +1,6 @@
 import deployFactories from "./deployFactories";
 import deployMastercopy from "./deployMastercopy";
-import deployModuleAsProxy from "./deployModuleAsProxy";
+import deployProxy from "./deployProxy";
 import populateDeployMastercopy, {
   predictMastercopyAddress,
 } from "./populateDeployMastercopy";
@@ -11,7 +11,7 @@ import populateDeployModuleAsProxy, {
 export {
   deployFactories,
   deployMastercopy,
-  deployModuleAsProxy,
+  deployProxy,
   populateDeployMastercopy,
   populateDeployModuleAsProxy,
   predictMastercopyAddress,

@@ -9,7 +9,7 @@ There's also a JS API, allowing the developers to easily:
 
 - Deploy the Module Proxy Factory (and the Singleton Factory if it's not already deployed to the current chain). See `src/deployFactories.ts`.
 - Deploy Module Mastercopy via the Singleton Factory. See `src/deployMastercopy.ts`. Or build the corresponding transaction payload, see `src/populateDeployMastercopy.ts`
-- Deploy Module Minimal Proxy (Clones) via the Module Proxy Factory. See `src/deployModuleAsProxy.ts`. Or build the corresponding transaction payload, see `src/populateDeployModuleAsProxy.ts`
+- Deploy Module Minimal Proxy (Clones) via the Module Proxy Factory. See `src/deployProxy.ts`. Or build the corresponding transaction payload, see `src/populateDeployProxy.ts`
 
 Description of the module deployment functionality:
 
@@ -17,7 +17,7 @@ Description of the module deployment functionality:
 
 This method is used to deploy contracts listed in `./constants.ts`.
 
-- Interface: `populateDeployModuleAsProxy(mastercopy, setupArgs, saltNonce)`
+- Interface: `populateDeployModule(mastercopy, setupArgs, saltNonce)`
 - Arguments:
   - `mastercopy`: Address of the module mastercopy
   - `setupArgs`: An object with two attributes: `value` and `types`
@@ -38,7 +38,7 @@ This method is used to deploy contracts listed in `./constants.ts`.
 
 This method is used to calculate the resulting address of a deployed module given the provided parameters. It is useful for building multisend transactions that both deploy a module and then make calls to that module or calls referencing the module's address.
 
-- Interface: `predictModuleProxyAddress(moduleFactory, mastercopyAddress, initData, saltNonce)`
+- Interface: `predictProxyAddress(moduleFactory, mastercopyAddress, initData, saltNonce)`
 - Arguments:
   - `mastercopy`: Address of the module mastercopy
   - `setupArgs`: An object with two attributes: `value` and `types`
@@ -46,4 +46,3 @@ This method is used to calculate the resulting address of a deployed module give
     - In `types` it expects an array of the types of every value
   - `saltNonce`: Nonce that will be used to generate the salt to calculate the address of the new proxy contract
 - Returns: A string with the expected address
-

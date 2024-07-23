@@ -6,7 +6,7 @@ import { TestModule__factory } from "../typechain-types";
 
 import deployFactories from "./deployFactories";
 import deployMastercopy from "./deployMastercopy";
-import deployModuleAsProxy from "./deployModuleAsProxy";
+import deployProxy from "./deployProxy";
 import { predictMastercopyAddress } from "./populateDeployMastercopy";
 import { predictModuleProxyAddress } from "./populateDeployModuleAsProxy";
 
@@ -34,7 +34,7 @@ async function setup() {
 const avatar = "0x0000000000000000000000000000000000000123";
 const target = "0x0000000000000000000000000000000000000456";
 
-describe("deployModuleAsProxy", () => {
+describe("deployProxy", () => {
   it("Deploys a proxy at the predicted address", async () => {
     const provider = hre.ethers.provider;
     const { mastercopy } = await loadFixture(setup);
@@ -56,7 +56,7 @@ describe("deployModuleAsProxy", () => {
     expect(await provider.getCode(mastercopy)).to.not.equal("0x");
     expect(await provider.getCode(address)).to.equal("0x");
 
-    await deployModuleAsProxy({ mastercopy, setupArgs, saltNonce: 1 }, hre);
+    await deployProxy({ mastercopy, setupArgs, saltNonce: 1 }, hre);
 
     expect(await provider.getCode(address)).to.not.equal("0x");
 
