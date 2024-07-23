@@ -5,7 +5,7 @@ import populateDeployMastercopy, {
   predictMastercopyAddress,
 } from "./populateDeployMastercopy";
 import populateDeployModuleAsProxy, {
-  predictModuleAddress,
+  predictModuleProxyAddress,
 } from "./populateDeployModuleAsProxy";
 
 export {
@@ -15,5 +15,5 @@ export {
   populateDeployMastercopy,
   populateDeployModuleAsProxy,
   predictMastercopyAddress,
-  predictModuleAddress,
+  predictModuleProxyAddress,
 };

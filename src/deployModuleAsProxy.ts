@@ -2,7 +2,7 @@ import { BigNumberish } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import populateDeployModuleAsProxy, {
-  predictModuleAddress,
+  predictModuleProxyAddress,
 } from "./populateDeployModuleAsProxy";
 
 export default async function deployModuleAsProxy(
@@ -19,7 +19,11 @@ export default async function deployModuleAsProxy(
 ) {
   const [signer] = await hre.ethers.getSigners();
 
-  const address = predictModuleAddress({ mastercopy, setupArgs, saltNonce });
+  const address = predictModuleProxyAddress({
+    mastercopy,
+    setupArgs,
+    saltNonce,
+  });
   {
     const code = await signer.provider.getCode(address);
     if (code != "0x") {

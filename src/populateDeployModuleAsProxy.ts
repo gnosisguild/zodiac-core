@@ -36,7 +36,7 @@ export default function populateDeployModuleAsProxy({
   };
 }
 
-export function predictModuleAddress({
+export function predictModuleProxyAddress({
   factory = moduleFactoryAddress,
   mastercopy,
   setupArgs,

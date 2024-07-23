@@ -3,7 +3,7 @@ import hre from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
 import { predictMastercopyAddress } from "./populateDeployMastercopy";
-import { predictModuleAddress } from "./populateDeployModuleAsProxy";
+import { predictModuleProxyAddress } from "./populateDeployModuleAsProxy";
 import deployFactories from "./deployFactories";
 import deployMastercopy from "./deployMastercopy";
 import deployModuleAsProxy from "./deployModuleAsProxy";
@@ -47,7 +47,7 @@ describe("deployModuleAsProxy", () => {
       values: [avatar, target],
     };
 
-    const address = predictModuleAddress({
+    const address = predictModuleProxyAddress({
       mastercopy,
       setupArgs,
       saltNonce: 1,
