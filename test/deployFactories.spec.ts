@@ -3,7 +3,7 @@ import { expect } from "chai";
 import hre from "hardhat";
 
 import { deployFactories } from "../src";
-import { address as moduleFactoryAddress } from "../src/factories/moduleFactory";
+import { address as moduleFactoryAddress } from "../src/factories/proxyFactory";
 import {
   address as singletonFactoryAddress,
   fundingTransaction as singletonFundingTx,

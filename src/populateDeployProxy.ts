@@ -12,10 +12,10 @@ import {
   ModuleProxyFactory__factory,
 } from "../typechain-types";
 
-import { address as moduleFactoryAddress } from "./factories/moduleFactory";
+import { address as proxyFactoryAddress } from "./factories/proxyFactory";
 
 export default function populateDeployProxy({
-  factory = moduleFactoryAddress,
+  factory = proxyFactoryAddress,
   mastercopy,
   setupArgs,
   saltNonce,
@@ -37,7 +37,7 @@ export default function populateDeployProxy({
 }
 
 export function predictProxyAddress({
-  factory = moduleFactoryAddress,
+  factory = proxyFactoryAddress,
   mastercopy,
   setupArgs,
   saltNonce,

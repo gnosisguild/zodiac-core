@@ -1,9 +1,9 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import {
-  address as moduleFactoryAddress,
+  address as proxyFactoryAddress,
   deployTransaction as deployModuleFactoryTx,
-} from "./factories/moduleFactory";
+} from "./factories/proxyFactory";
 import {
   address as singletonFactoryAddress,
   signedDeployTransaction as deploySingletonFactorySignedTx,
@@ -20,7 +20,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   }
 
   {
-    const code = await signer.provider.getCode(moduleFactoryAddress);
+    const code = await signer.provider.getCode(proxyFactoryAddress);
     if (code == "0x") {
       await deployModuleFactory(hre);
     }
@@ -50,7 +50,7 @@ async function deployModuleFactory(hre: HardhatRuntimeEnvironment) {
   const receipt = await signer.sendTransaction(deployModuleFactoryTx);
   await receipt.wait();
 
-  const code = await signer.provider.getCode(moduleFactoryAddress);
+  const code = await signer.provider.getCode(proxyFactoryAddress);
   if (code == "0x") {
     throw new Error("Bytecode for ModuleFactory not found");
   }
