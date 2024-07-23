@@ -14,7 +14,7 @@ async function setup() {
   await reset();
 }
 
-describe.only("deployFactories", () => {
+describe("deployFactories", () => {
   it("Deploys both factories if none exists", async () => {
     await loadFixture(setup);
 

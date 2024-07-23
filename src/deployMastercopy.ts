@@ -1,4 +1,4 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { Signer } from "ethers";
 
 import populateDeployMastercopy, {
   predictMastercopyAddress,
@@ -7,20 +7,19 @@ import { Create2Args } from "./types";
 
 export default async function deployMastercopy(
   { bytecode, constructorArgs, salt }: Create2Args,
-  hre: HardhatRuntimeEnvironment
+  signer: Signer
 ) {
-  const [signer] = await hre.ethers.getSigners();
-
+  const provider = signer.provider!;
   const address = predictMastercopyAddress({ bytecode, constructorArgs, salt });
   {
-    const code = await signer.provider.getCode(address);
+    const code = await provider!.getCode(address);
     if (code != "0x") {
       throw new Error(`Mastercopy already deployed at ${address}`);
     }
   }
 
   let gasLimit;
-  switch ((await signer.provider.getNetwork()).name) {
+  switch ((await provider!.getNetwork()).name) {
     case "optimism":
       gasLimit = 6000000;
       break;
@@ -49,7 +48,7 @@ export default async function deployMastercopy(
   const receipt = await signer.sendTransaction(transaction);
   await receipt.wait();
   {
-    const code = await signer.provider.getCode(address);
+    const code = await provider!.getCode(address);
     if (code == "0x") {
       throw new Error(`Mastercopy not found at ${address}`);
     }
