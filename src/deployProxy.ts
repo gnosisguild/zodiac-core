@@ -1,9 +1,9 @@
 import { BigNumberish } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-import populateDeployModuleAsProxy, {
-  predictModuleProxyAddress,
-} from "./populateDeployModuleAsProxy";
+import populateDeployProxy, {
+  predictProxyAddress,
+} from "./populateDeployProxy";
 
 export default async function deployModuleAsProxy(
   {
@@ -19,7 +19,7 @@ export default async function deployModuleAsProxy(
 ) {
   const [signer] = await hre.ethers.getSigners();
 
-  const address = predictModuleProxyAddress({
+  const address = predictProxyAddress({
     mastercopy,
     setupArgs,
     saltNonce,
@@ -50,7 +50,7 @@ export default async function deployModuleAsProxy(
   }
 
   const transaction = {
-    ...populateDeployModuleAsProxy({
+    ...populateDeployProxy({
       mastercopy,
       setupArgs,
       saltNonce,

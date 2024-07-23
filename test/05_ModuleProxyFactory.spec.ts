@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { AbiCoder, Contract, getAddress, ZeroAddress } from "ethers";
 import { ethers } from "hardhat";
 
-import { predictModuleProxyAddress } from "../src";
+import { predictProxyAddress } from "../src";
 
 const AddressZero = ZeroAddress;
 
@@ -46,7 +46,7 @@ describe("ModuleProxyFactory", async () => {
     it("should deploy the expected address ", async () => {
       const mastercopy = getAddress(await moduleMasterCopy.getAddress());
 
-      const expectedAddress = await predictModuleProxyAddress({
+      const expectedAddress = await predictProxyAddress({
         factory: await moduleFactory.getAddress(),
         mastercopy,
         setupArgs,
@@ -112,7 +112,7 @@ describe("ModuleProxyFactory", async () => {
     });
 
     it("should emit event on module deployment", async () => {
-      const moduleAddress = await predictModuleProxyAddress({
+      const moduleAddress = await predictProxyAddress({
         factory: await moduleFactory.getAddress(),
         mastercopy: await moduleMasterCopy.getAddress(),
         setupArgs,

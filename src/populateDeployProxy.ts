@@ -14,7 +14,7 @@ import {
 
 import { address as moduleFactoryAddress } from "./factories/moduleFactory";
 
-export default function populateDeployModuleAsProxy({
+export default function populateDeployProxy({
   factory = moduleFactoryAddress,
   mastercopy,
   setupArgs,
@@ -36,7 +36,7 @@ export default function populateDeployModuleAsProxy({
   };
 }
 
-export function predictModuleProxyAddress({
+export function predictProxyAddress({
   factory = moduleFactoryAddress,
   mastercopy,
   setupArgs,

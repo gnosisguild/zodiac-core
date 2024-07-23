@@ -1,14 +1,15 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture, reset } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
 
+import {
+  deployFactories,
+  deployMastercopy,
+  deployProxy,
+  predictMastercopyAddress,
+  predictProxyAddress,
+} from "../src";
 import { TestModule__factory } from "../typechain-types";
-
-import deployFactories from "./deployFactories";
-import deployMastercopy from "./deployMastercopy";
-import deployProxy from "./deployProxy";
-import { predictMastercopyAddress } from "./populateDeployMastercopy";
-import { predictModuleProxyAddress } from "./populateDeployModuleAsProxy";
 
 async function setup() {
   const bytecode = TestModule__factory.bytecode;
@@ -25,6 +26,7 @@ async function setup() {
     constructorArgs,
   });
 
+  await reset();
   await deployFactories(hre);
   await deployMastercopy({ bytecode, constructorArgs, salt }, hre);
 
@@ -47,7 +49,7 @@ describe("deployProxy", () => {
       values: [avatar, target],
     };
 
-    const address = predictModuleProxyAddress({
+    const address = predictProxyAddress({
       mastercopy,
       setupArgs,
       saltNonce: 1,

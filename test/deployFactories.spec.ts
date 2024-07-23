@@ -1,20 +1,22 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture, reset } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
 
-import deployFactories from "./deployFactories";
-import { address as moduleFactoryAddress } from "./factories/moduleFactory";
+import { deployFactories } from "../src";
+import { address as moduleFactoryAddress } from "../src/factories/moduleFactory";
 import {
   address as singletonFactoryAddress,
   fundingTransaction as singletonFundingTx,
   signedDeployTransaction as singletonDeployRawTx,
-} from "./factories/singletonFactory";
+} from "../src/factories/singletonFactory";
 
-function reset() {}
+async function setup() {
+  await reset();
+}
 
 describe("deployFactories", () => {
   it("Deploys both factories if none exists", async () => {
-    await loadFixture(reset as any);
+    await loadFixture(setup);
     const provider = hre.ethers.provider;
     expect(await provider.getCode(singletonFactoryAddress)).to.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.equal("0x");
@@ -26,7 +28,7 @@ describe("deployFactories", () => {
   });
 
   it("Deploys the ModuleFactory is only the SingletonFactory exists", async () => {
-    await loadFixture(reset as any);
+    await loadFixture(setup);
     const [signer] = await hre.ethers.getSigners();
 
     await (await signer.sendTransaction(singletonFundingTx)).wait();
@@ -50,7 +52,7 @@ describe("deployFactories", () => {
   });
 
   it("Does nothing is both factories exist", async () => {
-    await loadFixture(reset as any);
+    await loadFixture(setup);
     const provider = hre.ethers.provider;
     expect(await provider.getCode(singletonFactoryAddress)).to.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.equal("0x");
