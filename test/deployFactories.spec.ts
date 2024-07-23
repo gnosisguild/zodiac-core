@@ -14,14 +14,17 @@ async function setup() {
   await reset();
 }
 
-describe("deployFactories", () => {
+describe.only("deployFactories", () => {
   it("Deploys both factories if none exists", async () => {
     await loadFixture(setup);
-    const provider = hre.ethers.provider;
+
+    const [signer] = await hre.ethers.getSigners();
+    const { provider } = signer;
+
     expect(await provider.getCode(singletonFactoryAddress)).to.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.equal("0x");
 
-    await deployFactories(hre);
+    await deployFactories(signer);
 
     expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.not.equal("0x");
@@ -30,35 +33,34 @@ describe("deployFactories", () => {
   it("Deploys the ModuleFactory is only the SingletonFactory exists", async () => {
     await loadFixture(setup);
     const [signer] = await hre.ethers.getSigners();
+    const { provider } = signer;
 
     await (await signer.sendTransaction(singletonFundingTx)).wait();
-    await signer.provider.send("eth_sendRawTransaction", [
-      singletonDeployRawTx,
-    ]);
+    await provider.send("eth_sendRawTransaction", [singletonDeployRawTx]);
 
-    expect(await signer.provider.getCode(singletonFactoryAddress)).to.not.equal(
-      "0x"
-    );
-    expect(await signer.provider.getCode(moduleFactoryAddress)).to.equal("0x");
+    expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
+    expect(await provider.getCode(moduleFactoryAddress)).to.equal("0x");
 
-    await deployFactories(hre);
+    await deployFactories(signer);
 
-    expect(await signer.provider.getCode(singletonFactoryAddress)).to.not.equal(
-      "0x"
-    );
-    expect(await signer.provider.getCode(moduleFactoryAddress)).to.not.equal(
-      "0x"
-    );
+    expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
+    expect(await provider.getCode(moduleFactoryAddress)).to.not.equal("0x");
   });
 
   it("Does nothing is both factories exist", async () => {
     await loadFixture(setup);
-    const provider = hre.ethers.provider;
+    const [signer] = await hre.ethers.getSigners();
+    const { provider } = signer;
+
     expect(await provider.getCode(singletonFactoryAddress)).to.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.equal("0x");
 
-    await deployFactories(hre);
-    await deployFactories(hre);
+    await deployFactories(signer);
+
+    expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
+    expect(await provider.getCode(moduleFactoryAddress)).to.not.equal("0x");
+
+    await deployFactories(signer);
 
     expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.not.equal("0x");

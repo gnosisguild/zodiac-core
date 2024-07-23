@@ -1,5 +1,4 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-
+import { JsonRpcProvider, Signer } from "ethers";
 import {
   address as proxyFactoryAddress,
   deployTransaction as deployModuleFactoryTx,
@@ -10,56 +9,52 @@ import {
   fundingTransaction as singletonFundingTx,
 } from "./factories/singletonFactory";
 
-export default async function (hre: HardhatRuntimeEnvironment) {
-  const [signer] = await hre.ethers.getSigners();
+export default async function (signer: Signer) {
   {
-    const code = await signer.provider.getCode(singletonFactoryAddress);
+    const code = await signer.provider!.getCode(singletonFactoryAddress);
     if (code == "0x") {
-      await deploySingletonFactory(hre);
+      await deploySingletonFactory(signer);
     }
   }
 
   {
-    const code = await signer.provider.getCode(proxyFactoryAddress);
+    const code = await signer.provider!.getCode(proxyFactoryAddress);
     if (code == "0x") {
-      await deployModuleFactory(hre);
+      await deployModuleFactory(signer);
     }
   }
 }
 
-async function deploySingletonFactory(hre: HardhatRuntimeEnvironment) {
-  const [signer] = await hre.ethers.getSigners();
-
+async function deploySingletonFactory(signer: Signer) {
   const receipt = await signer.sendTransaction(singletonFundingTx);
   await receipt.wait();
 
-  const hash = await signer.provider.send("eth_sendRawTransaction", [
-    deploySingletonFactorySignedTx,
-  ]);
-  await waitForReceipt(hre, hash);
+  const hash = await (signer.provider as JsonRpcProvider).send(
+    "eth_sendRawTransaction",
+    [deploySingletonFactorySignedTx]
+  );
 
-  const code = await signer.provider.getCode(singletonFactoryAddress);
+  await waitForTransaction(hash, signer);
+
+  const code = await signer.provider!.getCode(singletonFactoryAddress);
   if (code == "0x") {
     throw new Error("Bytecode for SingletonFactory not found");
   }
 }
 
-async function deployModuleFactory(hre: HardhatRuntimeEnvironment) {
-  const [signer] = await hre.ethers.getSigners();
-
+async function deployModuleFactory(signer: Signer) {
   const receipt = await signer.sendTransaction(deployModuleFactoryTx);
   await receipt.wait();
 
-  const code = await signer.provider.getCode(proxyFactoryAddress);
+  const code = await signer.provider!.getCode(proxyFactoryAddress);
   if (code == "0x") {
     throw new Error("Bytecode for ModuleFactory not found");
   }
 }
-
-async function waitForReceipt(hre: HardhatRuntimeEnvironment, hash: string) {
+async function waitForTransaction(hash: string, signer: Signer) {
   let receipt;
   while (!receipt) {
-    receipt = await hre.ethers.provider.getTransactionReceipt(hash);
+    receipt = await signer.provider!.getTransactionReceipt(hash);
     if (!receipt) {
       await wait(200);
     }
