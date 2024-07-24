@@ -3,19 +3,18 @@ import {
   BigNumberish,
   concat,
   getCreate2Address,
+  Interface,
   keccak256,
   TransactionRequest,
 } from "ethers";
 
 import {
-  FactoryFriendly__factory,
-  ModuleProxyFactory__factory,
-} from "../typechain-types";
-
-import { address as proxyFactoryAddress } from "./factories/proxyFactory";
+  address as factoryAddress,
+  iface as factoryIFace,
+} from "./factories/proxyFactory";
 
 export default function populateDeployProxy({
-  factory = proxyFactoryAddress,
+  factory = factoryAddress,
   mastercopy,
   setupArgs,
   saltNonce,
@@ -25,10 +24,9 @@ export default function populateDeployProxy({
   setupArgs: { types: any[]; values: any[] };
   saltNonce: BigNumberish;
 }): TransactionRequest {
-  const iface = ModuleProxyFactory__factory.createInterface();
   return {
     to: factory,
-    data: iface.encodeFunctionData("deployModule", [
+    data: factoryIFace.encodeFunctionData("deployModule", [
       mastercopy,
       initializer({ setupArgs }),
       saltNonce,
@@ -37,7 +35,7 @@ export default function populateDeployProxy({
 }
 
 export function predictProxyAddress({
-  factory = proxyFactoryAddress,
+  factory = factoryAddress,
   mastercopy,
   setupArgs,
   saltNonce,
@@ -72,8 +70,11 @@ function initializer({
 }: {
   setupArgs: { types: any[]; values: any[] };
 }) {
-  const iface = FactoryFriendly__factory.createInterface();
-  return iface.encodeFunctionData("setUp", [
+  const proxyInterface = new Interface([
+    "function setUp(bytes memory initializeParams)",
+  ]);
+
+  return proxyInterface.encodeFunctionData("setUp", [
     AbiCoder.defaultAbiCoder().encode(setupArgs.types, setupArgs.values),
   ]);
 }

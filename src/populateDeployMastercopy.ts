@@ -6,21 +6,21 @@ import {
   TransactionRequest,
 } from "ethers";
 
-import { SingletonFactory__factory } from "../typechain-types";
-
-import { address as singletonFactoryAddress } from "./factories/singletonFactory";
+import {
+  address as factoryAddress,
+  iface as factoryInterface,
+} from "./factories/singletonFactory";
 import { Create2Args } from "./types";
 
 export default function populateDeployMastercopy({
-  factory = singletonFactoryAddress,
+  factory = factoryAddress,
   bytecode,
   constructorArgs,
   salt,
 }: Create2Args & { factory?: string }): TransactionRequest {
-  const iface = SingletonFactory__factory.createInterface();
   return {
     to: factory,
-    data: iface.encodeFunctionData("deploy", [
+    data: factoryInterface.encodeFunctionData("deploy", [
       creationBytecode({ bytecode, constructorArgs }),
       salt,
     ]),
@@ -28,7 +28,7 @@ export default function populateDeployMastercopy({
 }
 
 export function predictMastercopyAddress({
-  factory = singletonFactoryAddress,
+  factory = factoryAddress,
   bytecode,
   constructorArgs,
   salt,

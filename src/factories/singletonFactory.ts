@@ -1,6 +1,10 @@
-import { parseEther } from "ethers";
+import { Interface, parseEther } from "ethers";
 
 const deployer = "0xBb6e024b9cFFACB947A71991E386681B1Cd1477D";
+
+export const iface = new Interface([
+  "function deploy(bytes memory bytecode, bytes32 salt)",
+]);
 
 export const address = "0xce0042b868300000d44a59004da54a005ffdcf9f";
 export const signedDeployTransaction =
