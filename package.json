@@ -21,8 +21,7 @@
     "contracts"
   ],
   "scripts": {
-    "build": "hardhat compile",
-    "build:sdk": "rm -rf dist build && tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",
+    "build": "hardhat compile && tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",
     "clean": "rm -rf dist build typechain-types",
     "deploy:factory": "hardhat singleton-deployment --network",
     "deploy": "hardhat deploy-replay --network",
@@ -35,9 +34,8 @@
     "format:sol": "prettier --write --plugin=prettier-plugin-solidity ./contracts/**/*.sol",
     "format:ts": "prettier --write ./src/**/*.ts ./test/**/*.ts ./*.ts",
     "prepare": "yarn build",
-    "prerelease": "yarn clean && yarn build && yarn build:sdk",
-    "release": "yarn publish --access public",
-    "verify": "yarn hardhat verify --network"
+    "prerelease": "yarn clean && yarn build",
+    "release": "yarn publish --access public"
   },
   "directories": {
     "test": "test"
