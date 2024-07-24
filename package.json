@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "build": "hardhat compile",
-    "build:sdk": "rm -rf dist && tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",
+    "build:sdk": "rm -rf dist build && tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",
     "clean": "rm -rf dist build typechain-types",
     "deploy:factory": "hardhat singleton-deployment --network",
     "deploy": "hardhat deploy-replay --network",
@@ -49,8 +49,10 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.7",
     "@nomicfoundation/hardhat-ethers": "^3.0.6",
+    "@nomicfoundation/hardhat-ignition-ethers": "^0.15.5",
+    "@nomicfoundation/hardhat-ignition": "^0.15.5",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.11",
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@nomicfoundation/hardhat-verify": "^2.0.8",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-etherscan": "3.1.8",
@@ -69,7 +71,6 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^5.2.1",
     "hardhat": "^2.22.6",
-    "hardhat-deploy": "^0.12.4",
     "hardhat-gas-reporter": "^2.2.0",
     "husky": "^8.0.1",
     "prettier": "^3.3.3",
