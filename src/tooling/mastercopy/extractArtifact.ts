@@ -2,8 +2,9 @@ import path from "path";
 import { cwd } from "process";
 import { readdirSync, readFileSync, statSync } from "fs";
 
-import { MastercopyArtifact } from "../types";
-import { predictMastercopyAddress } from "../populateDeployMastercopy";
+import { predictMastercopyAddress } from "../../populateDeployMastercopy";
+
+import { MastercopyArtifact } from "../../types";
 
 export default function extractMastercopyArtifact(
   {
@@ -42,6 +43,7 @@ export default function extractMastercopyArtifact(
     contractAddress,
     bytecode,
     constructorArgs,
+    salt,
     compilerInput: input,
     compilerVersion: `v${solcLongVersion}`,
   };

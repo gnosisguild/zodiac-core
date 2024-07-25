@@ -9,6 +9,8 @@ import {
   predictMastercopyAddress,
   predictProxyAddress,
 } from "../src";
+import createEIP1193 from "./createEIP1193";
+
 import { TestModule__factory } from "../typechain-types";
 
 async function setup() {
@@ -29,8 +31,9 @@ async function setup() {
   await reset();
 
   const [signer] = await hre.ethers.getSigners();
-  await deployFactories(signer);
-  await deployMastercopy({ bytecode, constructorArgs, salt }, signer);
+  const provider = createEIP1193(hre.network.provider, signer);
+  await deployFactories(provider);
+  await deployMastercopy({ bytecode, constructorArgs, salt }, provider);
 
   return { mastercopy: address };
 }
@@ -41,8 +44,9 @@ const target = "0x0000000000000000000000000000000000000456";
 describe("deployProxy", () => {
   it("Deploys a proxy at the predicted address", async () => {
     const { mastercopy } = await loadFixture(setup);
+
     const [signer] = await hre.ethers.getSigners();
-    const provider = signer.provider!;
+    const { provider } = await hre.ethers;
 
     const avatar = "0x0000000000000000000000000000000000000789";
     const target = "0x0000000000000000000000000000000000000345";
@@ -61,7 +65,10 @@ describe("deployProxy", () => {
     expect(await provider.getCode(mastercopy)).to.not.equal("0x");
     expect(await provider.getCode(address)).to.equal("0x");
 
-    await deployProxy({ mastercopy, setupArgs, saltNonce: 1 }, signer);
+    await deployProxy(
+      { mastercopy, setupArgs, saltNonce: 1 },
+      createEIP1193(hre.network.provider, signer)
+    );
 
     expect(await provider.getCode(address)).to.not.equal("0x");
 

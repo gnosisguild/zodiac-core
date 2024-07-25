@@ -7,12 +7,14 @@ import {
   deployMastercopy,
   predictMastercopyAddress,
 } from "../src";
+import createEIP1193 from "./createEIP1193";
+
 import { TestModule__factory } from "../typechain-types";
 
 async function setup() {
   await reset();
   const [signer] = await hre.ethers.getSigners();
-  await deployFactories(signer);
+  await deployFactories(createEIP1193(hre.network.provider, signer));
 }
 
 const avatar = "0x0000000000000000000000000000000000000123";
@@ -22,8 +24,8 @@ describe("deployMastercopy", () => {
   it("Deploys a mastercopy, at the predicted address", async () => {
     await loadFixture(setup);
 
+    const { provider } = hre.ethers;
     const [signer] = await hre.ethers.getSigners();
-    const provider = signer.provider!;
 
     const bytecode = TestModule__factory.bytecode;
     const salt =
@@ -40,7 +42,10 @@ describe("deployMastercopy", () => {
     });
 
     expect(await provider.getCode(address)).to.equal("0x");
-    await deployMastercopy({ bytecode, constructorArgs, salt }, signer);
+    await deployMastercopy(
+      { bytecode, constructorArgs, salt },
+      createEIP1193(hre.network.provider, signer)
+    );
     expect(await provider.getCode(address)).to.not.equal("0x");
 
     const module = TestModule__factory.connect(address, provider);

@@ -2,13 +2,16 @@ import { loadFixture, reset } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
 
-import { deployFactories } from "../src";
 import { address as moduleFactoryAddress } from "../src/factories/proxyFactory";
 import {
   address as singletonFactoryAddress,
   fundingTransaction as singletonFundingTx,
   signedDeployTransaction as singletonDeployRawTx,
 } from "../src/factories/singletonFactory";
+
+import { deployFactories } from "../src";
+
+import createEIP1193 from "./createEIP1193";
 
 async function setup() {
   await reset();
@@ -24,7 +27,7 @@ describe("deployFactories", () => {
     expect(await provider.getCode(singletonFactoryAddress)).to.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.equal("0x");
 
-    await deployFactories(signer);
+    await deployFactories(createEIP1193(hre.network.provider, signer));
 
     expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.not.equal("0x");
@@ -41,7 +44,7 @@ describe("deployFactories", () => {
     expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.equal("0x");
 
-    await deployFactories(signer);
+    await deployFactories(createEIP1193(hre.network.provider, signer));
 
     expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.not.equal("0x");
@@ -55,12 +58,12 @@ describe("deployFactories", () => {
     expect(await provider.getCode(singletonFactoryAddress)).to.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.equal("0x");
 
-    await deployFactories(signer);
+    await deployFactories(createEIP1193(hre.network.provider, signer));
 
     expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.not.equal("0x");
 
-    await deployFactories(signer);
+    await deployFactories(createEIP1193(hre.network.provider, signer));
 
     expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.not.equal("0x");

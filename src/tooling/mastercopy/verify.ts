@@ -2,9 +2,9 @@ import { AbiCoder } from "ethers";
 
 import { ApiConfig, resolveApiConfig } from "./config";
 
-import { MastercopyArtifact, VerifyResult } from "../types";
+import { MastercopyArtifact, VerifyResult } from "../../types";
 
-export async function verify({
+export default async function verify({
   contractName,
   contractAddress,
   compilerVersion,

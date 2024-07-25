@@ -1,7 +1,11 @@
-import deployFactories from "./deployFactories";
-import deployMastercopy from "./deployMastercopy";
-import deployProxy from "./deployProxy";
-import extractMastercopyArtifact from "./verification/extractMastercopyArtifact";
+import {
+  deployFactories,
+  deployMastercopy,
+  deployProxy,
+  extractMastercopy,
+  verifyMastercopy,
+} from "./tooling";
+
 import populateDeployMastercopy, {
   predictMastercopyAddress,
 } from "./populateDeployMastercopy";
@@ -10,12 +14,18 @@ import populateDeployProxy, {
 } from "./populateDeployProxy";
 
 export {
-  deployFactories,
-  deployMastercopy,
-  deployProxy,
-  extractMastercopyArtifact,
+  // core
   populateDeployMastercopy,
   populateDeployProxy,
   predictMastercopyAddress,
   predictProxyAddress,
+  // tooling
+  deployFactories,
+  deployMastercopy,
+  deployProxy,
+  extractMastercopy,
+  verifyMastercopy,
 };
+
+import type { MastercopyArtifact } from "./types";
+export type { MastercopyArtifact };
