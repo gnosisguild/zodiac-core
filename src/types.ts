@@ -29,8 +29,3 @@ export type MastercopyArtifact = {
   compilerInput: any;
   compilerVersion: `v${string}`;
 };
-
-export enum VerifyResult {
-  OK,
-  AlreadyVerified,
-}

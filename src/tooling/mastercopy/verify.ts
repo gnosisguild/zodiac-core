@@ -2,17 +2,21 @@ import { AbiCoder } from "ethers";
 
 import { ApiConfig, resolveApiConfig } from "./config";
 
-import { MastercopyArtifact, VerifyResult } from "../../types";
+import { MastercopyArtifact } from "../../types";
 
-export default async function verify({
-  contractName,
-  contractAddress,
-  compilerVersion,
-  compilerInput,
-  constructorArgs: { types, values },
-  ...apiConfig
-}: ApiConfig & MastercopyArtifact): Promise<VerifyResult> {
-  const { apiKey, apiUrl } = resolveApiConfig(apiConfig);
+export default async function verify(
+  artifact: MastercopyArtifact,
+  config: ApiConfig
+): Promise<{ ok: boolean; noop: boolean }> {
+  const {
+    contractName,
+    contractAddress,
+    compilerVersion,
+    compilerInput,
+    constructorArgs: { types, values },
+  } = artifact;
+
+  const { apiKey, apiUrl } = resolveApiConfig(config);
 
   const url = new URL(apiUrl);
 
@@ -46,9 +50,10 @@ export default async function verify({
     throw new Error(`Verification Error: ${message}`);
   }
 
-  return isAlreadyVerified(message)
-    ? VerifyResult.AlreadyVerified
-    : VerifyResult.OK;
+  return {
+    ok: true,
+    noop: isAlreadyVerified(message),
+  };
 }
 
 function isOk(status: number) {
