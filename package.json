@@ -33,7 +33,7 @@
     "format": "yarn format:sol && yarn format:ts",
     "format:sol": "prettier --write --plugin=prettier-plugin-solidity ./contracts/**/*.sol",
     "format:ts": "prettier --write ./src/**/*.ts ./test/**/*.ts ./*.ts",
-    "prepare": "yarn build",
+    "prepare": "yarn clean && yarn build",
     "prerelease": "yarn clean && yarn build",
     "release": "yarn publish --access public"
   },
