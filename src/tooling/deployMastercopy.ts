@@ -9,7 +9,7 @@ import { Create2Args, EIP1193Provider } from "../types";
 export default async function deployMastercopy(
   { bytecode, constructorArgs, salt }: Create2Args,
   provider: EIP1193Provider
-) {
+): Promise<{ address: string; noop: boolean }> {
   const address = predictMastercopyAddress({ bytecode, constructorArgs, salt });
   {
     const code = await provider.request({
@@ -17,7 +17,7 @@ export default async function deployMastercopy(
       params: [address],
     });
     if (code != "0x") {
-      throw new Error(`Mastercopy already deployed at ${address}`);
+      return { address, noop: true };
     }
   }
 
@@ -46,4 +46,5 @@ export default async function deployMastercopy(
       throw new Error(`Mastercopy not found at ${address}`);
     }
   }
+  return { address, noop: false };
 }

@@ -27,5 +27,5 @@ export {
   verifyMastercopy,
 };
 
-import type { MastercopyArtifact } from "./types";
-export type { MastercopyArtifact };
+import type { EIP1193Provider, MastercopyArtifact } from "./types";
+export type { EIP1193Provider, MastercopyArtifact };

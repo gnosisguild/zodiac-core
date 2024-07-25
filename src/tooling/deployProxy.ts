@@ -17,7 +17,7 @@ export default async function deployModuleAsProxy(
     saltNonce: string | number | bigint;
   },
   provider: EIP1193Provider
-) {
+): Promise<{ address: string; noop: boolean }> {
   const address = predictProxyAddress({
     mastercopy,
     setupArgs,
@@ -29,7 +29,7 @@ export default async function deployModuleAsProxy(
       params: [address],
     });
     if (code != "0x") {
-      throw new Error(`ModuleProxy already deployed at ${address}`);
+      return { address, noop: true };
     }
   }
 
@@ -56,5 +56,7 @@ export default async function deployModuleAsProxy(
     if (code == "0x") {
       throw new Error(`ModuleProxy not found at ${address}`);
     }
+
+    return { address, noop: false };
   }
 }
