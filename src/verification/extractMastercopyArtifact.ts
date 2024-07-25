@@ -2,8 +2,8 @@ import path from "path";
 import { cwd } from "process";
 import { readdirSync, readFileSync, statSync } from "fs";
 
-import { MastercopyArtifact } from "./types";
-import { predictMastercopyAddress } from "./populateDeployMastercopy";
+import { MastercopyArtifact } from "../types";
+import { predictMastercopyAddress } from "../populateDeployMastercopy";
 
 export default function extractMastercopyArtifact(
   {
