@@ -2,10 +2,10 @@ import path from "path";
 import { cwd } from "process";
 import { readdirSync, readFileSync, statSync } from "fs";
 
-import { MastercopyInfo } from "./types";
+import { MastercopyArtifact } from "./types";
 import { predictMastercopyAddress } from "./populateDeployMastercopy";
 
-export default function extractMastercopyInfo(
+export default function extractMastercopyArtifact(
   {
     contractName,
     constructorArgs,
@@ -16,7 +16,7 @@ export default function extractMastercopyInfo(
     salt: string;
   },
   artifactsDirPath: string = path.join(cwd(), "build", "artifacts", "contracts")
-): MastercopyInfo {
+): MastercopyArtifact {
   const { artifactPath, buildInfoPath } = resolvePaths(
     contractName,
     artifactsDirPath

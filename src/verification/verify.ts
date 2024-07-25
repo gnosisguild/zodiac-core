@@ -1,7 +1,8 @@
+import { AbiCoder } from "ethers";
+
 import { ApiConfig, resolveApiConfig } from "./config";
 
-import { MastercopyInfo, VerifyResult } from "../types";
-import { AbiCoder } from "ethers";
+import { MastercopyArtifact, VerifyResult } from "../types";
 
 export async function verify({
   contractName,
@@ -10,7 +11,7 @@ export async function verify({
   compilerInput,
   constructorArgs: { types, values },
   ...apiConfig
-}: ApiConfig & MastercopyInfo): Promise<VerifyResult> {
+}: ApiConfig & MastercopyArtifact): Promise<VerifyResult> {
   const { apiKey, apiUrl } = resolveApiConfig(apiConfig);
 
   const url = new URL(apiUrl);

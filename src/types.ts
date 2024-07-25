@@ -4,7 +4,7 @@ export type Create2Args = {
   salt: string;
 };
 
-export type MastercopyInfo = {
+export type MastercopyArtifact = {
   contractName: string;
   contractAddress: string;
   bytecode: `0x${string}`;
