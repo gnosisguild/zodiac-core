@@ -2,11 +2,25 @@ import path from "path";
 import { cwd } from "process";
 import { readdirSync, readFileSync, statSync } from "fs";
 
-export default function extractArtifact(
-  name: string,
-  artifactsDirPath: string = path.join(cwd(), "build", "artifacts")
-) {
-  const { artifactPath, buildInfoPath } = resolvePaths(name, artifactsDirPath);
+import { MastercopyInfo } from "./types";
+import { predictMastercopyAddress } from "./populateDeployMastercopy";
+
+export default function extractMastercopyInfo(
+  {
+    contractName,
+    constructorArgs,
+    salt,
+  }: {
+    contractName: string;
+    constructorArgs: { types: any[]; values: any[] };
+    salt: string;
+  },
+  artifactsDirPath: string = path.join(cwd(), "build", "artifacts", "contracts")
+): MastercopyInfo {
+  const { artifactPath, buildInfoPath } = resolvePaths(
+    contractName,
+    artifactsDirPath
+  );
 
   const { sourceName, bytecode } = JSON.parse(
     readFileSync(artifactPath, "utf8")
@@ -16,10 +30,18 @@ export default function extractArtifact(
     readFileSync(buildInfoPath, "utf8")
   );
 
-  return {
-    contractName: `${sourceName}:${name}`,
-    sourceName,
+  const contractAddress = predictMastercopyAddress({
     bytecode,
+    constructorArgs,
+    salt,
+  });
+
+  return {
+    // this is the fully qualified name, in the format expected by etherscan
+    contractName: `${sourceName}:${contractName}`,
+    contractAddress,
+    bytecode,
+    constructorArgs,
     compilerInput: input,
     compilerVersion: `v${solcLongVersion}`,
   };

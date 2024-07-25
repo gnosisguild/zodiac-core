@@ -1,7 +1,7 @@
 import deployFactories from "./deployFactories";
 import deployMastercopy from "./deployMastercopy";
 import deployProxy from "./deployProxy";
-import extractArtifact from "./extractArtifact";
+import extractMastercopyInfo from "./extractMastercopyInfo";
 import populateDeployMastercopy, {
   predictMastercopyAddress,
 } from "./populateDeployMastercopy";
@@ -13,7 +13,7 @@ export {
   deployFactories,
   deployMastercopy,
   deployProxy,
-  extractArtifact,
+  extractMastercopyInfo,
   populateDeployMastercopy,
   populateDeployProxy,
   predictMastercopyAddress,

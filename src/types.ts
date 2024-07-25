@@ -3,3 +3,20 @@ export type Create2Args = {
   constructorArgs: { types: any[]; values: any[] };
   salt: string;
 };
+
+export type MastercopyInfo = {
+  contractName: string;
+  contractAddress: string;
+  bytecode: `0x${string}`;
+  constructorArgs: {
+    types: any[];
+    values: any[];
+  };
+  compilerInput: any;
+  compilerVersion: `v${string}`;
+};
+
+export enum VerifyResult {
+  OK,
+  AlreadyVerified,
+}
