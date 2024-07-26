@@ -40,7 +40,7 @@ export function predictMastercopyAddress({
   );
 }
 
-function creationBytecode({
+export function creationBytecode({
   bytecode,
   constructorArgs,
 }: Omit<Create2Args, "salt">) {

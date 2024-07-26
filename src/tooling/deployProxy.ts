@@ -2,7 +2,7 @@ import populateDeployProxy, {
   predictProxyAddress,
 } from "../populateDeployProxy";
 
-import { gasLimit, waitForTransaction } from "./misc";
+import { waitForTransaction } from "./misc";
 
 import { EIP1193Provider } from "../types";
 
@@ -26,21 +26,18 @@ export default async function deployModuleAsProxy(
   {
     const code = await provider.request({
       method: "eth_getCode",
-      params: [address],
+      params: [address, "latest"],
     });
     if (code != "0x") {
       return { address, noop: true };
     }
   }
 
-  const transaction = {
-    ...populateDeployProxy({
-      mastercopy,
-      setupArgs,
-      saltNonce,
-    }),
-    gasLimit: await gasLimit(provider),
-  };
+  const transaction = populateDeployProxy({
+    mastercopy,
+    setupArgs,
+    saltNonce,
+  });
 
   const hash = (await provider.request({
     method: "eth_sendTransaction",
@@ -51,7 +48,7 @@ export default async function deployModuleAsProxy(
   {
     const code = await provider.request({
       method: "eth_getCode",
-      params: [address],
+      params: [address, "latest"],
     });
     if (code == "0x") {
       throw new Error(`ModuleProxy not found at ${address}`);
