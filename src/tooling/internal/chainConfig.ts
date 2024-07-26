@@ -1,7 +1,3 @@
-export type ApiConfig = {
-  apiKey: string;
-} & ({ network: string } | { apiUrl: string });
-
 export const chainConfig = [
   {
     network: "mainnet",
@@ -285,22 +281,16 @@ export const chainConfig = [
   },
 ];
 
-export function resolveApiConfig(config: ApiConfig) {
-  if ("apiUrl" in config) {
-    return { apiKey: config.apiKey, apiUrl: config.apiUrl };
-  }
-
-  const { network } = config;
-
+export function resolveApiUrl(apiUrlIsh: string) {
   const entry = chainConfig.find(
     (entry) =>
-      String(entry.chainId) == network ||
-      entry.network.toLowerCase() == entry.network.toLowerCase()
+      String(entry.chainId) == apiUrlIsh ||
+      entry.network.toLowerCase() == apiUrlIsh.toLowerCase()
   );
 
-  if (!entry) {
-    throw new Error("Invalid Network Config");
+  if (entry) {
+    return entry.urls.apiURL;
   }
 
-  return { apiKey: config.apiKey, apiUrl: entry.urls.apiURL };
+  return apiUrlIsh;
 }

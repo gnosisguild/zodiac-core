@@ -2,8 +2,9 @@ import {
   deployFactories,
   deployMastercopy,
   deployProxy,
-  extractMastercopy,
-  verifyMastercopy,
+  mastercopiesExtract,
+  mastercopiesDeploy,
+  mastercopiesVerify,
 } from "./tooling";
 
 import populateDeployMastercopy, {
@@ -23,9 +24,10 @@ export {
   deployFactories,
   deployMastercopy,
   deployProxy,
-  extractMastercopy,
-  verifyMastercopy,
+  mastercopiesExtract,
+  mastercopiesDeploy,
+  mastercopiesVerify,
 };
 
-import type { EIP1193Provider, MastercopyArtifact } from "./types";
-export type { EIP1193Provider, MastercopyArtifact };
+import type { EIP1193Provider } from "./types";
+export type { EIP1193Provider };

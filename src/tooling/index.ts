@@ -1,13 +1,15 @@
 import deployFactories from "./deployFactories";
 import deployMastercopy from "./deployMastercopy";
 import deployProxy from "./deployProxy";
-import extractMastercopy from "./mastercopy/extractArtifact";
-import verifyMastercopy from "./mastercopy/verify";
+import mastercopiesExtract from "./mastercopiesExtract";
+import mastercopiesDeploy from "./mastercopiesDeploy";
+import mastercopiesVerify from "./mastercopiesVerify";
 
 export {
   deployFactories,
   deployMastercopy,
   deployProxy,
-  extractMastercopy,
-  verifyMastercopy,
+  mastercopiesExtract,
+  mastercopiesDeploy,
+  mastercopiesVerify,
 };

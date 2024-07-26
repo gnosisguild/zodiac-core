@@ -1,6 +1,6 @@
-import { EIP1193Provider } from "../types";
+import { EIP1193Provider } from "../../types";
 
-export async function waitForTransaction(
+export default async function waitForTransaction(
   hash: string,
   provider: EIP1193Provider
 ) {

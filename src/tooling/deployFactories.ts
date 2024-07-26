@@ -9,7 +9,7 @@ import {
 } from "../factories/singletonFactory";
 
 import deploySingleton from "./deployMastercopy";
-import { waitForTransaction } from "./misc";
+import waitForTransaction from "./internal/waitForTransaction";
 
 import { EIP1193Provider } from "../types";
 

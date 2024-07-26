@@ -1,24 +1,27 @@
 import { AbiCoder } from "ethers";
 
-import { ApiConfig, resolveApiConfig } from "./config";
-
-import { MastercopyArtifact } from "../../types";
+import { resolveApiUrl } from "./chainConfig";
 
 export default async function verify(
-  artifact: MastercopyArtifact,
-  config: ApiConfig
-): Promise<{ ok: boolean; noop: boolean }> {
-  const {
+  {
     contractName,
+    sourceName,
     contractAddress,
     compilerVersion,
     compilerInput,
     constructorArgs: { types, values },
-  } = artifact;
-
-  const { apiKey, apiUrl } = resolveApiConfig(config);
-
-  const url = new URL(apiUrl);
+  }: {
+    contractName: string;
+    sourceName: string;
+    contractAddress: string;
+    compilerVersion: string;
+    compilerInput: string;
+    constructorArgs: { types: any[]; values: any[] };
+  },
+  apiUrl: string,
+  apiKey: string
+): Promise<{ ok: boolean; noop: boolean }> {
+  const url = new URL(resolveApiUrl(apiUrl));
 
   const parameters = new URLSearchParams({
     apikey: apiKey,
@@ -27,7 +30,7 @@ export default async function verify(
     contractaddress: contractAddress,
     sourceCode: JSON.stringify(compilerInput),
     codeformat: "solidity-standard-json-input",
-    contractname: contractName,
+    contractname: `${sourceName}:${contractName}`,
     compilerversion: compilerVersion,
     constructorArguements: AbiCoder.defaultAbiCoder()
       .encode(types, values)

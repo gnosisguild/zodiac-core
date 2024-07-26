@@ -3,7 +3,7 @@ import populateDeployMastercopy, {
   predictMastercopyAddress,
 } from "../populateDeployMastercopy";
 
-import { waitForTransaction } from "./misc";
+import waitForTransaction from "./internal/waitForTransaction";
 
 import { Create2Args, EIP1193Provider } from "../types";
 

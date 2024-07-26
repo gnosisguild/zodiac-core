@@ -2,7 +2,7 @@ import populateDeployProxy, {
   predictProxyAddress,
 } from "../populateDeployProxy";
 
-import { waitForTransaction } from "./misc";
+import waitForTransaction from "./internal/waitForTransaction";
 
 import { EIP1193Provider } from "../types";
 

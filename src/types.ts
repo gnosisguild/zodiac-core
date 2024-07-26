@@ -17,15 +17,19 @@ export type Create2Args = {
   salt: string;
 };
 
-export type MastercopyArtifact = {
+export type BuildArtifact = {
   contractName: string;
-  contractAddress: string;
+  sourceName: string;
   bytecode: string;
+  compilerInput: any;
+  compilerVersion: `v${string}`;
+};
+
+export type MastercopyArtifact = BuildArtifact & {
   constructorArgs: {
     types: any[];
     values: any[];
   };
   salt: string;
-  compilerInput: any;
-  compilerVersion: `v${string}`;
+  contractAddress: string;
 };
