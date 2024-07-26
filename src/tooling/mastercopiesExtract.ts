@@ -7,25 +7,25 @@ import extractBuildArtifact from "./internal/extractBuildArtifact";
 
 import { MastercopyArtifact } from "../types";
 
-export default async function ({
+export default function ({
   version,
   contractName,
   constructorArgs,
   salt,
   buildDirPath = path.join(cwd(), "build", "artifacts", "contracts"),
-  outputFilePath = path.join(cwd(), "mastercopies.json"),
+  mastercopiesFilePath = path.join(cwd(), "mastercopies.json"),
 }: {
   version: string;
   contractName: string;
   constructorArgs: { types: any[]; values: any[] };
   salt: string;
-  buildDirPath: string;
-  outputFilePath: string;
+  buildDirPath?: string;
+  mastercopiesFilePath?: string;
 }) {
   const buildArtifact = extractBuildArtifact(contractName, buildDirPath);
 
-  const mastercopies = existsSync(outputFilePath)
-    ? JSON.parse(readFileSync(outputFilePath, "utf8"))
+  const mastercopies = existsSync(mastercopiesFilePath)
+    ? JSON.parse(readFileSync(mastercopiesFilePath, "utf8"))
     : {};
 
   if (mastercopies[version]) {
@@ -44,7 +44,7 @@ export default async function ({
   };
 
   writeFileSync(
-    outputFilePath,
+    mastercopiesFilePath,
     JSON.stringify({ ...mastercopies, [version]: entry }, null, 2),
     "utf8"
   );

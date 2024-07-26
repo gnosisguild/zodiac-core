@@ -6,11 +6,14 @@ import deployMastercopy from "./deployMastercopy";
 
 import { EIP1193Provider, MastercopyArtifact } from "../types";
 
-export default async function (
-  provider: EIP1193Provider,
-  filePath = path.join(cwd(), "mastercopies.json")
-) {
-  const mastercopies = JSON.parse(readFileSync(filePath, "utf8"));
+export default async function ({
+  provider,
+  mastercopiesFilePath = path.join(cwd(), "mastercopies.json"),
+}: {
+  provider: EIP1193Provider;
+  mastercopiesFilePath?: string;
+}) {
+  const mastercopies = JSON.parse(readFileSync(mastercopiesFilePath, "utf8"));
 
   for (const [version, artifact] of Object.entries(mastercopies)) {
     const { bytecode, constructorArgs, salt } = artifact as MastercopyArtifact;

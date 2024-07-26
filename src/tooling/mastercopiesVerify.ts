@@ -6,12 +6,16 @@ import verify from "./internal/verify";
 
 import { MastercopyArtifact } from "../types";
 
-export default async function (
-  apiUrl: string,
-  apiKey: string,
-  filePath = path.join(cwd(), "mastercopies.json")
-) {
-  const mastercopies = JSON.parse(readFileSync(filePath, "utf8"));
+export default async function ({
+  apiUrl,
+  apiKey,
+  mastercopiesFilePath = path.join(cwd(), "mastercopies.json"),
+}: {
+  apiUrl: string;
+  apiKey: string;
+  mastercopiesFilePath?: string;
+}) {
+  const mastercopies = JSON.parse(readFileSync(mastercopiesFilePath, "utf8"));
 
   for (const [version, artifact] of Object.entries(mastercopies)) {
     const { noop } = await verify(
