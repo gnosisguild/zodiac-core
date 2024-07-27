@@ -1,7 +1,7 @@
-import populateDeployMastercopy, {
+import encodeDeploySingletonTransaction, {
   creationBytecode,
-  predictMastercopyAddress,
-} from "../populateDeployMastercopy";
+} from "../encoding/encodeDeploySingletonTransaction";
+import predictSingletonAddress from "../encoding/predictSingletonAddress";
 
 import waitForTransaction from "./internal/waitForTransaction";
 
@@ -16,7 +16,7 @@ export default async function deploySingleton({
   address: string;
   noop: boolean;
 }> {
-  const address = predictMastercopyAddress({ bytecode, constructorArgs, salt });
+  const address = predictSingletonAddress({ bytecode, constructorArgs, salt });
   {
     const code = await provider.request({
       method: "eth_getCode",
@@ -35,7 +35,9 @@ export default async function deploySingleton({
   const [gasEstimation, innerGasEstimation] = await Promise.all([
     provider.request({
       method: "eth_estimateGas",
-      params: [populateDeployMastercopy({ bytecode, constructorArgs, salt })],
+      params: [
+        encodeDeploySingletonTransaction({ bytecode, constructorArgs, salt }),
+      ],
     }),
     provider.request({
       method: "eth_estimateGas",
@@ -45,7 +47,7 @@ export default async function deploySingleton({
   ]);
 
   const transaction = {
-    ...populateDeployMastercopy({
+    ...encodeDeploySingletonTransaction({
       bytecode,
       constructorArgs,
       salt,

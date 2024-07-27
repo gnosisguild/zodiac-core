@@ -1,11 +1,9 @@
-import path from "path";
-import { cwd } from "process";
 import { readFileSync } from "fs";
 
 import verify from "./internal/verify";
+import { defaultMastercopyArtifactsFile } from "./internal/paths";
 
 import { MastercopyArtifact } from "../types";
-import { defaultMastercopyArtifactsFile } from "./internal/paths";
 
 export default async function ({
   apiUrl,

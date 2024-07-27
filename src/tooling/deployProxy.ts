@@ -1,6 +1,5 @@
-import populateDeployProxy, {
-  predictProxyAddress,
-} from "../populateDeployProxy";
+import populateDeployProxy from "../encoding/encodeDeployProxyTransaction";
+import predictProxyAddress from "../encoding/predictProxyAddress";
 
 import waitForTransaction from "./internal/waitForTransaction";
 

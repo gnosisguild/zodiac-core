@@ -5,19 +5,17 @@ import deploySingleton from "./tooling/deploySingleton";
 import extractMastercopyArtifact from "./tooling/extractMastercopyArtifact";
 import verifyMastercopies from "./tooling/verifyMastercopies";
 
-import populateDeployMastercopy, {
-  predictMastercopyAddress,
-} from "./populateDeployMastercopy";
-import populateDeployProxy, {
-  predictProxyAddress,
-} from "./populateDeployProxy";
+import encodeDeployProxyTransaction from "./encoding/encodeDeployProxyTransaction";
+import encodeDeploySingletonTransaction from "./encoding/encodeDeploySingletonTransaction";
+import predictProxyAddress from "./encoding/predictProxyAddress";
+import predictSingletonAddress from "./encoding/predictSingletonAddress";
 
 export {
   // core
-  populateDeployMastercopy,
-  populateDeployProxy,
-  predictMastercopyAddress,
+  encodeDeployProxyTransaction,
+  encodeDeploySingletonTransaction,
   predictProxyAddress,
+  predictSingletonAddress,
   // tooling
   deployFactories,
   deployMastercopies,

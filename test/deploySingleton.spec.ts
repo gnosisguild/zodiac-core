@@ -5,7 +5,7 @@ import hre from "hardhat";
 import {
   deployFactories,
   deploySingleton,
-  predictMastercopyAddress,
+  predictSingletonAddress,
 } from "../src";
 import createEIP1193 from "./createEIP1193";
 
@@ -37,7 +37,7 @@ describe("deployMastercopy", () => {
       values: [avatar, target],
     };
 
-    const address = predictMastercopyAddress({
+    const address = predictSingletonAddress({
       bytecode,
       salt,
       constructorArgs,

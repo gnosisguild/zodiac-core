@@ -1,8 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
-import { predictMastercopyAddress } from "../populateDeployMastercopy";
+import predictSingletonAddress from "../encoding/predictSingletonAddress";
 import extractBuildArtifact from "./internal/extractBuildArtifact";
-
 import {
   defaultBuildDir,
   defaultMastercopyArtifactsFile,
@@ -39,7 +38,7 @@ export default function ({
     ...buildArtifact,
     constructorArgs,
     salt,
-    contractAddress: predictMastercopyAddress({
+    contractAddress: predictSingletonAddress({
       bytecode: buildArtifact.bytecode,
       constructorArgs,
       salt,

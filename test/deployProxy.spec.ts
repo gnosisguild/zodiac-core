@@ -2,14 +2,15 @@ import { loadFixture, reset } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
 
+import createEIP1193 from "./createEIP1193";
+
 import {
   deployFactories,
   deployProxy,
   deploySingleton,
-  predictMastercopyAddress,
   predictProxyAddress,
+  predictSingletonAddress,
 } from "../src";
-import createEIP1193 from "./createEIP1193";
 
 import { TestModule__factory } from "../typechain-types";
 
@@ -22,7 +23,7 @@ async function setup() {
     values: [avatar, target],
   };
 
-  const address = predictMastercopyAddress({
+  const address = predictSingletonAddress({
     bytecode,
     salt,
     constructorArgs,
