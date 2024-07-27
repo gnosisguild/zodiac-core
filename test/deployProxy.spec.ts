@@ -4,8 +4,8 @@ import hre from "hardhat";
 
 import {
   deployFactories,
-  deployMastercopy,
   deployProxy,
+  deploySingleton,
   predictMastercopyAddress,
   predictProxyAddress,
 } from "../src";
@@ -32,8 +32,8 @@ async function setup() {
 
   const [signer] = await hre.ethers.getSigners();
   const provider = createEIP1193(hre.network.provider, signer);
-  await deployFactories(provider);
-  await deployMastercopy({ bytecode, constructorArgs, salt }, provider);
+  await deployFactories({ provider });
+  await deploySingleton({ bytecode, constructorArgs, salt, provider });
 
   return { mastercopy: address };
 }
@@ -65,10 +65,12 @@ describe("deployProxy", () => {
     expect(await provider.getCode(mastercopy)).to.not.equal("0x");
     expect(await provider.getCode(address)).to.equal("0x");
 
-    await deployProxy(
-      { mastercopy, setupArgs, saltNonce: 1 },
-      createEIP1193(hre.network.provider, signer)
-    );
+    await deployProxy({
+      mastercopy,
+      setupArgs,
+      saltNonce: 1,
+      provider: createEIP1193(hre.network.provider, signer),
+    });
 
     expect(await provider.getCode(address)).to.not.equal("0x");
 

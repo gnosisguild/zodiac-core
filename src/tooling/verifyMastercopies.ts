@@ -5,11 +5,12 @@ import { readFileSync } from "fs";
 import verify from "./internal/verify";
 
 import { MastercopyArtifact } from "../types";
+import { defaultMastercopyArtifactsFile } from "./internal/paths";
 
 export default async function ({
   apiUrl,
   apiKey,
-  mastercopiesFilePath = path.join(cwd(), "mastercopies.json"),
+  mastercopiesFilePath = defaultMastercopyArtifactsFile(),
 }: {
   apiUrl: string;
   apiKey: string;

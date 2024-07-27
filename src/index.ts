@@ -1,11 +1,9 @@
-import {
-  deployFactories,
-  deployMastercopy,
-  deployProxy,
-  mastercopiesExtract,
-  mastercopiesDeploy,
-  mastercopiesVerify,
-} from "./tooling";
+import deployFactories from "./tooling/deployFactories";
+import deployMastercopies from "./tooling/deployMastercopies";
+import deployProxy from "./tooling/deployProxy";
+import deploySingleton from "./tooling/deploySingleton";
+import extractMastercopyArtifact from "./tooling/extractMastercopyArtifact";
+import verifyMastercopies from "./tooling/verifyMastercopies";
 
 import populateDeployMastercopy, {
   predictMastercopyAddress,
@@ -22,11 +20,11 @@ export {
   predictProxyAddress,
   // tooling
   deployFactories,
-  deployMastercopy,
+  deployMastercopies,
   deployProxy,
-  mastercopiesExtract,
-  mastercopiesDeploy,
-  mastercopiesVerify,
+  deploySingleton,
+  extractMastercopyArtifact,
+  verifyMastercopies,
 };
 
 import type { EIP1193Provider } from "./types";

@@ -27,7 +27,9 @@ describe("deployFactories", () => {
     expect(await provider.getCode(singletonFactoryAddress)).to.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.equal("0x");
 
-    await deployFactories(createEIP1193(hre.network.provider, signer));
+    await deployFactories({
+      provider: createEIP1193(hre.network.provider, signer),
+    });
 
     expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.not.equal("0x");
@@ -44,7 +46,9 @@ describe("deployFactories", () => {
     expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.equal("0x");
 
-    await deployFactories(createEIP1193(hre.network.provider, signer));
+    await deployFactories({
+      provider: createEIP1193(hre.network.provider, signer),
+    });
 
     expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.not.equal("0x");
@@ -58,12 +62,16 @@ describe("deployFactories", () => {
     expect(await provider.getCode(singletonFactoryAddress)).to.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.equal("0x");
 
-    await deployFactories(createEIP1193(hre.network.provider, signer));
+    await deployFactories({
+      provider: createEIP1193(hre.network.provider, signer),
+    });
 
     expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.not.equal("0x");
 
-    await deployFactories(createEIP1193(hre.network.provider, signer));
+    await deployFactories({
+      provider: createEIP1193(hre.network.provider, signer),
+    });
 
     expect(await provider.getCode(singletonFactoryAddress)).to.not.equal("0x");
     expect(await provider.getCode(moduleFactoryAddress)).to.not.equal("0x");

@@ -7,10 +7,15 @@ import waitForTransaction from "./internal/waitForTransaction";
 
 import { Create2Args, EIP1193Provider } from "../types";
 
-export default async function deployMastercopy(
-  { bytecode, constructorArgs, salt }: Create2Args,
-  provider: EIP1193Provider
-): Promise<{ address: string; noop: boolean }> {
+export default async function deploySingleton({
+  bytecode,
+  constructorArgs,
+  salt,
+  provider,
+}: Create2Args & { provider: EIP1193Provider }): Promise<{
+  address: string;
+  noop: boolean;
+}> {
   const address = predictMastercopyAddress({ bytecode, constructorArgs, salt });
   {
     const code = await provider.request({

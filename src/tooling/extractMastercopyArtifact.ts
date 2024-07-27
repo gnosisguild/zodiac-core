@@ -1,9 +1,12 @@
-import path from "path";
-import { cwd } from "process";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
 import { predictMastercopyAddress } from "../populateDeployMastercopy";
 import extractBuildArtifact from "./internal/extractBuildArtifact";
+
+import {
+  defaultBuildDir,
+  defaultMastercopyArtifactsFile,
+} from "./internal/paths";
 
 import { MastercopyArtifact } from "../types";
 
@@ -12,20 +15,20 @@ export default function ({
   contractName,
   constructorArgs,
   salt,
-  buildDirPath = path.join(cwd(), "build", "artifacts", "contracts"),
-  mastercopiesFilePath = path.join(cwd(), "mastercopies.json"),
+  buildDirPath = defaultBuildDir(),
+  mastercopyArtifactsFile = defaultMastercopyArtifactsFile(),
 }: {
   version: string;
   contractName: string;
   constructorArgs: { types: any[]; values: any[] };
   salt: string;
   buildDirPath?: string;
-  mastercopiesFilePath?: string;
+  mastercopyArtifactsFile?: string;
 }) {
   const buildArtifact = extractBuildArtifact(contractName, buildDirPath);
 
-  const mastercopies = existsSync(mastercopiesFilePath)
-    ? JSON.parse(readFileSync(mastercopiesFilePath, "utf8"))
+  const mastercopies = existsSync(mastercopyArtifactsFile)
+    ? JSON.parse(readFileSync(mastercopyArtifactsFile, "utf8"))
     : {};
 
   if (mastercopies[version]) {
@@ -44,7 +47,7 @@ export default function ({
   };
 
   writeFileSync(
-    mastercopiesFilePath,
+    mastercopyArtifactsFile,
     JSON.stringify({ ...mastercopies, [version]: entry }, null, 2),
     "utf8"
   );

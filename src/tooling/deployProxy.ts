@@ -6,18 +6,17 @@ import waitForTransaction from "./internal/waitForTransaction";
 
 import { EIP1193Provider } from "../types";
 
-export default async function deployModuleAsProxy(
-  {
-    mastercopy,
-    setupArgs,
-    saltNonce,
-  }: {
-    mastercopy: string;
-    setupArgs: { types: any[]; values: any[] };
-    saltNonce: string | number | bigint;
-  },
-  provider: EIP1193Provider
-): Promise<{ address: string; noop: boolean }> {
+export default async function deployModuleAsProxy({
+  mastercopy,
+  setupArgs,
+  saltNonce,
+  provider,
+}: {
+  mastercopy: string;
+  setupArgs: { types: any[]; values: any[] };
+  saltNonce: string | number | bigint;
+  provider: EIP1193Provider;
+}): Promise<{ address: string; noop: boolean }> {
   const address = predictProxyAddress({
     mastercopy,
     setupArgs,

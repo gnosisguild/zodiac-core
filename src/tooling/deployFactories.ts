@@ -8,12 +8,12 @@ import {
   fundingTransaction as singletonFundingTx,
 } from "../factories/singletonFactory";
 
-import deploySingleton from "./deployMastercopy";
+import deploySingleton from "./deploySingleton";
 import waitForTransaction from "./internal/waitForTransaction";
 
 import { EIP1193Provider } from "../types";
 
-export default async function (provider: EIP1193Provider) {
+export default async function ({ provider }: { provider: EIP1193Provider }) {
   await deploySingletonFactory(provider);
   await deployProxyFactory(provider);
 }
@@ -59,12 +59,10 @@ async function deploySingletonFactory(provider: EIP1193Provider) {
 }
 
 async function deployProxyFactory(provider: EIP1193Provider) {
-  return await deploySingleton(
-    {
-      bytecode: proxyFactoryBytecode,
-      constructorArgs: { types: [], values: [] },
-      salt: proxyFactorySalt,
-    },
-    provider
-  );
+  return deploySingleton({
+    bytecode: proxyFactoryBytecode,
+    constructorArgs: { types: [], values: [] },
+    salt: proxyFactorySalt,
+    provider,
+  });
 }
