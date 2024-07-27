@@ -4,6 +4,7 @@ import deployProxy from "./tooling/deployProxy";
 import deploySingleton from "./tooling/deploySingleton";
 import extractMastercopyArtifact from "./tooling/extractMastercopyArtifact";
 import verifyMastercopies from "./tooling/verifyMastercopies";
+import verifySingleton from "./tooling/verifySingleton";
 
 import encodeDeployProxyTransaction from "./encoding/encodeDeployProxyTransaction";
 import encodeDeploySingletonTransaction from "./encoding/encodeDeploySingletonTransaction";
@@ -16,6 +17,7 @@ export {
   encodeDeploySingletonTransaction,
   predictProxyAddress,
   predictSingletonAddress,
+
   // tooling
   deployFactories,
   deployMastercopies,
@@ -23,6 +25,7 @@ export {
   deploySingleton,
   extractMastercopyArtifact,
   verifyMastercopies,
+  verifySingleton,
 };
 
 import type { EIP1193Provider } from "./types";
