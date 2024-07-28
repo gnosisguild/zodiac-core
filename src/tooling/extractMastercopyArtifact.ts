@@ -34,15 +34,19 @@ export default function ({
     console.warn(`Warning: overriding artifact for ${version}`);
   }
 
+  const { bytecode, abi, ...rest } = buildArtifact;
+
   const entry: MastercopyArtifact = {
-    ...buildArtifact,
-    constructorArgs,
-    salt,
     contractAddress: predictSingletonAddress({
       bytecode: buildArtifact.bytecode,
       constructorArgs,
       salt,
     }),
+    bytecode,
+    constructorArgs,
+    salt,
+    abi,
+    ...rest,
   };
 
   writeFileSync(
