@@ -12,7 +12,11 @@ export default async function deploySingleton({
   constructorArgs,
   salt,
   provider,
-}: Create2Args & { provider: EIP1193Provider }): Promise<{
+  onStart,
+}: Create2Args & {
+  provider: EIP1193Provider;
+  onStart?: () => void;
+}): Promise<{
   address: string;
   noop: boolean;
 }> {
@@ -26,6 +30,8 @@ export default async function deploySingleton({
       return { address, noop: true };
     }
   }
+
+  onStart && onStart();
 
   /*
    * To address an RPC gas estimation issue with the CREATE2 opcode,

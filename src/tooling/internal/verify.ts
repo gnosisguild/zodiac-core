@@ -32,9 +32,7 @@ export default async function verify(
     codeformat: "solidity-standard-json-input",
     contractname: `${sourceName}:${contractName}`,
     compilerversion: compilerVersion,
-    constructorArguements: AbiCoder.defaultAbiCoder()
-      .encode(types, values)
-      .slice(2),
+    constructorArguements: AbiCoder.defaultAbiCoder().encode(types, values),
   });
 
   const response = await fetch(url, {

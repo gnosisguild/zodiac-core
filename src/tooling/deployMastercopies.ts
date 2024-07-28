@@ -13,9 +13,7 @@ export default async function ({
   provider: EIP1193Provider;
 }) {
   if (!existsSync(mastercopyArtifactsFile)) {
-    throw new Error(
-      `Mastercopy Artifacts File not found at ${mastercopyArtifactsFile}`
-    );
+    throw new Error(`Config not found at ${mastercopyArtifactsFile}`);
   }
 
   const entries = Object.entries(
@@ -23,20 +21,26 @@ export default async function ({
   );
 
   for (const [version, artifact] of entries) {
-    const { bytecode, constructorArgs, salt } = artifact as MastercopyArtifact;
+    const { contractName, bytecode, constructorArgs, salt } =
+      artifact as MastercopyArtifact;
 
     const { address, noop } = await deploySingleton({
       bytecode,
       constructorArgs,
       salt,
       provider,
+      onStart: () => {
+        console.log(`🕰️ ${contractName}@${version}: Deployment starting...`);
+      },
     });
     if (noop) {
       console.log(
-        `version ${version}: Mastercopy already deployed at ${address}`
+        `🔄 ${contractName}@${version}: Already deployed at ${address}`
       );
     } else {
-      console.log(`version ${version}: Deployed Mastercopy at ${address}`);
+      console.log(
+        `🚀 ${contractName}@${version}: Successfully deployed at ${address}`
+      );
     }
   }
 }
