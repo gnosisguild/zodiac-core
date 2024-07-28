@@ -31,7 +31,7 @@ export default function ({
     : {};
 
   if (mastercopies[version]) {
-    console.warn(`Warning: overriding previous artifact for ${version}`);
+    console.warn(`Warning: overriding artifact for ${version}`);
   }
 
   const entry: MastercopyArtifact = {

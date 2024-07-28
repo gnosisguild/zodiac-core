@@ -12,7 +12,7 @@ export default function extractBuildArtifact(
     buildDirPath
   );
 
-  const { sourceName, bytecode } = JSON.parse(
+  const { sourceName, bytecode, abi } = JSON.parse(
     readFileSync(artifactPath, "utf8")
   );
 
@@ -25,9 +25,10 @@ export default function extractBuildArtifact(
     // contractName: `${sourceName}:${contractName}`,
     contractName,
     sourceName,
-    bytecode,
-    compilerInput: input,
     compilerVersion: `v${solcLongVersion}`,
+    compilerInput: input,
+    abi,
+    bytecode,
   };
 }
 

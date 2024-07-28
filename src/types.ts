@@ -20,9 +20,10 @@ export type Create2Args = {
 export type BuildArtifact = {
   contractName: string;
   sourceName: string;
-  bytecode: string;
-  compilerInput: any;
   compilerVersion: `v${string}`;
+  compilerInput: any;
+  bytecode: string;
+  abi: any;
 };
 
 export type MastercopyArtifact = BuildArtifact & {
