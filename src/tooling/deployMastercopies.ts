@@ -30,7 +30,7 @@ export default async function ({
       salt,
       provider,
       onStart: () => {
-        console.log(`🕰️ ${contractName}@${version}: Deployment starting...`);
+        console.log(`⏳ ${contractName}@${version}: Deployment starting...`);
       },
     });
     if (noop) {

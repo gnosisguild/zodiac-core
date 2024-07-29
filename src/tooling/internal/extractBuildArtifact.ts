@@ -4,15 +4,15 @@ import { readdirSync, readFileSync, statSync } from "fs";
 import { BuildArtifact } from "../../types";
 
 export default function extractBuildArtifact(
-  contractName: string,
+  _contractName: string,
   buildDirPath: string
 ): BuildArtifact {
   const { artifactPath, buildInfoPath } = resolvePaths(
-    contractName,
+    _contractName,
     buildDirPath
   );
 
-  const { sourceName, bytecode, abi } = JSON.parse(
+  const { sourceName, contractName, bytecode, abi } = JSON.parse(
     readFileSync(artifactPath, "utf8")
   );
 
@@ -21,8 +21,6 @@ export default function extractBuildArtifact(
   );
 
   return {
-    // // this is the fully qualified name, in the format expected by etherscan
-    // contractName: `${sourceName}:${contractName}`,
     contractName,
     sourceName,
     compilerVersion: `v${solcLongVersion}`,

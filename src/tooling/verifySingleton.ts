@@ -14,7 +14,6 @@ export default async function verifySingleton({
   bytecode: string;
   constructorArgs: { types: any[]; values: any[] };
   salt: string;
-
   artifact: {
     contractName: string;
     sourceName: string;

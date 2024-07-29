@@ -10,17 +10,19 @@ import {
 import { MastercopyArtifact } from "../types";
 
 export default function ({
-  version,
+  contractVersion,
   contractName,
+  compilerInput: minimalCompilerInput,
   constructorArgs,
   salt,
   buildDirPath = defaultBuildDir(),
   mastercopyArtifactsFile = defaultMastercopyArtifactsFile(),
 }: {
-  version: string;
+  contractVersion: string;
   contractName: string;
   constructorArgs: { types: any[]; values: any[] };
   salt: string;
+  compilerInput: any;
   buildDirPath?: string;
   mastercopyArtifactsFile?: string;
 }) {
@@ -30,11 +32,11 @@ export default function ({
     ? JSON.parse(readFileSync(mastercopyArtifactsFile, "utf8"))
     : {};
 
-  if (mastercopies[version]) {
-    console.warn(`Warning: overriding artifact for ${version}`);
+  if (mastercopies[contractVersion]) {
+    console.warn(`Warning: overriding artifact for ${contractVersion}`);
   }
 
-  const { bytecode, abi, ...rest } = buildArtifact;
+  const { bytecode, abi, compilerInput, ...rest } = buildArtifact;
 
   const entry: MastercopyArtifact = {
     contractAddress: predictSingletonAddress({
@@ -46,12 +48,13 @@ export default function ({
     constructorArgs,
     salt,
     abi,
+    compilerInput: minimalCompilerInput || compilerInput,
     ...rest,
   };
 
   writeFileSync(
     mastercopyArtifactsFile,
-    JSON.stringify({ ...mastercopies, [version]: entry }, null, 2),
+    JSON.stringify({ ...mastercopies, [contractVersion]: entry }, null, 2),
     "utf8"
   );
 }

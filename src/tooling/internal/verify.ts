@@ -6,21 +6,27 @@ export default async function verify(
   {
     contractName,
     sourceName,
-    contractAddress,
     compilerVersion,
     compilerInput,
+    contractAddress,
     constructorArgs: { types, values },
   }: {
     contractName: string;
     sourceName: string;
-    contractAddress: string;
     compilerVersion: string;
     compilerInput: string;
+    contractAddress: string;
     constructorArgs: { types: any[]; values: any[] };
   },
   apiUrl: string,
   apiKey: string
 ): Promise<{ ok: boolean; noop: boolean }> {
+  if (await isVerified(contractAddress, apiUrl, apiKey))
+    return {
+      ok: true,
+      noop: true,
+    };
+
   const url = new URL(resolveApiUrl(apiUrl));
 
   const parameters = new URLSearchParams({
@@ -32,7 +38,9 @@ export default async function verify(
     codeformat: "solidity-standard-json-input",
     contractname: `${sourceName}:${contractName}`,
     compilerversion: compilerVersion,
-    constructorArguements: AbiCoder.defaultAbiCoder().encode(types, values),
+    constructorArguements: AbiCoder.defaultAbiCoder()
+      .encode(types, values)
+      .slice(2),
   });
 
   const response = await fetch(url, {
@@ -53,40 +61,39 @@ export default async function verify(
 
   return {
     ok: true,
-    noop: isAlreadyVerified(message),
+    noop: false,
   };
 }
 
+async function isVerified(
+  contractAddress: string,
+  apiUrl: string,
+  apiKey: string
+) {
+  const url = new URL(resolveApiUrl(apiUrl));
+
+  const parameters = new URLSearchParams({
+    apikey: apiKey,
+    module: "contract",
+    action: "getsourcecode",
+    address: contractAddress,
+  });
+  url.search = parameters.toString();
+
+  const response = await fetch(url, {
+    method: "GET",
+  });
+
+  const json = await response.json();
+
+  if (!isOk(json.status)) {
+    throw new Error(`IsVerified: ${json.message}`);
+  }
+
+  const sourceCode = json.result[0]?.SourceCode;
+  return Boolean(sourceCode);
+}
+
 function isOk(status: number) {
-  return status === 1;
+  return String(status) == String(1);
 }
-
-function isAlreadyVerified(message: string) {
-  return (
-    // returned by blockscout
-    message.startsWith("Smart-contract already verified") ||
-    // returned by etherscan
-    message.startsWith("Contract source code already verified") ||
-    message.startsWith("Already Verified")
-  );
-}
-
-// function isSuccess(message: string) {
-//   return message === "Pass - Verified";
-// }
-
-// interface EtherscanContract {
-//   SourceCode: string;
-//   ABI: string;
-//   ContractName: string;
-//   CompilerVersion: string;
-//   OptimizationUsed: string;
-//   Runs: string;
-//   ConstructorArguments: string;
-//   EVMVersion: string;
-//   Library: string;
-//   LicenseType: string;
-//   Proxy: string;
-//   Implementation: string;
-//   SwarmSource: string;
-// }

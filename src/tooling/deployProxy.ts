@@ -21,14 +21,13 @@ export default async function deployModuleAsProxy({
     setupArgs,
     saltNonce,
   });
-  {
-    const code = await provider.request({
-      method: "eth_getCode",
-      params: [address, "latest"],
-    });
-    if (code != "0x") {
-      return { address, noop: true };
-    }
+
+  const code = await provider.request({
+    method: "eth_getCode",
+    params: [address, "latest"],
+  });
+  if (code != "0x") {
+    return { address, noop: true };
   }
 
   const transaction = populateDeployProxy({
@@ -43,15 +42,5 @@ export default async function deployModuleAsProxy({
   })) as string;
   await waitForTransaction(hash, provider);
 
-  {
-    const code = await provider.request({
-      method: "eth_getCode",
-      params: [address, "latest"],
-    });
-    if (code == "0x") {
-      throw new Error(`ModuleProxy not found at ${address}`);
-    }
-
-    return { address, noop: false };
-  }
+  return { address, noop: false };
 }

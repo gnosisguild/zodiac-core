@@ -21,14 +21,12 @@ export default async function deploySingleton({
   noop: boolean;
 }> {
   const address = predictSingletonAddress({ bytecode, constructorArgs, salt });
-  {
-    const code = await provider.request({
-      method: "eth_getCode",
-      params: [address, "latest"],
-    });
-    if (code != "0x") {
-      return { address, noop: true };
-    }
+  const code = await provider.request({
+    method: "eth_getCode",
+    params: [address, "latest"],
+  });
+  if (code != "0x") {
+    return { address, noop: true };
   }
 
   onStart && onStart();
@@ -68,14 +66,5 @@ export default async function deploySingleton({
 
   await waitForTransaction(hash, provider);
 
-  {
-    const code = await provider.request({
-      method: "eth_getCode",
-      params: [address, "latest"],
-    });
-    if (code == "0x") {
-      throw new Error(`Mastercopy not found at ${address}`);
-    }
-  }
   return { address, noop: false };
 }
