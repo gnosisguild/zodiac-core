@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
 import predictSingletonAddress from "../encoding/predictSingletonAddress";
-import extractBuildArtifact from "./internal/extractBuildArtifact";
+import getBuildArtifact from "./internal/getBuildArtifact";
 import {
   defaultBuildDir,
   defaultMastercopyArtifactsFile,
@@ -26,7 +26,7 @@ export default function ({
   buildDirPath?: string;
   mastercopyArtifactsFile?: string;
 }) {
-  const buildArtifact = extractBuildArtifact(contractName, buildDirPath);
+  const buildArtifact = getBuildArtifact(contractName, buildDirPath);
 
   const mastercopies = existsSync(mastercopyArtifactsFile)
     ? JSON.parse(readFileSync(mastercopyArtifactsFile, "utf8"))
