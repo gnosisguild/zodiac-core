@@ -7,7 +7,7 @@ import waitForTransaction from "./internal/waitForTransaction";
 
 import { Create2Args, EIP1193Provider } from "../types";
 
-export default async function deploySingleton({
+export default async function deployMastercopy({
   bytecode,
   constructorArgs,
   salt,

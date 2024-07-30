@@ -6,8 +6,8 @@ import createEIP1193 from "./createEIP1193";
 
 import {
   deployFactories,
+  deployMastercopy,
   deployProxy,
-  deploySingleton,
   predictProxyAddress,
   predictSingletonAddress,
 } from "../src";
@@ -34,7 +34,7 @@ async function setup() {
   const [signer] = await hre.ethers.getSigners();
   const provider = createEIP1193(hre.network.provider, signer);
   await deployFactories({ provider });
-  await deploySingleton({ bytecode, constructorArgs, salt, provider });
+  await deployMastercopy({ bytecode, constructorArgs, salt, provider });
 
   return { mastercopy: address };
 }

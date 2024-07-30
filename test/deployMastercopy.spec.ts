@@ -4,7 +4,7 @@ import hre from "hardhat";
 
 import {
   deployFactories,
-  deploySingleton,
+  deployMastercopy,
   predictSingletonAddress,
 } from "../src";
 import createEIP1193 from "./createEIP1193";
@@ -44,7 +44,7 @@ describe("deployMastercopy", () => {
     });
 
     expect(await provider.getCode(address)).to.equal("0x");
-    await deploySingleton({
+    await deployMastercopy({
       bytecode,
       constructorArgs,
       salt,

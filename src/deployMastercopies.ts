@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "fs";
 
-import { defaultMastercopyArtifactsFile } from "./internal/paths";
-import deploySingleton from "./deploySingleton";
+import { defaultMastercopyArtifactsFile } from "./tooling/internal/paths";
+import deployMastercopy from "./tooling/deployMastercopy";
 
-import { EIP1193Provider, MastercopyArtifact } from "../types";
+import { EIP1193Provider, MastercopyArtifact } from "./types";
 
 export default async function ({
   mastercopyArtifactsFile = defaultMastercopyArtifactsFile(),
@@ -24,7 +24,7 @@ export default async function ({
     const { contractName, bytecode, constructorArgs, salt } =
       artifact as MastercopyArtifact;
 
-    const { address, noop } = await deploySingleton({
+    const { address, noop } = await deployMastercopy({
       bytecode,
       constructorArgs,
       salt,

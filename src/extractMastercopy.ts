@@ -1,15 +1,15 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
-import predictSingletonAddress from "../encoding/predictSingletonAddress";
-import getBuildArtifact from "./internal/getBuildArtifact";
+import predictSingletonAddress from "./encoding/predictSingletonAddress";
+import getBuildArtifact from "./tooling/internal/getBuildArtifact";
 import {
   defaultBuildDir,
   defaultMastercopyArtifactsFile,
-} from "./internal/paths";
+} from "./tooling/internal/paths";
 
-import { MastercopyArtifact } from "../types";
+import { MastercopyArtifact } from "./types";
 
-export default function ({
+export default function extractMastercopy({
   contractVersion,
   contractName,
   compilerInput: minimalCompilerInput,

@@ -8,7 +8,7 @@ import {
   fundingTransaction as singletonFundingTx,
 } from "../factories/singletonFactory";
 
-import deploySingleton from "./deploySingleton";
+import deploySingleton from "./deployMastercopy";
 import waitForTransaction from "./internal/waitForTransaction";
 
 import { EIP1193Provider } from "../types";
