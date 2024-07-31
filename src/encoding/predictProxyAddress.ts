@@ -7,7 +7,7 @@ import {
 } from "ethers";
 
 import { creationBytecode, initializer } from "./encodeDeployProxyTransaction";
-import { address as factoryAddress } from "../factories/proxyFactory";
+import { address as factoryAddress } from "../factory/proxyFactory";
 
 export default function predictProxyAddress({
   factory = factoryAddress,

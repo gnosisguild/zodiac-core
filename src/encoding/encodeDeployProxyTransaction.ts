@@ -3,7 +3,7 @@ import { AbiCoder, BigNumberish, Interface, TransactionRequest } from "ethers";
 import {
   address as factoryAddress,
   iface as factoryIFace,
-} from "../factories/proxyFactory";
+} from "../factory/proxyFactory";
 
 export default function encodeDeployProxyTransaction({
   factory = factoryAddress,

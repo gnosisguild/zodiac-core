@@ -1,6 +1,6 @@
 import { AbiCoder, concat, getCreate2Address, keccak256 } from "ethers";
 
-import { address as factoryAddress } from "../factories/singletonFactory";
+import { address as factoryAddress } from "../factory/erc2470Factory";
 
 import { Create2Args } from "../types";
 

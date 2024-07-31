@@ -3,7 +3,7 @@ import { AbiCoder, concat, TransactionRequest } from "ethers";
 import {
   address as factoryAddress,
   iface as factoryInterface,
-} from "../factories/singletonFactory";
+} from "../factory/erc2470Factory";
 import { Create2Args } from "../types";
 
 export default function encodeDeploySingletonTransaction({

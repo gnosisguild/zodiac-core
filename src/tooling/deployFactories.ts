@@ -1,38 +1,79 @@
 import {
+  funding as nickFunding,
+  deployer as nickDeployer,
+  address as nickFactoryAddress,
+  signedDeployTransaction as nickSignedDeployTransaction,
+} from "../factory/nickFactory";
+
+import {
+  funding as erc2470Funding,
+  deployer as erc2470Deployer,
+  address as erc2470FactoryAddress,
+  signedDeployTransaction as erc2470SignedDeployTransaction,
+} from "../factory/erc2470Factory";
+
+import {
   bytecode as proxyFactoryBytecode,
   salt as proxyFactorySalt,
-} from "../factories/proxyFactory";
-import {
-  address as singletonFactoryAddress,
-  signedDeployTransaction as deploySingletonFactorySignedTx,
-  fundingTransaction as singletonFundingTx,
-} from "../factories/singletonFactory";
+} from "../factory/proxyFactory";
 
-import deploySingleton from "./deployMastercopy";
+import deployMastercopy from "./deployMastercopy";
 import waitForTransaction from "./internal/waitForTransaction";
 
 import { EIP1193Provider } from "../types";
 
 export default async function ({ provider }: { provider: EIP1193Provider }) {
-  await deploySingletonFactory(provider);
-  await deployProxyFactory(provider);
+  await deployKnownFactory({
+    funding: nickFunding,
+    deployer: nickDeployer,
+    signedTransaction: nickSignedDeployTransaction,
+    factoryAddress: nickFactoryAddress,
+    provider,
+  });
+
+  await deployKnownFactory({
+    funding: erc2470Funding,
+    deployer: erc2470Deployer,
+    signedTransaction: erc2470SignedDeployTransaction,
+    factoryAddress: erc2470FactoryAddress,
+    provider,
+  });
+
+  await deployMastercopy({
+    bytecode: proxyFactoryBytecode,
+    constructorArgs: { types: [], values: [] },
+    salt: proxyFactorySalt,
+    provider,
+  });
 }
 
-async function deploySingletonFactory(provider: EIP1193Provider) {
+async function deployKnownFactory({
+  funding,
+  deployer,
+  signedTransaction,
+  factoryAddress,
+  provider,
+}: {
+  funding: bigint;
+  deployer: string;
+  signedTransaction: string;
+  factoryAddress: string;
+  provider: EIP1193Provider;
+}) {
   {
     const code = await provider.request({
       method: "eth_getCode",
-      params: [singletonFactoryAddress, "latest"],
+      params: [factoryAddress, "latest"],
     });
     if (code != "0x") {
-      return { address: singletonFactoryAddress, noop: true };
+      return;
     }
   }
 
   {
     const hash = (await provider.request({
       method: "eth_sendTransaction",
-      params: [singletonFundingTx],
+      params: [{ to: deployer, value: funding }],
     })) as string;
     await waitForTransaction(hash, provider);
   }
@@ -40,7 +81,7 @@ async function deploySingletonFactory(provider: EIP1193Provider) {
   {
     const hash = (await provider.request({
       method: "eth_sendRawTransaction",
-      params: [deploySingletonFactorySignedTx],
+      params: [signedTransaction],
     })) as string;
     await waitForTransaction(hash, provider);
   }
@@ -48,21 +89,10 @@ async function deploySingletonFactory(provider: EIP1193Provider) {
   {
     const code = await provider.request({
       method: "eth_getCode",
-      params: [singletonFactoryAddress, "latest"],
+      params: [factoryAddress, "latest"],
     });
     if (code == "0x") {
-      throw new Error("Bytecode for SingletonFactory not found");
+      throw new Error("Bytecode for Factory not found after deployment");
     }
   }
-
-  return { address: singletonFactoryAddress, noop: false };
-}
-
-async function deployProxyFactory(provider: EIP1193Provider) {
-  return deploySingleton({
-    bytecode: proxyFactoryBytecode,
-    constructorArgs: { types: [], values: [] },
-    salt: proxyFactorySalt,
-    provider,
-  });
 }
