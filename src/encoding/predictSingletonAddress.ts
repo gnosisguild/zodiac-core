@@ -1,7 +1,5 @@
 import { AbiCoder, concat, getCreate2Address, keccak256 } from "ethers";
-
 import { address as factoryAddress } from "../factory/erc2470Factory";
-
 import { Create2Args } from "../types";
 
 export default function predictSingletonAddress({
@@ -19,8 +17,10 @@ export default function predictSingletonAddress({
 
 export function creationBytecode({
   bytecode,
-  constructorArgs,
-}: Omit<Create2Args, "salt">) {
-  const { types, values } = constructorArgs;
+  constructorArgs: { types, values },
+}: {
+  bytecode: string;
+  constructorArgs: { types: any[]; values: any[] };
+}) {
   return concat([bytecode, AbiCoder.defaultAbiCoder().encode(types, values)]);
 }

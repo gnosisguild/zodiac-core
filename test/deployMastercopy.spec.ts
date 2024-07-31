@@ -2,11 +2,9 @@ import { loadFixture, reset } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
 
-import {
-  deployFactories,
-  deployMastercopy,
-  predictSingletonAddress,
-} from "../src";
+import predictSingletonAddress from "../src/encoding/predictSingletonAddress";
+
+import { deployFactories, deployMastercopy } from "../src";
 import createEIP1193 from "./createEIP1193";
 
 import { TestModule__factory } from "../typechain-types";

@@ -9,7 +9,6 @@ import {
   deployMastercopy,
   deployProxy,
   predictProxyAddress,
-  predictSingletonAddress,
 } from "../src";
 
 import { TestModule__factory } from "../typechain-types";
@@ -23,18 +22,17 @@ async function setup() {
     values: [avatar, target],
   };
 
-  const address = predictSingletonAddress({
-    bytecode,
-    salt,
-    constructorArgs,
-  });
-
   await reset();
 
   const [signer] = await hre.ethers.getSigners();
   const provider = createEIP1193(hre.network.provider, signer);
   await deployFactories({ provider });
-  await deployMastercopy({ bytecode, constructorArgs, salt, provider });
+  const { address } = await deployMastercopy({
+    bytecode,
+    constructorArgs,
+    salt,
+    provider,
+  });
 
   return { mastercopy: address };
 }

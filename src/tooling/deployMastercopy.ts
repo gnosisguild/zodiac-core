@@ -1,26 +1,39 @@
-import encodeDeploySingletonTransaction, {
+import { getAddress } from "ethers";
+import { address as erc2470FactoryAddress } from "../factory/erc2470Factory";
+import { address as nickFactoryAddress } from "../factory/nickFactory";
+
+import encodeDeployVia2470Factory from "../encoding/encodeDeployVia2470Factory";
+import encodeDeployViaNickFactory from "../encoding/encodeDeployViaNickFactory";
+
+import predictSingletonAddress, {
   creationBytecode,
-} from "../encoding/encodeDeploySingletonTransaction";
-import predictSingletonAddress from "../encoding/predictSingletonAddress";
+} from "../encoding/predictSingletonAddress";
 
 import waitForTransaction from "./internal/waitForTransaction";
 
 import { Create2Args, EIP1193Provider } from "../types";
 
 export default async function deployMastercopy({
+  factory = erc2470FactoryAddress,
   bytecode,
   constructorArgs,
   salt,
   provider,
   onStart,
 }: Create2Args & {
+  factory?: string;
   provider: EIP1193Provider;
   onStart?: () => void;
 }): Promise<{
   address: string;
   noop: boolean;
 }> {
-  const address = predictSingletonAddress({ bytecode, constructorArgs, salt });
+  const address = predictSingletonAddress({
+    factory,
+    bytecode,
+    constructorArgs,
+    salt,
+  });
   const code = await provider.request({
     method: "eth_getCode",
     params: [address, "latest"],
@@ -31,6 +44,8 @@ export default async function deployMastercopy({
 
   onStart && onStart();
 
+  const encodeDeployTransaction = getEncodeDeployFn(factory);
+
   /*
    * To address an RPC gas estimation issue with the CREATE2 opcode,
    * we combine the gas estimation for deploying from the factory contract
@@ -39,9 +54,7 @@ export default async function deployMastercopy({
   const [gasEstimation, innerGasEstimation] = await Promise.all([
     provider.request({
       method: "eth_estimateGas",
-      params: [
-        encodeDeploySingletonTransaction({ bytecode, constructorArgs, salt }),
-      ],
+      params: [encodeDeployTransaction({ bytecode, constructorArgs, salt })],
     }),
     provider.request({
       method: "eth_estimateGas",
@@ -51,7 +64,7 @@ export default async function deployMastercopy({
   ]);
 
   const transaction = {
-    ...encodeDeploySingletonTransaction({
+    ...encodeDeployTransaction({
       bytecode,
       constructorArgs,
       salt,
@@ -67,4 +80,12 @@ export default async function deployMastercopy({
   await waitForTransaction(hash, provider);
 
   return { address, noop: false };
+}
+
+function getEncodeDeployFn(factory: string) {
+  if (getAddress(factory) == getAddress(nickFactoryAddress)) {
+    return encodeDeployViaNickFactory;
+  } else {
+    return encodeDeployVia2470Factory;
+  }
 }

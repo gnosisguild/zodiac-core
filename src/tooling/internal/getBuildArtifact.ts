@@ -3,7 +3,7 @@ import { readdirSync, readFileSync, statSync } from "fs";
 
 import { BuildArtifact } from "../../types";
 
-export default function extractBuildArtifact(
+export default function getBuildArtifact(
   _contractName: string,
   buildDirPath: string
 ): BuildArtifact {

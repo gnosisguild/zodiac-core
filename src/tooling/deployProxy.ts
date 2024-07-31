@@ -1,6 +1,6 @@
-import populateDeployProxy from "../encoding/encodeDeployProxyTransaction";
-import predictProxyAddress from "../encoding/predictProxyAddress";
+import populateDeployProxy from "../encoding/encodeDeployProxy";
 
+import predictProxyAddress from "../encoding/predictProxyAddress";
 import waitForTransaction from "./internal/waitForTransaction";
 
 import { EIP1193Provider } from "../types";

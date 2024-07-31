@@ -1,4 +1,12 @@
-import { AbiCoder, BigNumberish, Interface, TransactionRequest } from "ethers";
+import {
+  AbiCoder,
+  BigNumberish,
+  concat,
+  getCreate2Address,
+  Interface,
+  keccak256,
+  TransactionRequest,
+} from "ethers";
 
 import {
   address as factoryAddress,
@@ -26,14 +34,7 @@ export default function encodeDeployProxyTransaction({
   };
 }
 
-export function creationBytecode({ mastercopy }: { mastercopy: string }) {
-  const left = "0x602d8060093d393df3363d3d373d3d3d363d73";
-  const right = "5af43d82803e903d91602b57fd5bf3";
-  const center = mastercopy.toLowerCase().replace(/^0x/, "");
-  return `${left}${center}${right}`;
-}
-
-export function initializer({
+function initializer({
   setupArgs,
 }: {
   setupArgs: { types: any[]; values: any[] };

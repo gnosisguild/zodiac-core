@@ -1,9 +1,9 @@
 import { readFileSync } from "fs";
 
-import verify from "./tooling/internal/verify";
-import { defaultMastercopyArtifactsFile } from "./tooling/internal/paths";
+import { defaultMastercopyArtifactsFile } from "../tooling/internal/paths";
+import verify from "../tooling/internal/verify";
 
-import { MastercopyArtifact } from "./types";
+import { MastercopyArtifact } from "../types";
 
 export default async function ({
   apiUrl,

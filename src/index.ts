@@ -1,8 +1,6 @@
 // Core
-import encodeDeployProxyTransaction from "./encoding/encodeDeployProxyTransaction";
-import encodeDeploySingletonTransaction from "./encoding/encodeDeploySingletonTransaction";
+import encodeDeployProxy from "./encoding/encodeDeployProxy";
 import predictProxyAddress from "./encoding/predictProxyAddress";
-import predictSingletonAddress from "./encoding/predictSingletonAddress";
 
 // Tooling Scripts
 import deployFactories from "./tooling/deployFactories";
@@ -10,25 +8,23 @@ import deployMastercopy from "./tooling/deployMastercopy";
 import deployProxy from "./tooling/deployProxy";
 
 // Main Entrypoints
-import deployMastercopies from "./deployMastercopies";
-import extractMastercopy from "./extractMastercopy";
-import verifyMastercopies from "./verifyMastercopies";
+import extractMastercopy from "./artifact/extractMastercopy";
+import deployMastercopies from "./artifact/deployMastercopies";
+import verifyMastercopies from "./artifact/verifyMastercopies";
 
 export {
   // core
-  encodeDeployProxyTransaction,
-  encodeDeploySingletonTransaction,
+  encodeDeployProxy,
   predictProxyAddress,
-  predictSingletonAddress,
 
   // tooling
   deployFactories,
   deployMastercopy,
   deployProxy,
 
-  // entrypoints
-  deployMastercopies,
+  // artifact
   extractMastercopy,
+  deployMastercopies,
   verifyMastercopies,
 };
 

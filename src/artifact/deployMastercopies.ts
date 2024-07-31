@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "fs";
 
-import { defaultMastercopyArtifactsFile } from "./tooling/internal/paths";
-import deployMastercopy from "./tooling/deployMastercopy";
+import { defaultMastercopyArtifactsFile } from "../tooling/internal/paths";
+import deployMastercopy from "../tooling/deployMastercopy";
 
-import { EIP1193Provider, MastercopyArtifact } from "./types";
+import { EIP1193Provider, MastercopyArtifact } from "../types";
 
 export default async function ({
   mastercopyArtifactsFile = defaultMastercopyArtifactsFile(),
