@@ -44,6 +44,7 @@ export default function extractMastercopy({
 
   const mastercopyArtifact: MastercopyArtifact = {
     contractName,
+    contractVersion,
     sourceName: buildArtifact.sourceName,
     compilerVersion: buildArtifact.compilerVersion,
     factory,
@@ -63,7 +64,13 @@ export default function extractMastercopy({
   writeFileSync(
     mastercopyArtifactsFile,
     JSON.stringify(
-      { ...mastercopies, [contractVersion]: mastercopyArtifact },
+      {
+        ...mastercopies,
+        [contractName]: {
+          ...(mastercopies[contractName] || {}),
+          [contractVersion]: mastercopyArtifact,
+        },
+      },
       null,
       2
     ),

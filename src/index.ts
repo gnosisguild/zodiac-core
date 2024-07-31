@@ -8,9 +8,9 @@ import deployMastercopy from "./deploy/deployMastercopy";
 import deployProxy from "./deploy/deployProxy";
 
 // Main Entrypoints
-import extractMastercopyArtifact from "./artifact/extractMastercopy";
-import deployMastercopyArtifacts from "./artifact/deployMastercopies";
-import verifyMastercopyArtifacts from "./artifact/verifyMastercopies";
+import storeMastercopyArtifact from "./artifact/storeMastercopy";
+import deployMastercopiesFromArtifact from "./artifact/deployMastercopies";
+import verifyMastercopiesFromArtifact from "./artifact/verifyMastercopies";
 
 export {
   // core
@@ -23,9 +23,9 @@ export {
   deployProxy,
 
   // artifact
-  extractMastercopyArtifact,
-  deployMastercopyArtifacts,
-  verifyMastercopyArtifacts,
+  storeMastercopyArtifact,
+  deployMastercopiesFromArtifact,
+  verifyMastercopiesFromArtifact,
 };
 
 import type { EIP1193Provider } from "./types";

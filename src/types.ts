@@ -23,6 +23,7 @@ export type BuildArtifact = {
 };
 
 export type MastercopyArtifact = BuildArtifact & {
+  contractVersion: string;
   factory: string;
   constructorArgs: {
     types: any[];
