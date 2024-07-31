@@ -18,7 +18,7 @@ import {
 } from "../factory/proxyFactory";
 
 import deployMastercopy from "./deployMastercopy";
-import waitForTransaction from "./internal/waitForTransaction";
+import waitForTransaction from "./waitForTransaction";
 
 import { EIP1193Provider } from "../types";
 

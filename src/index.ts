@@ -3,29 +3,29 @@ import encodeDeployProxy from "./encoding/encodeDeployProxy";
 import predictProxyAddress from "./encoding/predictProxyAddress";
 
 // Tooling Scripts
-import deployFactories from "./tooling/deployFactories";
-import deployMastercopy from "./tooling/deployMastercopy";
-import deployProxy from "./tooling/deployProxy";
+import deployFactories from "./deploy/deployFactories";
+import deployMastercopy from "./deploy/deployMastercopy";
+import deployProxy from "./deploy/deployProxy";
 
 // Main Entrypoints
-import extractMastercopy from "./artifact/extractMastercopy";
-import deployMastercopies from "./artifact/deployMastercopies";
-import verifyMastercopies from "./artifact/verifyMastercopies";
+import extractMastercopyArtifact from "./artifact/extractMastercopy";
+import deployMastercopyArtifacts from "./artifact/deployMastercopies";
+import verifyMastercopyArtifacts from "./artifact/verifyMastercopies";
 
 export {
   // core
   encodeDeployProxy,
   predictProxyAddress,
 
-  // tooling
+  // deploy
   deployFactories,
   deployMastercopy,
   deployProxy,
 
   // artifact
-  extractMastercopy,
-  deployMastercopies,
-  verifyMastercopies,
+  extractMastercopyArtifact,
+  deployMastercopyArtifacts,
+  verifyMastercopyArtifacts,
 };
 
 import type { EIP1193Provider } from "./types";

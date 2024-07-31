@@ -1,6 +1,6 @@
 import { AbiCoder } from "ethers";
 
-import { resolveApiUrl } from "./chainConfig";
+import { resolveApiUrl } from "../../artifact/internal/chainConfig";
 
 export default async function verify(
   {

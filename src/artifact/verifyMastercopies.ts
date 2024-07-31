@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 
-import { defaultMastercopyArtifactsFile } from "../tooling/internal/paths";
-import verify from "../tooling/internal/verify";
+import { defaultMastercopyArtifactsFile } from "./internal/paths";
+import verify from "./internal/verify";
 
 import { MastercopyArtifact } from "../types";
 

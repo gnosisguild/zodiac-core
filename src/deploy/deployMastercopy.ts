@@ -9,7 +9,7 @@ import predictSingletonAddress, {
   creationBytecode,
 } from "../encoding/predictSingletonAddress";
 
-import waitForTransaction from "./internal/waitForTransaction";
+import waitForTransaction from "./waitForTransaction";
 
 import { Create2Args, EIP1193Provider } from "../types";
 

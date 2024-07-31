@@ -3,8 +3,8 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 import {
   defaultBuildDir,
   defaultMastercopyArtifactsFile,
-} from "../tooling/internal/paths";
-import getBuildArtifact from "../tooling/internal/getBuildArtifact";
+} from "./internal/paths";
+import getBuildArtifact from "./internal/getBuildArtifact";
 
 import predictSingletonAddress from "../encoding/predictSingletonAddress";
 
