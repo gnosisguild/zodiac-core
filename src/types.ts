@@ -7,10 +7,6 @@ export type EIP1193Provider = {
   request: (args: RequestArguments) => Promise<unknown>;
 };
 
-export type Signerish = {
-  signTransaction: (tx: any) => Promise<string>;
-};
-
 export type Create2Args = {
   bytecode: string;
   constructorArgs: { types: any[]; values: any[] };
@@ -27,10 +23,11 @@ export type BuildArtifact = {
 };
 
 export type MastercopyArtifact = BuildArtifact & {
+  factory: string;
   constructorArgs: {
     types: any[];
     values: any[];
   };
   salt: string;
-  contractAddress: string;
+  address: string;
 };
