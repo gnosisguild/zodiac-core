@@ -1,12 +1,13 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
+import { address as erc2470FactoryAddress } from "../factory/erc2470Factory";
+import predictSingletonAddress from "../encoding/predictSingletonAddress";
+
 import {
   defaultBuildDir,
   defaultMastercopyArtifactsFile,
 } from "./internal/paths";
 import getBuildArtifact from "./internal/getBuildArtifact";
-
-import predictSingletonAddress from "../encoding/predictSingletonAddress";
 
 import { MastercopyArtifact } from "../types";
 
@@ -14,6 +15,8 @@ export default function extractMastercopy({
   contractVersion,
   contractName,
   compilerInput: minimalCompilerInput,
+  factory = erc2470FactoryAddress,
+  bytecode,
   constructorArgs,
   salt,
   buildDirPath = defaultBuildDir(),
@@ -21,9 +24,11 @@ export default function extractMastercopy({
 }: {
   contractVersion: string;
   contractName: string;
+  factory?: string;
+  bytecode?: string;
   constructorArgs: { types: any[]; values: any[] };
   salt: string;
-  compilerInput: any;
+  compilerInput?: any;
   buildDirPath?: string;
   mastercopyArtifactsFile?: string;
 }) {
@@ -37,25 +42,31 @@ export default function extractMastercopy({
     console.warn(`Warning: overriding artifact for ${contractVersion}`);
   }
 
-  const { bytecode, abi, compilerInput, ...rest } = buildArtifact;
-
-  const entry: MastercopyArtifact = {
-    contractAddress: predictSingletonAddress({
-      bytecode: buildArtifact.bytecode,
+  const mastercopyArtifact: MastercopyArtifact = {
+    contractName,
+    sourceName: buildArtifact.sourceName,
+    compilerVersion: buildArtifact.compilerVersion,
+    factory,
+    address: predictSingletonAddress({
+      factory,
+      bytecode: bytecode || buildArtifact.bytecode,
       constructorArgs,
       salt,
     }),
-    bytecode,
+    bytecode: bytecode || buildArtifact.bytecode,
     constructorArgs,
     salt,
-    abi,
-    compilerInput: minimalCompilerInput || compilerInput,
-    ...rest,
+    abi: buildArtifact.abi,
+    compilerInput: minimalCompilerInput || buildArtifact.compilerInput,
   };
 
   writeFileSync(
     mastercopyArtifactsFile,
-    JSON.stringify({ ...mastercopies, [contractVersion]: entry }, null, 2),
+    JSON.stringify(
+      { ...mastercopies, [contractVersion]: mastercopyArtifact },
+      null,
+      2
+    ),
     "utf8"
   );
 }

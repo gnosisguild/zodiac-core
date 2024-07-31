@@ -8,20 +8,20 @@ export default async function verify(
     sourceName,
     compilerVersion,
     compilerInput,
-    contractAddress,
+    address,
     constructorArgs: { types, values },
   }: {
     contractName: string;
     sourceName: string;
     compilerVersion: string;
     compilerInput: string;
-    contractAddress: string;
+    address: string;
     constructorArgs: { types: any[]; values: any[] };
   },
   apiUrl: string,
   apiKey: string
 ): Promise<{ ok: boolean; noop: boolean }> {
-  if (await isVerified(contractAddress, apiUrl, apiKey))
+  if (await isVerified(address, apiUrl, apiKey))
     return {
       ok: true,
       noop: true,
@@ -33,7 +33,7 @@ export default async function verify(
     apikey: apiKey,
     module: "contract",
     action: "verifysourcecode",
-    contractaddress: contractAddress,
+    contractaddress: address,
     sourceCode: JSON.stringify(compilerInput),
     codeformat: "solidity-standard-json-input",
     contractname: `${sourceName}:${contractName}`,

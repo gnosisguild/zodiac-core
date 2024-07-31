@@ -21,10 +21,11 @@ export default async function ({
   );
 
   for (const [version, artifact] of entries) {
-    const { contractName, bytecode, constructorArgs, salt } =
+    const { contractName, factory, bytecode, constructorArgs, salt } =
       artifact as MastercopyArtifact;
 
     const { address, noop } = await deployMastercopy({
+      factory,
       bytecode,
       constructorArgs,
       salt,

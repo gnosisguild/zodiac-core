@@ -23,15 +23,15 @@ export default async function ({
       apiKey
     );
 
-    const { contractName, contractAddress } = artifact as MastercopyArtifact;
+    const { contractName, address } = artifact as MastercopyArtifact;
 
     if (noop) {
       console.log(
-        `🔄 ${contractName}@${version}: Already verified at ${contractAddress}`
+        `🔄 ${contractName}@${version}: Already verified at ${address}`
       );
     } else {
       console.log(
-        `🚀 ${contractName}@${version}: Successfully verified at ${contractAddress}`
+        `🚀 ${contractName}@${version}: Successfully verified at ${address}`
       );
     }
   }
