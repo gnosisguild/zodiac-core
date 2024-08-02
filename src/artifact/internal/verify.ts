@@ -21,13 +21,22 @@ export default async function verify(
   apiUrl: string,
   apiKey: string
 ): Promise<{ ok: boolean; noop: boolean }> {
-  if (await isVerified(address, apiUrl, apiKey))
+  const url = resolveApiUrl(apiUrl);
+
+  if (!(await isLiveUrl(url))) {
+    throw new Error(`Couldn't reach ${url}`);
+  }
+
+  if (!(await isValidApiKey({ url, apiKey }))) {
+    throw new Error(`Invalid Api Key`);
+  }
+
+  if (await isVerified(address, { url, apiKey })) {
     return {
       ok: true,
       noop: true,
     };
-
-  const url = new URL(resolveApiUrl(apiUrl));
+  }
 
   const parameters = new URLSearchParams({
     apikey: apiKey,
@@ -56,7 +65,7 @@ export default async function verify(
   };
 
   if (!isOk(status)) {
-    throw new Error(`Verification Error: ${message}`);
+    throw new Error(`Verification Error: ${status} ${message}`);
   }
 
   return {
@@ -65,18 +74,49 @@ export default async function verify(
   };
 }
 
-async function isVerified(
-  contractAddress: string,
-  apiUrl: string,
-  apiKey: string
-) {
-  const url = new URL(resolveApiUrl(apiUrl));
+async function isLiveUrl(url: URL) {
+  try {
+    const response = await fetch(url, { method: "HEAD" });
+    if (response.ok) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error(`Error pinging ${url}:`, error);
+    return false;
+  }
+}
 
+async function isValidApiKey({ url, apiKey }: { url: URL; apiKey: string }) {
+  const parameters = new URLSearchParams({
+    apikey: apiKey,
+    module: "stats",
+    action: "ethprice",
+  });
+  url.search = parameters.toString();
+
+  const response = await fetch(url, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    return false;
+  }
+
+  const json = await response.json();
+  return isOk(json.status);
+}
+
+async function isVerified(
+  address: string,
+  { url, apiKey }: { url: URL; apiKey: string }
+) {
   const parameters = new URLSearchParams({
     apikey: apiKey,
     module: "contract",
     action: "getsourcecode",
-    address: contractAddress,
+    address,
   });
   url.search = parameters.toString();
 
@@ -87,7 +127,7 @@ async function isVerified(
   const json = await response.json();
 
   if (!isOk(json.status)) {
-    throw new Error(`IsVerified: ${json.message}`);
+    throw new Error(`IsVerified: ${json.message} ${json.result}`);
   }
 
   const sourceCode = json.result[0]?.SourceCode;

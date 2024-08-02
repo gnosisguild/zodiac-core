@@ -288,9 +288,5 @@ export function resolveApiUrl(apiUrlIsh: string) {
       entry.network.toLowerCase() == apiUrlIsh.toLowerCase()
   );
 
-  if (entry) {
-    return entry.urls.apiURL;
-  }
-
-  return apiUrlIsh;
+  return new URL(entry ? entry.urls.apiURL : apiUrlIsh);
 }

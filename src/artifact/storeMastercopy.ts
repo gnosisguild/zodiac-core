@@ -44,8 +44,8 @@ export default function extractMastercopy({
 
   const mastercopyArtifact: MastercopyArtifact = {
     contractName,
-    contractVersion,
     sourceName: buildArtifact.sourceName,
+    contractVersion,
     compilerVersion: buildArtifact.compilerVersion,
     factory,
     address: predictSingletonAddress({
