@@ -5,6 +5,15 @@ import deployMastercopy from "../deploy/deployMastercopy";
 
 import { EIP1193Provider, MastercopyArtifact } from "../types";
 
+/**
+ * Deploys all mastercopy contracts and versions specified in the artifacts file.
+ *
+ * @param {Object} params - The function parameters.
+ * @param mastercopyArtifactsFile - The path to the mastercopy artifacts file.
+ * @param provider - EIP1193 compliant provider
+ *
+ * @throws {Error} If the mastercopy artifacts file does not exist at the specified path.
+ */
 export default async function ({
   mastercopyArtifactsFile = defaultMastercopyArtifactsFile(),
   provider,
@@ -13,7 +22,9 @@ export default async function ({
   provider: EIP1193Provider;
 }) {
   if (!existsSync(mastercopyArtifactsFile)) {
-    throw new Error(`MastercopyArtifacts file not found at ${mastercopyArtifactsFile}`);
+    throw new Error(
+      `MastercopyArtifacts file not found at ${mastercopyArtifactsFile}`
+    );
   }
 
   const allArtifacts = JSON.parse(

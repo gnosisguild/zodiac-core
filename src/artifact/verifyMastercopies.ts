@@ -5,6 +5,16 @@ import verify from "./internal/verify";
 
 import { MastercopyArtifact } from "../types";
 
+/**
+ * Verifies mastercopy contracts specified in the artifacts file using the provided API url and key.
+ *
+ * @param {Object} params - The function parameters.
+ * @param {string} params.apiUrl - The API URL used for verification. If a chainId if provided, we will try to resolve to a valid explorer URL.
+ * @param {string} params.apiKey - The API key used for verification.
+ * @param {string} [params.mastercopyArtifactsFile=defaultMastercopyArtifactsFile()] - The path to the mastercopy artifacts file. Optional.
+ *
+ * @throws {Error} If the mastercopy artifacts file does not exist at the specified path.
+ */
 export default async function ({
   apiUrl,
   apiKey,
