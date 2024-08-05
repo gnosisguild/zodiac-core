@@ -1,9 +1,4 @@
-import { getAddress } from "ethers";
 import { address as erc2470FactoryAddress } from "../factory/erc2470Factory";
-import { address as nickFactoryAddress } from "../factory/nickFactory";
-
-import encodeDeployVia2470Factory from "../encoding/encodeDeployVia2470Factory";
-import encodeDeployViaNickFactory from "../encoding/encodeDeployViaNickFactory";
 
 import predictSingletonAddress, {
   creationBytecode,
@@ -12,6 +7,7 @@ import predictSingletonAddress, {
 import waitForTransaction from "./waitForTransaction";
 
 import { Create2Args, EIP1193Provider } from "../types";
+import { encodeDeploySingleton } from "../encoding/encodeDeploySingleton";
 
 /**
  * Deploys a mastercopy contract using a factory.
@@ -58,7 +54,7 @@ export default async function deployMastercopy({
 
   onStart && onStart();
 
-  const encodeDeployTransaction = getEncodeDeployFn(factory);
+  const encodeDeployTransaction = encodeDeploySingleton(factory);
 
   /*
    * To address an RPC gas estimation issue with the CREATE2 opcode,
@@ -94,18 +90,4 @@ export default async function deployMastercopy({
   await waitForTransaction(hash, provider);
 
   return { address, noop: false };
-}
-
-/**
- * Returns the appropriate function to encode the deploy transaction based on the factory address.
- *
- * @param {string} factory - The address of the factory contract.
- * @returns {function} The function to encode the deploy transaction.
- */
-function getEncodeDeployFn(factory: string) {
-  if (getAddress(factory) == getAddress(nickFactoryAddress)) {
-    return encodeDeployViaNickFactory;
-  } else {
-    return encodeDeployVia2470Factory;
-  }
 }
