@@ -9,6 +9,9 @@ import createEIP1193 from "./createEIP1193";
 
 import { TestModule__factory } from "../typechain-types";
 
+/**
+ * Resets the test environment and deploys necessary factories.
+ */
 async function setup() {
   await reset();
   const [signer] = await hre.ethers.getSigners();
@@ -21,6 +24,10 @@ const avatar = "0x0000000000000000000000000000000000000123";
 const target = "0x0000000000000000000000000000000000000456";
 
 describe("deployMastercopy", () => {
+  /**
+   * Tests the deployment of a mastercopy at the predicted address.
+   * Verifies that the mastercopy is deployed successfully and the predicted address is correct.
+   */
   it("Deploys a mastercopy, at the predicted address", async () => {
     await loadFixture(setup);
 

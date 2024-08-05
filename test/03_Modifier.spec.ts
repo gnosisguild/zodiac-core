@@ -19,6 +19,12 @@ const AddressOne = "0x0000000000000000000000000000000000000001";
 const SENTINEL_MODULES = AddressOne;
 
 describe("Modifier", async () => {
+  /**
+   * Sets up the test environment.
+   * Deploys the TestAvatar and TestModifier contracts, enables the modifier module, and prepares a transaction object for testing.
+   *
+   * @returns {Promise<{ iAvatar: any, modifier: any, tx: object, alice: any, bob: any, charlie: any }>} The deployed contract instances and a sample transaction object along with test signers.
+   */
   async function setupTests() {
     const [signer, alice, bob, charlie] = await hre.ethers.getSigners();
     const Avatar = await hre.ethers.getContractFactory("TestAvatar");
@@ -60,6 +66,10 @@ describe("Modifier", async () => {
   }
 
   describe("setupModules", async () => {
+    /**
+     * Tests the setup of modules.
+     * Verifies that calling setupModules more than once reverts with a custom error.
+     */
     it("reverts if called more than once", async () => {
       const { modifier } = await loadFixture(setupTests);
       await expect(
@@ -68,6 +78,10 @@ describe("Modifier", async () => {
     });
   });
   describe("enableModule", async () => {
+    /**
+     * Tests enabling a module.
+     * Verifies that enabling a module reverts if the caller is not the owner.
+     */
     it("reverts if caller is not the owner", async () => {
       const { modifier } = await loadFixture(setupTests);
 
@@ -77,21 +91,30 @@ describe("Modifier", async () => {
         .to.be.revertedWithCustomError(modifier, "OwnableUnauthorizedAccount")
         .withArgs(user2.address);
     });
-
+    /**
+     * Tests enabling a module.
+     * Verifies that enabling a module reverts if the module address is zero.
+     */
     it("reverts if module is zero address", async () => {
       const { modifier } = await loadFixture(setupTests);
       await expect(modifier.enableModule(AddressZero))
         .to.be.revertedWithCustomError(modifier, "InvalidModule")
         .withArgs(AddressZero);
     });
-
+    /**
+     * Tests enabling a module.
+     * Verifies that enabling a module reverts if the module address is SENTINEL_MODULES.
+     */
     it("reverts if module is SENTINEL_MODULES", async () => {
       const { modifier } = await loadFixture(setupTests);
       await expect(modifier.enableModule(SENTINEL_MODULES))
         .to.be.revertedWithCustomError(modifier, "InvalidModule")
         .withArgs(AddressOne);
     });
-
+    /**
+     * Tests enabling a module.
+     * Verifies that enabling a module reverts if the module is already enabled.
+     */
     it("reverts if module is already enabled", async () => {
       const { modifier } = await loadFixture(setupTests);
 
@@ -104,7 +127,10 @@ describe("Modifier", async () => {
         modifier.enableModule(user1.address)
       ).to.be.revertedWithCustomError(modifier, "AlreadyEnabledModule");
     });
-
+    /**
+     * Tests enabling a module.
+     * Verifies that a module can be enabled successfully.
+     */
     it("enables a module", async () => {
       const { modifier } = await loadFixture(setupTests);
       const [user1] = await hre.ethers.getSigners();
@@ -115,6 +141,10 @@ describe("Modifier", async () => {
   });
 
   describe("disableModule", async () => {
+    /**
+     * Tests disabling a module.
+     * Verifies that disabling a module reverts if the caller is not the owner.
+     */
     it("reverts if caller is not the owner", async () => {
       const { modifier } = await loadFixture(setupTests);
       const [, user2] = await hre.ethers.getSigners();
@@ -124,21 +154,30 @@ describe("Modifier", async () => {
         .to.be.revertedWithCustomError(modifier, "OwnableUnauthorizedAccount")
         .withArgs(user2.address);
     });
-
+    /**
+     * Tests disabling a module.
+     * Verifies that disabling a module reverts if the module address is zero.
+     */
     it("reverts if module is zero address", async () => {
       const { modifier } = await loadFixture(setupTests);
       await expect(modifier.disableModule(SENTINEL_MODULES, AddressZero))
         .to.be.revertedWithCustomError(modifier, "InvalidModule")
         .withArgs(AddressZero);
     });
-
+    /**
+     * Tests disabling a module.
+     * Verifies that disabling a module reverts if the module address is SENTINEL_MODULES.
+     */
     it("reverts if module is SENTINEL_MODULES", async () => {
       const { modifier } = await loadFixture(setupTests);
       await expect(modifier.disableModule(SENTINEL_MODULES, SENTINEL_MODULES))
         .to.be.revertedWithCustomError(modifier, "InvalidModule")
         .withArgs(AddressOne);
     });
-
+    /**
+     * Tests disabling a module.
+     * Verifies that disabling a module reverts if the module is already disabled.
+     */
     it("reverts if module is already disabled", async () => {
       const { modifier } = await loadFixture(setupTests);
       const [user1] = await hre.ethers.getSigners();
@@ -152,7 +191,10 @@ describe("Modifier", async () => {
         modifier.disableModule(SENTINEL_MODULES, user1.address)
       ).to.be.revertedWithCustomError(modifier, "AlreadyDisabledModule");
     });
-
+    /**
+     * Tests disabling a module.
+     * Verifies that a module can be disabled successfully.
+     */
     it("disables a module", async () => {
       const { modifier } = await loadFixture(setupTests);
       const [user1] = await hre.ethers.getSigners();
@@ -166,13 +208,20 @@ describe("Modifier", async () => {
   });
 
   describe("isModuleEnabled", async () => {
+    /**
+     * Tests if a module is enabled.
+     * Verifies that it returns false if SENTINEL_MODULES is provided.
+     */
     it("returns false if SENTINEL_MODULES is provided", async () => {
       const { modifier } = await loadFixture(setupTests);
       await expect(
         await modifier.isModuleEnabled(SENTINEL_MODULES)
       ).to.be.equals(false);
     });
-
+    /**
+     * Tests if a module is enabled.
+     * Verifies that it returns false if AddressZero is provided.
+     */
     it("returns false if AddressZero is provided", async () => {
       const { modifier } = await loadFixture(setupTests);
       await expect(await modifier.isModuleEnabled(AddressZero)).to.be.equals(
@@ -180,6 +229,10 @@ describe("Modifier", async () => {
       );
     });
 
+    /**
+     * Tests if a module is enabled.
+     * Verifies that it returns false if the module is not enabled.
+     */
     it("returns false if module is not enabled", async () => {
       const { modifier } = await loadFixture(setupTests);
       const [user1] = await hre.ethers.getSigners();
@@ -188,6 +241,10 @@ describe("Modifier", async () => {
       );
     });
 
+    /**
+     * Tests if a module is enabled.
+     * Verifies that it returns true if the module is enabled.
+     */
     it("returns true if module is enabled", async () => {
       const { modifier } = await loadFixture(setupTests);
       const [, user2] = await hre.ethers.getSigners();
@@ -202,6 +259,10 @@ describe("Modifier", async () => {
   });
 
   describe("getModulesPaginated", async () => {
+    /**
+     * Tests retrieving enabled modules in a paginated manner.
+     * Verifies that the page size must be greater than 0.
+     */
     it("requires page size to be greater than 0", async () => {
       const { modifier } = await loadFixture(setupTests);
       await expect(
@@ -209,6 +270,10 @@ describe("Modifier", async () => {
       ).to.be.revertedWithCustomError(modifier, "InvalidPageSize");
     });
 
+    /**
+     * Tests retrieving enabled modules in a paginated manner.
+     * Verifies that the start must be a module or start pointer.
+     */
     it("requires start to be a module or start pointer", async () => {
       const { modifier } = await loadFixture(setupTests);
       const [user1, user2] = await hre.ethers.getSigners();
@@ -224,6 +289,11 @@ describe("Modifier", async () => {
         modifier.getModulesPaginated(user2.address, 1)
       ).to.be.revertedWithCustomError(modifier, `InvalidModule`);
     });
+
+    /**
+     * Tests retrieving enabled modules in a paginated manner.
+     * Verifies that an empty array is returned if no modules are enabled.
+     */
     it("returns empty array if no modules are enabled.", async () => {
       const { modifier } = await loadFixture(setupTests);
 
@@ -232,6 +302,10 @@ describe("Modifier", async () => {
       expect(result).to.be.deep.equal([[], SENTINEL_MODULES]);
     });
 
+    /**
+     * Tests retrieving enabled modules in a paginated manner.
+     * Verifies that one module is returned if one module is enabled.
+     */
     it("returns one module if one module is enabled", async () => {
       const { modifier } = await loadFixture(setupTests);
       const [user1] = await hre.ethers.getSigners();
@@ -241,6 +315,10 @@ describe("Modifier", async () => {
       expect(result).to.be.deep.equal([[user1.address], SENTINEL_MODULES]);
     });
 
+    /**
+     * Tests retrieving enabled modules in a paginated manner.
+     * Verifies that two modules are returned if two modules are enabled.
+     */
     it("returns two modules if two modules are enabled", async () => {
       const { modifier } = await loadFixture(setupTests);
       const [user1, user2] = await hre.ethers.getSigners();
@@ -260,6 +338,10 @@ describe("Modifier", async () => {
       ]);
     });
 
+    /**
+     * Tests retrieving enabled modules in a paginated manner.
+     * Verifies that all modules are returned over multiple pages.
+     */
     it("returns all modules over multiple pages", async () => {
       const { modifier } = await loadFixture(setupTests);
       const [user1, user2, user3] = await hre.ethers.getSigners();
@@ -293,6 +375,10 @@ describe("Modifier", async () => {
       ).to.be.deep.equal([[user1.address], AddressOne]);
     });
 
+    /**
+     * Tests retrieving enabled modules in a paginated manner.
+     * Verifies that an empty array and end pointer are returned for a safe with no modules.
+     */
     it("returns an empty array and end pointer for a safe with no modules", async () => {
       const { modifier } = await loadFixture(setupTests);
       expect(
@@ -302,6 +388,10 @@ describe("Modifier", async () => {
   });
 
   describe("execTransactionFromModule", async () => {
+    /**
+     * Tests executing a transaction from a module.
+     * Verifies that execution reverts if the module is not enabled.
+     */
     it("reverts if module is not enabled", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
       await expect(
@@ -313,6 +403,10 @@ describe("Modifier", async () => {
         )
       ).to.be.revertedWithCustomError(modifier, "NotAuthorized");
     });
+    /**
+     * Tests executing a transaction from a module.
+     * Verifies that a transaction can be executed successfully.
+     */
     it("execute a transaction.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
       const [user1] = await hre.ethers.getSigners();
@@ -326,6 +420,10 @@ describe("Modifier", async () => {
           .execTransactionFromModule(tx.to, tx.value, tx.data, tx.operation)
       ).to.emit(modifier, "Executed");
     });
+    /**
+     * Tests executing a transaction from a module with a signature.
+     * Verifies that a transaction can be executed successfully with a valid signature.
+     */
     it("execute a transaction with signature.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
       const [user1, relayer] = await hre.ethers.getSigners();
@@ -362,6 +460,10 @@ describe("Modifier", async () => {
         "Executed"
       );
     });
+    /**
+     * Tests executing a transaction from a module with an invalid signature.
+     * Verifies that execution reverts if the signature is not valid.
+     */
     it("reverts if signature not valid.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
       const [user1, user2, relayer] = await hre.ethers.getSigners();
@@ -409,6 +511,10 @@ describe("Modifier", async () => {
         "Executed"
       );
     });
+    /**
+     * Tests executing a transaction from a module with a reused signature.
+     * Verifies that execution reverts if the signature was previously used for execution.
+     */
     it("reverts if signature previously used for execution.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
       const [user1, user2, relayer] = await hre.ethers.getSigners();
@@ -460,6 +566,10 @@ describe("Modifier", async () => {
         relayer.sendTransaction(transactionWithOkSig)
       ).to.be.revertedWithCustomError(modifier, "HashAlreadyConsumed");
     });
+    /**
+     * Tests executing a transaction from a module with an invalidated signature.
+     * Verifies that execution reverts if the signature was invalidated.
+     */
     it("reverts if signature invalidated.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
       const [user1, relayer] = await hre.ethers.getSigners();
@@ -502,6 +612,10 @@ describe("Modifier", async () => {
   });
 
   describe("execTransactionFromModuleReturnData", async () => {
+    /**
+     * Tests executing a transaction from a module and returning data.
+     * Verifies that execution reverts if the module is not enabled.
+     */
     it("reverts if module is not enabled", async () => {
       const [signer] = await hre.ethers.getSigners();
       const { modifier, tx } = await loadFixture(setupTests);
@@ -518,6 +632,10 @@ describe("Modifier", async () => {
         .to.be.revertedWithCustomError(modifier, "NotAuthorized")
         .withArgs(signer.address);
     });
+    /**
+     * Tests executing a transaction from a module and returning data.
+     * Verifies that a transaction can be executed successfully and data can be returned.
+     */
     it("execute a transaction.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
       const [user1] = await hre.ethers.getSigners();
@@ -534,6 +652,10 @@ describe("Modifier", async () => {
         )
       ).to.emit(modifier, "ExecutedAndReturnedData");
     });
+    /**
+     * Tests executing a transaction from a module with a signature and returning data.
+     * Verifies that a transaction can be executed successfully with a valid signature and data can be returned.
+     */
     it("execute a transaction with signature.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
       const [user1, relayer] = await hre.ethers.getSigners();
@@ -570,6 +692,10 @@ describe("Modifier", async () => {
         "ExecutedAndReturnedData"
       );
     });
+    /**
+     * Tests executing a transaction from a module with an invalid signature and returning data.
+     * Verifies that execution reverts if the signature is not valid.
+     */
     it("reverts if signature not valid.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
       const [user1, user2, relayer] = await hre.ethers.getSigners();
@@ -617,6 +743,10 @@ describe("Modifier", async () => {
         "ExecutedAndReturnedData"
       );
     });
+    /**
+     * Tests executing a transaction from a module with a reused signature and returning data.
+     * Verifies that execution reverts if the signature was previously used for execution.
+     */
     it("reverts if signature previously used for execution.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
       const [user1, user2, relayer] = await hre.ethers.getSigners();
@@ -668,6 +798,10 @@ describe("Modifier", async () => {
         relayer.sendTransaction(transactionWithOkSig)
       ).to.be.revertedWithCustomError(modifier, "HashAlreadyConsumed");
     });
+    /**
+     * Tests executing a transaction from a module with an invalidated signature and returning data.
+     * Verifies that execution reverts if the signature was invalidated.
+     */
     it("reverts if signature invalidated.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
       const [user1, relayer] = await hre.ethers.getSigners();
@@ -710,6 +844,10 @@ describe("Modifier", async () => {
   });
 
   describe("sentOrSignedByModule", async () => {
+    /**
+     * Tests checking if a transaction was sent or signed by a module.
+     * Verifies that it returns the sender if the sender is a module.
+     */
     it("returns msg.sender if msg.sender is module", async () => {
       const { modifier, alice, bob } = await loadFixture(setupTests);
 
@@ -722,7 +860,10 @@ describe("Modifier", async () => {
         AddressZero
       );
     });
-
+    /**
+     * Tests checking if a transaction was sent or signed by a module.
+     * Verifies that it returns the sender if the sender is a module, even if a valid signature is appended.
+     */
     it("returns msg.sender if msg.sender is module, even if valid sig appended", async () => {
       const { modifier, alice, bob, charlie } = await loadFixture(setupTests);
 
@@ -747,6 +888,10 @@ describe("Modifier", async () => {
       );
     });
 
+    /**
+     * Tests checking if a transaction was sent or signed by a module.
+     * Verifies that it returns the signer if the signer is a module.
+     */
     it("returns signer if signer is module", async () => {
       const { modifier, alice, charlie } = await loadFixture(setupTests);
 
@@ -765,6 +910,10 @@ describe("Modifier", async () => {
       );
     });
 
+    /**
+     * Tests checking if a transaction was sent or signed by a module.
+     * Verifies that it returns zero if the signer is not a module and the sender is not a module.
+     */
     it("returns zero if signer is not module and message sender not a module", async () => {
       const { modifier, alice, charlie } = await loadFixture(setupTests);
 
@@ -785,6 +934,15 @@ describe("Modifier", async () => {
   });
 });
 
+/**
+ *	Signs a transaction.
+ *
+ *	@param {string} contract - The contract address.
+ *	@param {TransactionLike} transaction - The transaction object.
+ *	@param {string} salt - The salt value.
+ *	@param {Signer} signer - The signer object.
+ *	@returns {Promise} The signed transaction.
+ */
 async function sign(
   contract: string,
   transaction: TransactionLike,
@@ -801,6 +959,15 @@ async function sign(
   return `${salt}${signature.slice(2)}`;
 }
 
+/**
+ *	Signs a transaction and returns the transaction object with the signature.
+ *
+ *	@param {string} contract - The contract address.
+ *	@param {TransactionLike} transaction - The transaction object.
+ *	@param {string} salt - The salt value.
+ *	@param {Signer} signer - The signer object.
+ *	@returns {Promise} The transaction object with the signature.
+ */
 async function signTransaction(
   contract: string,
   { from, ...transaction }: TransactionLike,

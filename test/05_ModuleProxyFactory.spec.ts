@@ -43,7 +43,11 @@ describe("ModuleProxyFactory", async () => {
   });
 
   describe("createProxy", () => {
-    it("should deploy the expected address ", async () => {
+    /**
+     * Tests the deployment of a proxy module.
+     * Verifies that the deployed address matches the predicted address.
+     */
+    it("should deploy the expected address", async () => {
       const mastercopy = getAddress(await moduleMasterCopy.getAddress());
 
       const expectedAddress = await predictProxyAddress({
@@ -65,18 +69,31 @@ describe("ModuleProxyFactory", async () => {
       expect(expectedAddress).to.be.equal(actualAddress);
     });
 
-    it("should fail to deploy module because address is zero ", async () => {
+    /**
+     * Tests the deployment of a proxy module with a zero address.
+     * Verifies that the deployment fails and reverts with a ZeroAddress error.
+     */
+    it("should fail to deploy module because address is zero", async () => {
       await expect(moduleFactory.deployModule(AddressZero, initData, saltNonce))
         .to.be.revertedWithCustomError(moduleFactory, "ZeroAddress")
         .withArgs(AddressZero);
     });
-    it("should fail to deploy module because target has no code deployed ", async () => {
+
+    /**
+     * Tests the deployment of a proxy module with a target address that has no code deployed.
+     * Verifies that the deployment fails and reverts with a TargetHasNoCode error.
+     */
+    it("should fail to deploy module because target has no code deployed", async () => {
       await expect(moduleFactory.deployModule(AddressOne, initData, saltNonce))
         .to.be.revertedWithCustomError(moduleFactory, "TargetHasNoCode")
         .withArgs(AddressOne);
     });
 
-    it("should fail to deploy because address its already taken ", async () => {
+    /**
+     * Tests the deployment of a proxy module to an address that is already taken.
+     * Verifies that the deployment fails and reverts with a TakenAddress error.
+     */
+    it("should fail to deploy because address is already taken", async () => {
       await moduleFactory.deployModule(
         await moduleMasterCopy.getAddress(),
         initData,
@@ -95,7 +112,11 @@ describe("ModuleProxyFactory", async () => {
     });
   });
 
-  describe("deployModule ", () => {
+  describe("deployModule", () => {
+    /**
+     * Tests the deployment of a module.
+     * Verifies that the module can be deployed successfully and the avatar address is correct.
+     */
     it("should deploy module", async () => {
       const deploymentTx = await moduleFactory.deployModule(
         await moduleMasterCopy.getAddress(),
@@ -111,6 +132,10 @@ describe("ModuleProxyFactory", async () => {
       expect(moduleAvatar).to.be.equal(avatarAddress);
     });
 
+    /**
+     * Tests the deployment of a module.
+     * Verifies that the ModuleProxyCreation event is emitted on module deployment.
+     */
     it("should emit event on module deployment", async () => {
       const moduleAddress = await predictProxyAddress({
         factory: await moduleFactory.getAddress(),
@@ -129,7 +154,11 @@ describe("ModuleProxyFactory", async () => {
         .withArgs(moduleAddress, await moduleMasterCopy.getAddress());
     });
 
-    it("should fail to deploy because parameters are not valid ", async () => {
+    /**
+     * Tests the deployment of a module with invalid parameters.
+     * Verifies that the deployment fails and reverts with a FailedInitialization error.
+     */
+    it("should fail to deploy because parameters are not valid", async () => {
       await expect(
         moduleFactory.deployModule(
           await moduleMasterCopy.getAddress(),
