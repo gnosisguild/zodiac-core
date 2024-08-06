@@ -6,16 +6,15 @@ import {
 import { Create2Args } from "../types";
 
 /**
- * Encodes the transaction request for deploying a contract using CREATE2.
- *
- * @param {Object} params - The function parameters.
- * @param {string} [params.factory=factoryAddress] - The address of the factory contract.
- * @param {string} params.bytecode - The bytecode of the contract to deploy.
- * @param {Object} params.constructorArgs - The constructor arguments for the contract.
- * @param {any[]} params.constructorArgs.types - The types of the constructor arguments.
- * @param {any[]} params.constructorArgs.values - The values of the constructor arguments.
- * @param {BigNumberish} params.salt - The salt value used for CREATE2 deployment.
- * @returns {TransactionRequest} The encoded transaction request.
+ *Encodes the transaction request for deploying a Singleton via ERC2470Factory.
+ *@param {Object} params - The function parameters.
+ *@param {string} [params.factory=factoryAddress] - The address of the factory contract.
+ *@param {string} params.bytecode - The bytecode of the contract to deploy.
+ *@param {Object} params.constructorArgs - The constructor arguments for the Singleton that is about to be deployed.
+ *@param {any[]} params.constructorArgs.types - The types of the constructor arguments.
+ *@param {any[]} params.constructorArgs.values - Values corresponding to the constructor argument types.
+ *@param {string} params.salt - A deployment salt that is internally passed to create2
+ *@returns {TransactionRequest} The encoded transaction request.
  */
 export default function encodeDeployTransaction({
   factory = factoryAddress,

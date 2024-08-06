@@ -5,7 +5,7 @@ import waitForTransaction from "./waitForTransaction";
 import { EIP1193Provider } from "../types";
 
 /**
- * Deploys a module as a proxy contract.
+ * Deploys a Mod instance as a MinimalProxy via ZodiacModProxyFactory
  *
  * @param {Object} params - The function parameters.
  * @param {string} params.mastercopy - The address of the mastercopy contract.
@@ -14,6 +14,7 @@ import { EIP1193Provider } from "../types";
  * @param {any[]} params.setupArgs.values - The values of the setup arguments.
  * @param {string | number | bigint} params.saltNonce - The salt nonce used to predict the proxy address.
  * @param {EIP1193Provider} params.provider - The EIP1193 compliant provider to interact with the blockchain.
+ *
  * @returns {Promise<{ address: string; noop: boolean }>} The address of the deployed proxy contract and a noop flag indicating if the deployment was a no-operation.
  */
 export default async function deployModuleAsProxy({

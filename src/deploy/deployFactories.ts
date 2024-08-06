@@ -23,11 +23,24 @@ import waitForTransaction from "./waitForTransaction";
 import { EIP1193Provider } from "../types";
 
 /**
- * Deploys known factories and the mastercopy contract.
+ * Deploys all factories within a specified network.
+ *
+ * This function deploys the following factories:
+ * - `NickSingletonFactory`
+ * - `ERC2470SingletonFactory`
+ * - `ZodiacModuleProxyFactory`
+ *
+ * The first two factories, `NickSingletonFactory` and `ERC2470SingletonFactory`, use known presigned transactions for deployment.
+ * The `ZodiacModuleProxyFactory` is deployed as a singleton via the `ERC2470SingletonFactory`.
+ *
+ * If all factories are already deployed, this function performs no operation.
+ *
+ * Note: Typically, these factories are already deployed across networks. This function is mostly useful for test setups.
  *
  * @param {Object} params - The function parameters.
  * @param {EIP1193Provider} params.provider - The EIP1193 compliant provider to interact with the blockchain.
- * @returns {Promise<void>} A promise that resolves once the factories and mastercopy are deployed.
+ *
+ * @returns {Promise<void>} A promise that resolves once the factories are deployed.
  */
 export default async function ({
   provider,

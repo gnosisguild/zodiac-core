@@ -3,16 +3,15 @@ import { address as factoryAddress } from "../factory/nickFactory";
 import { Create2Args } from "../types";
 
 /**
- * Encodes the transaction request for deploying a contract using CREATE2.
- *
+ * Predicts the address of a proxy contract deployed via ModuleProxyFactory.
  * @param {Object} params - The function parameters.
  * @param {string} [params.factory=factoryAddress] - The address of the factory contract.
- * @param {string} params.bytecode - The bytecode of the contract to deploy.
- * @param {Object} params.constructorArgs - The constructor arguments for the contract.
- * @param {any[]} params.constructorArgs.types - The types of the constructor arguments.
- * @param {any[]} params.constructorArgs.values - The values of the constructor arguments.
- * @param {BigNumberish} params.salt - The salt value used for CREATE2 deployment.
- * @returns {TransactionRequest} The encoded transaction request.
+ * @param {string} params.mastercopy - The address of the mastercopy contract.
+ * @param {Object} params.setupArgs - The arguments for the setup function.
+ * @param {any[]} params.setupArgs.types - The types of the setup arguments.
+ * @param {any[]} params.setupArgs.values - The values of the setup arguments.
+ * @param {BigNumberish} params.saltNonce - The saltNonce used to internally derive the final create2 salt.
+ * @returns {string} The predicted address of the proxy contract.
  */
 export default function encodeDeployTransaction({
   factory = factoryAddress,

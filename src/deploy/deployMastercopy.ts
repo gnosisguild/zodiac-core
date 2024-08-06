@@ -10,10 +10,10 @@ import waitForTransaction from "./waitForTransaction";
 import { Create2Args, EIP1193Provider } from "../types";
 
 /**
- * Deploys a mastercopy contract using a factory.
+ * Deploys a Mastercopy via a SingletonFactory
  *
  * @param {Object} params - The function parameters.
- * @param {string} [params.factory=erc2470FactoryAddress] - The address of the factory contract to use.
+ * @param {string} [params.factory=erc2470FactoryAddress] - The address of the factory to use.
  * @param {string} params.bytecode - The bytecode of the contract to deploy.
  * @param {Object} params.constructorArgs - The constructor arguments for the contract.
  * @param {any[]} params.constructorArgs.types - The types of the constructor arguments.
@@ -21,6 +21,7 @@ import { Create2Args, EIP1193Provider } from "../types";
  * @param {string | number | bigint} params.salt - The salt value used for CREATE2 deployment.
  * @param {EIP1193Provider} params.provider - The EIP1193 compliant provider to interact with the blockchain.
  * @param {function} [params.onStart] - Optional callback function to call when the deployment starts.
+ *
  * @returns {Promise<{ address: string; noop: boolean }>} The address of the deployed mastercopy contract and a noop flag indicating if the deployment was a no-operation.
  */
 export default async function deployMastercopy({

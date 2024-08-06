@@ -6,15 +6,15 @@ import {
 } from "../factory/proxyFactory";
 
 /**
- * Encodes the transaction request for deploying a proxy contract.
- *
+ * Encodes the transaction payload for deploying a Mod instance.
+ * The Mod instance is deployed as a minimal proxy through the ZodiacModuleProxyFactory.
  * @param {Object} params - The function parameters.
  * @param {string} [params.factory=factoryAddress] - The address of the factory contract.
  * @param {string} params.mastercopy - The address of the mastercopy contract.
- * @param {Object} params.setupArgs - The arguments for the setup function.
+ * @param {Object} params.setupArgs - The mod setup args
  * @param {any[]} params.setupArgs.types - The types of the setup arguments.
  * @param {any[]} params.setupArgs.values - The values of the setup arguments.
- * @param {BigNumberish} params.saltNonce - The salt nonce used to predict the proxy address.
+ * @param {BigNumberish} params.saltNonce - The salt nonce used in the proxy deployment.
  * @returns {TransactionRequest} The encoded transaction request.
  */
 export default function encodeDeployProxyTransaction({
