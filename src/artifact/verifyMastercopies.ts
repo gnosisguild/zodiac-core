@@ -6,12 +6,12 @@ import verify from "./internal/verify";
 import { MastercopyArtifact } from "../types";
 
 /**
- * Verifies mastercopy contracts specified in the artifacts file using the provided API url and key.
+ * Iterates through each entry in the mastercopy artifacts file and verifies the mastercopy on an Etherscan-compatible block explorer.
  *
  * @param {Object} params - The function parameters.
- * @param {string} params.apiUrl - The API URL used for verification. If a chainId if provided, we will try to resolve to a valid explorer URL.
+ * @param {string} params.apiUrl - The API URL used for verification. If a `chainId` is provided, the function will attempt to resolve it to a valid explorer URL.
  * @param {string} params.apiKey - The API key used for verification.
- * @param {string} [params.mastercopyArtifactsFile=defaultMastercopyArtifactsFile()] - The path to the mastercopy artifacts file. Optional.
+ * @param {string} [params.mastercopyArtifactsFile=defaultMastercopyArtifactsFile()] - The path to the mastercopy artifacts file. Optional. Defaults to the result of `defaultMastercopyArtifactsFile()`.
  *
  * @throws {Error} If the mastercopy artifacts file does not exist at the specified path.
  */

@@ -6,11 +6,12 @@ import deployMastercopy from "../deploy/deployMastercopy";
 import { EIP1193Provider, MastercopyArtifact } from "../types";
 
 /**
- * Deploys all mastercopy contracts and versions specified in the artifacts file.
+ * Iterates through each entry in the mastercopy artifacts file and deploys the mastercopy using the passed in provider.
+ * Entries that are already deployed will result in no operation.
  *
  * @param {Object} params - The function parameters.
- * @param mastercopyArtifactsFile - The path to the mastercopy artifacts file.
- * @param provider - EIP1193 compliant provider
+ * @param {string} params.mastercopyArtifactsFile - The path to the mastercopy artifacts file.
+ * @param {EIP1193Provider} params.provider - The EIP1193 compliant provider to interact with the blockchain.
  *
  * @throws {Error} If the mastercopy artifacts file does not exist at the specified path.
  */
