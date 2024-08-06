@@ -1,7 +1,7 @@
 // Core
 import encodeDeployProxy from "./encoding/encodeDeployProxy";
 import predictProxyAddress from "./encoding/predictProxyAddress";
-import { encodeDeploySingleton } from "./encoding/encodeDeploySingleton";
+import encodeDeploySingleton from "./encoding/encodeDeploySingleton";
 
 // Tooling Scripts
 import deployFactories from "./deploy/deployFactories";
@@ -16,11 +16,11 @@ import deployMastercopiesFromArtifact from "./artifact/deployMastercopies";
 import verifyMastercopiesFromArtifact from "./artifact/verifyMastercopies";
 
 export {
-  // core
+  // encoding
+  encodeDeploySingleton,
+  predictSingletonAddress,
   encodeDeployProxy,
   predictProxyAddress,
-  predictSingletonAddress,
-  encodeDeploySingleton,
 
   // deploy
   deployFactories,

@@ -1,5 +1,6 @@
 import { address as erc2470FactoryAddress } from "../factory/erc2470Factory";
 
+import encodeDeploySingleton from "../encoding/encodeDeploySingleton";
 import predictSingletonAddress, {
   creationBytecode,
 } from "../encoding/predictSingletonAddress";
@@ -7,7 +8,6 @@ import predictSingletonAddress, {
 import waitForTransaction from "./waitForTransaction";
 
 import { Create2Args, EIP1193Provider } from "../types";
-import { encodeDeploySingleton } from "../encoding/encodeDeploySingleton";
 
 /**
  * Deploys a mastercopy contract using a factory.
@@ -54,8 +54,6 @@ export default async function deployMastercopy({
 
   onStart && onStart();
 
-  const encodeDeployTransaction = encodeDeploySingleton(factory);
-
   /*
    * To address an RPC gas estimation issue with the CREATE2 opcode,
    * we combine the gas estimation for deploying from the factory contract
@@ -64,7 +62,9 @@ export default async function deployMastercopy({
   const [gasEstimation, innerGasEstimation] = await Promise.all([
     provider.request({
       method: "eth_estimateGas",
-      params: [encodeDeployTransaction({ bytecode, constructorArgs, salt })],
+      params: [
+        encodeDeploySingleton({ factory, bytecode, constructorArgs, salt }),
+      ],
     }),
     provider.request({
       method: "eth_estimateGas",
@@ -74,7 +74,7 @@ export default async function deployMastercopy({
   ]);
 
   const transaction = {
-    ...encodeDeployTransaction({
+    ...encodeDeploySingleton({
       bytecode,
       constructorArgs,
       salt,
