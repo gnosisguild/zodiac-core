@@ -5,18 +5,21 @@ import { address as nickFactoryAddress } from "../factory/nickFactory";
 import { address as erc2470FactoryAddress } from "../factory/erc2470Factory";
 
 /**
- * Encodes deployment data for a singleton contract based on the provided factory address.
+ * Encodes the transaction payload for deploying a singleton contract using the specified factory address.
  *
- * Depending on the factory address, the function chooses the appropriate encoding function
- * (`encodeDeployViaNickFactory` or `encodeDeployVia2470Factory`) to generate the deployment transaction.
+ * This function is used, for example, to deploy Mod Mastercopies, which are a type of Singleton contract.
+ *
+ * Depending on the provided factory address, the function selects the appropriate encoding method.
+ * If the factory address matches the `nickFactoryAddress`, it uses the encoding for a Nick deployment.
+ * Otherwise, it defaults to using the 2470 deployment encoding.
  *
  * @param {Object} params - The parameters for encoding the deployment.
- * @param {string} [params.factory=erc2470FactoryAddress] - The factory address to use for encoding.
+ * @param {string} [params.factory=erc2470FactoryAddress] - The singleton factory address. Defaults to `erc2470FactoryAddress`.
  * @param {string} params.bytecode - The bytecode of the contract to deploy.
- * @param {Object} params.constructorArgs - The constructor arguments for the contract.
- * @param {Array} params.constructorArgs.types - The types of the constructor arguments.
- * @param {Array} params.constructorArgs.values - The values of the constructor arguments.
- * @param {string} params.salt - A salt value used for the deployment encoding.
+ * @param {Object} params.constructorArgs - The constructor arguments for the singleton contract.
+ * @param {any[]} params.constructorArgs.types - Types for the constructor arguments.
+ * @param {any[]} params.constructorArgs.values - Values corresponding to the constructor argument types.
+ * @param {string} params.salt - A deployment salt that is internally passed to create2
  *
  * @returns {string} The encoded deployment transaction.
  */
