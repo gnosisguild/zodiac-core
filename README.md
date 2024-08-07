@@ -8,19 +8,21 @@ This package includes the base [Zodiac](https://github.com/gnosisguild/zodiac) c
 
 ## Base Contracts
 
-Should we include a section for the base contracts?
+**Module.sol**
 
-**Module**
-TODO
+Modules are contracts enabled by an Avatar that implement some decision making logic. They should import Module.sol.
 
-**GuardableModule**
-TODO
+**GuardableModule.sol**
 
-**Modifier**
-TODO
+TODO ?
 
-**GuardableModifier**
-TODO
+**Modifier.sol**
+
+Modifiers are contracts that sit between Modules and Avatars to modify the Module's behavior. For example, they might enforce a delay on all functions a Module attempts to execute. Modifiers should import Modifier.sol and must expose an interface like IAvatar.sol
+
+**GuardableModifier.sol**
+
+TODO ?
 
 ## SDK
 
