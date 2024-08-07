@@ -114,9 +114,7 @@ await deployProxy({
 
 ### Mastercopy Artifact Management
 
-The functions in this section assist module authors in tracking and persisting mastercopy artifacts for each version produced.
-
-For every version, each component should retain all data needed to deploy and verify it on the target network and its block explorer.
+Functions in this section assist module authors in collecting, persisting, and retrieving mastercopy artifact data to disk. Components should retain all necessary data to deploy and verify mastercopies on a target network and its block explorer. Every released version should be tracked.
 
 #### `writeMastercopyArtifact`
 
