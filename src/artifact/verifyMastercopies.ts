@@ -1,26 +1,26 @@
 import { existsSync, readFileSync } from "fs";
 
+import { MastercopyArtifact } from "../types";
+
 import { defaultMastercopyArtifactsFile } from "./internal/paths";
 import verify from "./internal/verify";
-
-import { MastercopyArtifact } from "../types";
 
 /**
  * Iterates through each entry in the mastercopy artifacts file and verifies the mastercopy on an Etherscan-compatible block explorer.
  *
  * @param {Object} params - The function parameters.
- * @param {string} params.apiUrl - The API URL used for verification. If a `chainId` is provided, the function will attempt to resolve it to a valid explorer URL.
+ * @param {string} params.apiUrlOrChainId - The API URL used for verification. If a chain id is provided, the function will attempt to resolve it to a valid explorer URL.
  * @param {string} params.apiKey - The API key used for verification.
  * @param {string} [params.mastercopyArtifactsFile=defaultMastercopyArtifactsFile()] - The path to the mastercopy artifacts file. Optional. Defaults to the result of `defaultMastercopyArtifactsFile()`.
  *
  * @throws {Error} If the mastercopy artifacts file does not exist at the specified path.
  */
 export default async function ({
-  apiUrl,
+  apiUrlOrChainId,
   apiKey,
   mastercopyArtifactsFile = defaultMastercopyArtifactsFile(),
 }: {
-  apiUrl: string;
+  apiUrlOrChainId: string;
   apiKey: string;
   mastercopyArtifactsFile?: string;
 }) {
@@ -40,7 +40,7 @@ export default async function ({
     )) {
       const { noop } = await verify(
         artifact as MastercopyArtifact,
-        apiUrl,
+        apiUrlOrChainId,
         apiKey
       );
 

@@ -1,4 +1,5 @@
 import { AbiCoder } from "ethers";
+
 import { resolveApiUrl } from "../../artifact/internal/chainConfig";
 
 /**
@@ -13,7 +14,7 @@ import { resolveApiUrl } from "../../artifact/internal/chainConfig";
  * @param {Object} params.constructorArgs - The constructor arguments of the contract.
  * @param {any[]} params.constructorArgs.types - The types of the constructor arguments.
  * @param {any[]} params.constructorArgs.values - The values of the constructor arguments.
- * @param {string} apiUrl - The API URL of the blockchain explorer.
+ * @param {string} apiUrlOrChainId - The API URL of the blockchain explorer or the chain id.
  * @param {string} apiKey - The API key for the blockchain explorer.
  * @returns {Promise<{ ok: boolean; noop: boolean }>} The verification result.
  * @throws {Error} If the API URL is unreachable, the API key is invalid, or the verification fails.
@@ -34,10 +35,10 @@ export default async function verify(
     address: string;
     constructorArgs: { types: any[]; values: any[] };
   },
-  apiUrl: string,
+  apiUrlOrChainId: string,
   apiKey: string
 ): Promise<{ ok: boolean; noop: boolean }> {
-  const url = resolveApiUrl(apiUrl);
+  const url = resolveApiUrl(apiUrlOrChainId);
 
   if (!(await isLiveUrl(url))) {
     throw new Error(`Couldn't reach ${url}`);
