@@ -1,12 +1,12 @@
 import { AbiCoder, concat, getCreate2Address, keccak256 } from "ethers";
-import { address as factoryAddress } from "../factory/erc2470Factory";
+import { address as erc2470FactoryAddress } from "../factory/erc2470Factory";
 import { Create2Args } from "../types";
 
 /**
  * Predicts the address of a proxy contract deployed via SingletonFactory.
  * Note: The calculation method is the same regardless of whether the factory is Nick or EIP2470.
  * @param {Object} params - The parameters for predicting the address.
- * @param {string} [params.factory=erc3460FactoryAddress] - The address of the factory contract.
+ * @param {string} [params.factory=erc2470FactoryAddress] - The address of the factory contract.
  * If not provided, the default ERC2470Factory address will be used. Note: To predict the address of a
  * singleton contract, you don't need to explicitly pass the factory address. If you leave it blank,
  * the default `erc2470FactoryAddress` will be used.
@@ -18,7 +18,7 @@ import { Create2Args } from "../types";
  * @returns {string} The predicted address of the singleton contract.
  */
 export default function predictSingletonAddress({
-  factory = factoryAddress,
+  factory = erc2470FactoryAddress,
   bytecode,
   constructorArgs,
   salt,
