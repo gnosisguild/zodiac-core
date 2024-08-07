@@ -13,6 +13,12 @@ import {
 
 import { TestModule__factory } from "../typechain-types";
 
+/**
+ * Resets the test environment and deploys the necessary factories and a mastercopy.
+ * Returns the address of the deployed mastercopy.
+ *
+ * @returns {Promise<{ mastercopy: string }>} The address of the deployed mastercopy.
+ */
 async function setup() {
   const bytecode = TestModule__factory.bytecode;
   const salt =
@@ -41,6 +47,10 @@ const avatar = "0x0000000000000000000000000000000000000123";
 const target = "0x0000000000000000000000000000000000000456";
 
 describe("deployProxy", () => {
+  /**
+   * Tests the deployment of a proxy at the predicted address.
+   * Verifies that the proxy is deployed successfully and the predicted address is correct.
+   */
   it("Deploys a proxy at the predicted address", async () => {
     const { mastercopy } = await loadFixture(setup);
 

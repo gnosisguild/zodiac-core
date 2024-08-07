@@ -3,6 +3,14 @@ import { readdirSync, readFileSync, statSync } from "fs";
 
 import { BuildArtifact } from "../../types";
 
+/**
+ * Retrieves the build artifact for a specified contract.
+ *
+ * @param {string} _contractName - The name of the contract.
+ * @param {string} buildDirPath - The path to the directory containing build artifacts.
+ * @returns {BuildArtifact} The build artifact containing the contract's bytecode, ABI, and compiler information.
+ * @throws {Error} If the artifact or build info is not found.
+ */
 export default function getBuildArtifact(
   _contractName: string,
   buildDirPath: string
@@ -30,6 +38,14 @@ export default function getBuildArtifact(
   };
 }
 
+/**
+ * Resolves the paths to the artifact and build info files for a specified contract.
+ *
+ * @param {string} name - The name of the contract.
+ * @param {string} artifactsDirPath - The path to the directory containing artifacts.
+ * @returns {Object} An object containing the paths to the artifact and build info files.
+ * @throws {Error} If the artifact file is not found.
+ */
 function resolvePaths(name: string, artifactsDirPath: string) {
   const artifactPath = searchFile(`${name}.json`, artifactsDirPath);
   if (!artifactPath) {
@@ -44,6 +60,13 @@ function resolvePaths(name: string, artifactsDirPath: string) {
   return { artifactPath, buildInfoPath };
 }
 
+/**
+ * Searches for a file in a directory and its subdirectories.
+ *
+ * @param {string} fileName - The name of the file to search for.
+ * @param {string} dirPath - The path to the directory to search in.
+ * @returns {string | null} The path to the found file, or null if not found.
+ */
 function searchFile(fileName: string, dirPath: string): string | null {
   for (const file of readdirSync(dirPath)) {
     const fullPath = path.join(dirPath, file);

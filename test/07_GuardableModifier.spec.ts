@@ -12,6 +12,11 @@ import {
 import typedDataForTransaction from "./typedDataForTransaction";
 
 describe("GuardableModifier", async () => {
+  /**
+   * Sets up the test environment by deploying the necessary contracts.
+   *
+   * @returns {Promise<{ executor: any, signer: any, someone: any, relayer: any, avatar: any, guard: any, modifier: any }>} The deployed contract instances and test signers.
+   */
   async function setupTests() {
     const [deployer, executor, signer, someone, relayer] =
       await hre.ethers.getSigners();
@@ -55,6 +60,10 @@ describe("GuardableModifier", async () => {
   }
 
   describe("exec", async () => {
+    /**
+     * Tests executing a transaction without a guard.
+     * Verifies that the transaction does not revert if no guard is set.
+     */
     it("skips guard pre-check if no guard is set", async () => {
       const { avatar, modifier, executor } = await loadFixture(setupTests);
 
@@ -65,6 +74,10 @@ describe("GuardableModifier", async () => {
       ).to.not.be.reverted;
     });
 
+    /**
+     * Tests executing a transaction with a guard set.
+     * Verifies that the guard's pre-check is called and emits the PreChecked event.
+     */
     it("pre-checks transaction if guard is set", async () => {
       const { avatar, executor, modifier, guard } =
         await loadFixture(setupTests);
@@ -79,6 +92,10 @@ describe("GuardableModifier", async () => {
         .withArgs(await executor.getAddress());
     });
 
+    /**
+     * Tests executing a relayed transaction with a guard set.
+     * Verifies that the guard's pre-check is called with the signer's address.
+     */
     it("pre-check gets called with signer when transaction is relayed", async () => {
       const { signer, modifier, relayer, avatar, guard } =
         await loadFixture(setupTests);
@@ -116,6 +133,10 @@ describe("GuardableModifier", async () => {
         .withArgs(await signer.getAddress());
     });
 
+    /**
+     * Tests executing a transaction with a guard set.
+     * Verifies that the transaction is pre-checked and reverts if the guard's conditions are not met.
+     */
     it("pre-checks and reverts transaction if guard is set", async () => {
       const { avatar, executor, modifier, guard } =
         await loadFixture(setupTests);
@@ -128,6 +149,10 @@ describe("GuardableModifier", async () => {
       ).to.be.revertedWith("Cannot send 1337");
     });
 
+    /**
+     * Tests executing a transaction without a post-check guard.
+     * Verifies that the guard's post-check is not called if no guard is set.
+     */
     it("skips post-check if no guard is enabled", async () => {
       const { avatar, executor, modifier, guard } =
         await loadFixture(setupTests);
@@ -139,6 +164,10 @@ describe("GuardableModifier", async () => {
       ).not.to.emit(guard, "PostChecked");
     });
 
+    /**
+     * Tests executing a transaction with a guard set.
+     * Verifies that the guard's post-check is called and emits the PostChecked event.
+     */
     it("post-checks transaction if guard is set", async () => {
       const { avatar, executor, modifier, guard } =
         await loadFixture(setupTests);
@@ -155,6 +184,10 @@ describe("GuardableModifier", async () => {
   });
 
   describe("execAndReturnData", async () => {
+    /**
+     * Tests executing a transaction that returns data without a guard.
+     * Verifies that the transaction does not revert if no guard is set.
+     */
     it("skips guard pre-check if no guard is set", async () => {
       const { avatar, modifier, executor } = await loadFixture(setupTests);
 
@@ -170,6 +203,10 @@ describe("GuardableModifier", async () => {
       ).to.not.be.reverted;
     });
 
+    /**
+     * Tests executing a transaction that returns data with a guard set.
+     * Verifies that the guard's pre-check is called and emits the PreChecked event.
+     */
     it("pre-checks transaction if guard is set", async () => {
       const { avatar, executor, modifier, guard } =
         await loadFixture(setupTests);
@@ -189,6 +226,10 @@ describe("GuardableModifier", async () => {
         .withArgs(await executor.getAddress());
     });
 
+    /**
+     * Tests executing a relayed transaction that returns data with a guard set.
+     * Verifies that the guard's pre-check is called with the signer's address.
+     */
     it("pre-check gets called with signer when transaction is relayed", async () => {
       const { signer, modifier, relayer, avatar, guard } =
         await loadFixture(setupTests);
@@ -226,6 +267,10 @@ describe("GuardableModifier", async () => {
         .withArgs(signer.address);
     });
 
+    /**
+     * Tests executing a transaction that returns data with a guard set.
+     * Verifies that the transaction is pre-checked and reverts if the guard's conditions are not met.
+     */
     it("pre-checks and reverts transaction if guard is set", async () => {
       const { avatar, executor, modifier, guard } =
         await loadFixture(setupTests);
@@ -243,6 +288,10 @@ describe("GuardableModifier", async () => {
       ).to.be.revertedWith("Cannot send 1337");
     });
 
+    /**
+     * Tests executing a transaction that returns data without a post-check guard.
+     * Verifies that the guard's post-check is not called if no guard is set.
+     */
     it("skips post-check if no guard is enabled", async () => {
       const { avatar, executor, modifier, guard } =
         await loadFixture(setupTests);
@@ -259,6 +308,10 @@ describe("GuardableModifier", async () => {
       ).not.to.emit(guard, "PostChecked");
     });
 
+    /**
+     * Tests executing a transaction that returns data with a guard set.
+     * Verifies that the guard's post-check is called and emits the PostChecked event.
+     */
     it("post-checks transaction if guard is set", async () => {
       const { avatar, executor, modifier, guard } =
         await loadFixture(setupTests);
@@ -279,7 +332,15 @@ describe("GuardableModifier", async () => {
     });
   });
 });
-
+/**
+ *	Signs a transaction using the given signer.
+ *
+ *	@param {string} contract - The contract address.
+ *	@param {TransactionLike} transaction - The transaction to be signed.
+ *	@param {string} salt - The salt used for signing.
+ *	@param {Signer} signer - The signer used to sign the transaction.
+ *	@returns {Promise} The signed transaction.
+ */
 async function sign(
   contract: string,
   transaction: TransactionLike,

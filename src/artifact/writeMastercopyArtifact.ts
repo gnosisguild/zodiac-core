@@ -12,10 +12,10 @@ import getBuildArtifact from "./internal/getBuildArtifact";
 import { MastercopyArtifact } from "../types";
 
 /**
- * Extracts and stores mastercopy contract information in the artifacts file.
+ * Extracts and stores current Mastercopy contract information in the artifacts file.
  *
- * For optional fields like `compilerInput` and `bytecode`, these can either be provided externally or extracted internally from build artifacts. 
- * The `compilerInput` is expected to be provided, since the internal code will include every generated source in the verification, instead of only including sources reached by the current contract through graph traversal.
+ * Optional fields such as `compilerInput` and `bytecode` can be provided externally or extracted from build artifacts.
+ * It is recommended to provide `compilerInput`, as the internal code will include all generated sources in the verification, rather than just the sources reached by the current contract through graph traversal.
  *
  * @param {Object} params - The function parameters.
  * @param {string} params.contractVersion - The version of the contract.
@@ -30,7 +30,7 @@ import { MastercopyArtifact } from "../types";
  * @param {string} [params.buildDirPath=defaultBuildDir()] - The path to the build directory. Optional.
  * @param {string} [params.mastercopyArtifactsFile=defaultMastercopyArtifactsFile()] - The path to the mastercopy artifacts file. Optional.
  */
-export default function extractMastercopy({
+export default function extractAndWriteMastercopyArtifact({
   contractVersion,
   contractName,
   compilerInput: minimalCompilerInput,

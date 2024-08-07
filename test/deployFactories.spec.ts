@@ -10,11 +10,18 @@ import { deployFactories } from "../src";
 
 import createEIP1193 from "./createEIP1193";
 
+/**
+ * Resets the test environment.
+ */
 async function setup() {
   await reset();
 }
 
 describe("deployFactories", () => {
+  /**
+   * Tests the deployment of all factories on an empty network.
+   * Verifies that the factories are deployed successfully and their code is not empty.
+   */
   it("Deploys all factories on an empty network", async () => {
     await loadFixture(setup);
 
@@ -34,7 +41,11 @@ describe("deployFactories", () => {
     expect(await provider.getCode(moduleFactoryAddress)).to.not.equal("0x");
   });
 
-  it("Does nothing is all factories exist", async () => {
+  /**
+   * Tests the deployment of factories when they already exist.
+   * Verifies that the deployment does nothing if the factories are already deployed.
+   */
+  it("Does nothing if all factories exist", async () => {
     await loadFixture(setup);
     const [signer] = await hre.ethers.getSigners();
     const { provider } = signer;

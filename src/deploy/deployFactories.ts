@@ -22,7 +22,31 @@ import waitForTransaction from "./waitForTransaction";
 
 import { EIP1193Provider } from "../types";
 
-export default async function ({ provider }: { provider: EIP1193Provider }) {
+/**
+ * Deploys all factories within a specified network.
+ *
+ * This function deploys the following factories:
+ * - `NickSingletonFactory`
+ * - `ERC2470SingletonFactory`
+ * - `ZodiacModuleProxyFactory`
+ *
+ * The first two factories, `NickSingletonFactory` and `ERC2470SingletonFactory`, use known presigned transactions for deployment.
+ * The `ZodiacModuleProxyFactory` is deployed as a singleton via the `ERC2470SingletonFactory`.
+ *
+ * If all factories are already deployed, this function performs no operation.
+ *
+ * Note: Typically, these factories are already deployed across networks. This function is mostly useful for test setups.
+ *
+ * @param {Object} params - The function parameters.
+ * @param {EIP1193Provider} params.provider - The EIP1193 compliant provider to interact with the blockchain.
+ *
+ * @returns {Promise<void>} A promise that resolves once the factories are deployed.
+ */
+export default async function ({
+  provider,
+}: {
+  provider: EIP1193Provider;
+}): Promise<void> {
   await deployKnownFactory({
     funding: nickFunding,
     deployer: nickDeployer,
@@ -47,6 +71,18 @@ export default async function ({ provider }: { provider: EIP1193Provider }) {
   });
 }
 
+/**
+ * Deploys a known factory contract.
+ *
+ * @param {Object} params - The function parameters.
+ * @param {bigint} params.funding - The amount of funding to send to the deployer.
+ * @param {string} params.deployer - The address of the deployer.
+ * @param {string} params.signedTransaction - The signed transaction to deploy the factory.
+ * @param {string} params.factoryAddress - The address of the factory contract.
+ * @param {EIP1193Provider} params.provider - The EIP1193 compliant provider to interact with the blockchain.
+ * @returns {Promise<void>} A promise that resolves once the factory is deployed.
+ * @throws {Error} If the factory bytecode is not found after deployment.
+ */
 async function deployKnownFactory({
   funding,
   deployer,
@@ -59,7 +95,8 @@ async function deployKnownFactory({
   signedTransaction: string;
   factoryAddress: string;
   provider: EIP1193Provider;
-}) {
+}): Promise<void> {
+  // Check if the factory contract is already deployed
   {
     const code = await provider.request({
       method: "eth_getCode",
@@ -70,6 +107,7 @@ async function deployKnownFactory({
     }
   }
 
+  // Send funding to the deployer address
   {
     const hash = (await provider.request({
       method: "eth_sendTransaction",
@@ -78,6 +116,7 @@ async function deployKnownFactory({
     await waitForTransaction(hash, provider);
   }
 
+  // Send the signed deploy transaction
   {
     const hash = (await provider.request({
       method: "eth_sendRawTransaction",
@@ -86,6 +125,7 @@ async function deployKnownFactory({
     await waitForTransaction(hash, provider);
   }
 
+  // Verify that the factory contract is deployed
   {
     const code = await provider.request({
       method: "eth_getCode",

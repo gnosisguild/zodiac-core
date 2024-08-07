@@ -5,6 +5,20 @@ import {
 } from "../factory/erc2470Factory";
 import { Create2Args } from "../types";
 
+/**
+ * Encodes the transaction request for deploying a Singleton via ERC2470Factory.
+ * @param {Object} params - The function parameters.
+ * @param {string} [params.factory=factoryAddress] - The address of the factory contract.
+ * If not provided, the default ERC2470Factory address will be used. Note: To deploy a Singleton,
+ * you don't need to explicitly pass the factory address. If you leave it blank, the default
+ * `erc2470FactoryAddress` will be used.
+ * @param {string} params.bytecode - The bytecode of the contract to deploy.
+ * @param {Object} params.constructorArgs - The constructor arguments for the Singleton that is about to be deployed.
+ * @param {any[]} params.constructorArgs.types - The types of the constructor arguments.
+ * @param {any[]} params.constructorArgs.values - Values corresponding to the constructor argument types.
+ * @param {string} params.salt - A deployment salt that is internally passed to create2
+ * @returns {TransactionRequest} The encoded transaction request.
+ */
 export default function encodeDeployTransaction({
   factory = factoryAddress,
   bytecode,

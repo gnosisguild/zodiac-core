@@ -1,7 +1,7 @@
 {
-  "name": "@gnosis.pm/zodiac",
-  "version": "4.0.3",
-  "description": "Zodiac is a composable design philosophy and collection of standards for building DAO ecosystem tooling.",
+  "name": "zodiac-core",
+  "version": "1.0.0",
+  "description": "zodiac-core is a collection of contracts and SDK functions that facilitates the development of fine-grained Zodiac components.",
   "author": "Auryn Macmillan <auryn@gnosisguild.org>",
   "license": "LGPL-3.0+",
   "main": "dist/cjs/index.js",
@@ -47,8 +47,8 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.7",
     "@nomicfoundation/hardhat-ethers": "^3.0.6",
-    "@nomicfoundation/hardhat-ignition-ethers": "^0.15.5",
     "@nomicfoundation/hardhat-ignition": "^0.15.5",
+    "@nomicfoundation/hardhat-ignition-ethers": "^0.15.5",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.11",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@nomicfoundation/hardhat-verify": "^2.0.8",
@@ -57,6 +57,7 @@
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
     "@types/node": "^20.0.0",
+    "@types/semver": "^7.5.8",
     "@types/yargs": "^17.0.13",
     "@typescript-eslint/eslint-plugin": "^7.17.0",
     "@typescript-eslint/parser": "^7.17.0",
@@ -84,6 +85,7 @@
     "@gnosis.pm/safe-contracts": "1.3.0",
     "@openzeppelin/contracts": "5.0.2",
     "@openzeppelin/contracts-upgradeable": "5.0.2",
-    "ethers": "^6.13.2"
+    "ethers": "^6.13.2",
+    "semver": "^7.6.3"
   }
 }
