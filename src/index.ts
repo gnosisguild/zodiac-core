@@ -10,8 +10,8 @@ import deployProxy from "./deploy/deployProxy";
 
 import predictSingletonAddress from "./encoding/predictSingletonAddress";
 
-// Main Entrypoints
-import storeMastercopyArtifact from "./artifact/storeMastercopy";
+import readMastercopyArtifact from "./artifact/readMastercopyArtifact";
+import writeMastercopyArtifact from "./artifact/writeMastercopyArtifact";
 import deployMastercopiesFromArtifact from "./artifact/deployMastercopies";
 import verifyMastercopiesFromArtifact from "./artifact/verifyMastercopies";
 
@@ -28,7 +28,8 @@ export {
   deployProxy,
 
   // artifact
-  storeMastercopyArtifact,
+  readMastercopyArtifact,
+  writeMastercopyArtifact,
   deployMastercopiesFromArtifact,
   verifyMastercopiesFromArtifact,
 };

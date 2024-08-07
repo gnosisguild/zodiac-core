@@ -30,7 +30,7 @@ import { MastercopyArtifact } from "../types";
  * @param {string} [params.buildDirPath=defaultBuildDir()] - The path to the build directory. Optional.
  * @param {string} [params.mastercopyArtifactsFile=defaultMastercopyArtifactsFile()] - The path to the mastercopy artifacts file. Optional.
  */
-export default function extractAndStoreMastercopyArtifact({
+export default function extractAndWriteMastercopyArtifact({
   contractVersion,
   contractName,
   compilerInput: minimalCompilerInput,
