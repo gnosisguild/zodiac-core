@@ -118,23 +118,22 @@ The functions in this section assist module authors in tracking and persisting m
 
 For every version, each component should retain all data needed to deploy and verify it on the target network and its block explorer.
 
-#### `storeMastercopy`
+#### `writeMastercopyArtifact`
 
-This function collects and compiles all mastercopy artifact data and saves it to the mastercopy artifacts file, which is by default named mastercopies.json.
+Collects and compiles build artifact data for the current mastercopy version, adding it to the artifacts file, which defaults to `mastercopies.json`. It takes the following inputs:
 
-It receives the following inputs:
-
+- Contract Name
 - Mastercopy Version
-- Mastercopy Contract Name
 - Constructor Args
 - Creation Salt
+- MinimalSourceCode (optional)
 
-It retrieves from the build directory:
+It crawls the build directory on disk and retrieves:
 
 - Compiled Bytecode
-- Source Code (if a minimal source code input was not provided)
+- Source Code (if MinimalSourceCode was not provided)
 
-A new entry in the output file will be produced for the current version and contract name.
+A new MastercopyArtifact entry will be written to the artifacts file.
 
 ```ts
 import { storeMastercopy as storeMastercopyArtifact } from "zodiac-core";
