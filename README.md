@@ -8,21 +8,21 @@ This package includes the base [Zodiac](https://github.com/gnosisguild/zodiac) c
 
 ## Base Contracts
 
-**Module.sol**
+[**`Module.sol`**](/contracts/core/Module.sol)
 
 Modules are contracts enabled by an Avatar that implement some decision making logic. They should import Module.sol.
 
-**GuardableModule.sol**
+[**`GuardableModule.sol`**](/contracts/core/GuardableModule.sol)
 
-TODO ?
+A module with a guard enabled that can check transactions before and after execution. Useful for limiting the scope of addresses and functions that a module can call or ensure a certain state is never changed by a module.
 
-**Modifier.sol**
+[**`Modifier.sol`**](/contracts/core/Modifier.sol)
 
 Modifiers are contracts that sit between Modules and Avatars to modify the Module's behavior. For example, they might enforce a delay on all functions a Module attempts to execute. Modifiers should import Modifier.sol and must expose an interface like IAvatar.sol
 
-**GuardableModifier.sol**
+[**`GuardableModifier.sol`**](/contracts/core/GuardableModifier.sol)
 
-TODO ?
+A modifier with a guard enabled that can check transactions before and after execution. Useful for limiting the scope of addresses and functions that a modifier can call or ensure a certain state is never changed by a modifier.
 
 ## SDK
 
