@@ -7,6 +7,9 @@ import { Create2Args } from "../types";
  * Note: The calculation method is the same regardless of whether the factory is Nick or EIP2470.
  * @param {Object} params - The parameters for predicting the address.
  * @param {string} [params.factory=erc3460FactoryAddress] - The address of the factory contract.
+ * If not provided, the default ERC2470Factory address will be used. Note: To predict the address of a
+ * singleton contract, you don't need to explicitly pass the factory address. If you leave it blank,
+ * the default `erc2470FactoryAddress` will be used.
  * @param {string} params.bytecode - The bytecode of the contract to deploy.
  * @param {Object} params.constructorArgs - The constructor arguments for the contract.
  * @param {any[]} params.constructorArgs.types - The types of the constructor arguments.

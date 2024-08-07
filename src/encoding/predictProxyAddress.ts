@@ -13,6 +13,9 @@ import { address as factoryAddress } from "../factory/proxyFactory";
  * Predicts the address of a proxy contract deployed via ModuleProxyFactory.
  * @param {Object} params - The function parameters.
  * @param {string} [params.factory=factoryAddress] - The address of the factory contract.
+ * If not provided, the default ModuleProxyFactory address will be used. Note: To predict the address
+ * of a proxy contract, you don't need to explicitly pass the factory address. If you leave it blank,
+ * the default `proxyFactoryAddress` will be used.
  * @param {string} params.mastercopy - The address of the mastercopy contract.
  * @param {Object} params.setupArgs - The arguments for the setup function.
  * @param {any[]} params.setupArgs.types - The types of the setup arguments.

@@ -15,6 +15,8 @@ import { address as erc2470FactoryAddress } from "../factory/erc2470Factory";
  *
  * @param {Object} params - The parameters for encoding the deployment.
  * @param {string} [params.factory=erc2470FactoryAddress] - The singleton factory address. Defaults to `erc2470FactoryAddress`.
+ * Note: To deploy a singleton contract, you don't need to explicitly pass the factory address. If you leave it blank,
+ * the default `erc2470FactoryAddress` will be used.
  * @param {string} params.bytecode - The bytecode of the contract to deploy.
  * @param {Object} params.constructorArgs - The constructor arguments for the singleton contract.
  * @param {any[]} params.constructorArgs.types - Types for the constructor arguments.

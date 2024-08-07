@@ -10,6 +10,9 @@ import {
  * The Mod instance is deployed as a minimal proxy through the ZodiacModuleProxyFactory.
  * @param {Object} params - The function parameters.
  * @param {string} [params.factory=factoryAddress] - The address of the factory contract.
+ * If not provided, the default ModuleProxyFactory will be used. Note: To deploy a proxy,
+ * you don't need to explicitly pass the factory address in. If you leave it blank,
+ * the default ModuleProxyFactory will be used, and this is what we want.
  * @param {string} params.mastercopy - The address of the mastercopy contract.
  * @param {Object} params.setupArgs - The mod setup args
  * @param {any[]} params.setupArgs.types - The types of the setup arguments.
