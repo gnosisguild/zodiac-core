@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
+import semver from "semver";
 
 import { address as erc2470FactoryAddress } from "../factory/erc2470Factory";
 import predictSingletonAddress from "../encoding/predictSingletonAddress";
@@ -80,19 +81,30 @@ export default function extractAndWriteMastercopyArtifact({
     compilerInput: minimalCompilerInput || buildArtifact.compilerInput,
   };
 
+  const nextMastercopies = {
+    ...mastercopies,
+    [contractName]: {
+      ...(mastercopies[contractName] || {}),
+      [contractVersion]: mastercopyArtifact,
+    },
+  };
+
+  let sortedMastercopies: Record<
+    string,
+    Record<string, MastercopyArtifact>
+  > = {};
+
+  for (const name of Object.keys(nextMastercopies)) {
+    sortedMastercopies[name] = {};
+    const versions = semver.sort(Object.keys(nextMastercopies[name]));
+    for (const version of versions) {
+      sortedMastercopies[name][version] = nextMastercopies[name][version];
+    }
+  }
+
   writeFileSync(
     mastercopyArtifactsFile,
-    JSON.stringify(
-      {
-        ...mastercopies,
-        [contractName]: {
-          ...(mastercopies[contractName] || {}),
-          [contractVersion]: mastercopyArtifact,
-        },
-      },
-      null,
-      2
-    ),
+    JSON.stringify(sortedMastercopies, null, 2),
     "utf8"
   );
 }
