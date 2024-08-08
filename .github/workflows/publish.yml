@@ -47,7 +47,6 @@ jobs:
           scope: "@gnosis-guild"
       - run: yarn
       - run: yarn build
-      - run: yarn build:sdk
       - run: echo registry=https://npm.pkg.github.com/gnosis-guild >> .npmrc
       - run: npm publish
         env:
