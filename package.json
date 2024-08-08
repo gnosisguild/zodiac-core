@@ -1,7 +1,7 @@
 {
-  "name": "zodiac-core",
+  "name": "@gnosis-guild/zodiac-core",
   "version": "1.0.0",
-  "description": "zodiac-core is a collection of contracts and SDK functions that facilitates the development of fine-grained Zodiac components.",
+  "description": "Zodiac is a composable design philosophy and collection of standards for building DAO ecosystem tooling.",
   "author": "Auryn Macmillan <auryn@gnosisguild.org>",
   "license": "LGPL-3.0+",
   "main": "dist/cjs/index.js",
@@ -40,7 +40,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gnosis/zodiac.git"
+    "url": "https://github.com/gnosisguild/zodiac-core.git"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.7",
