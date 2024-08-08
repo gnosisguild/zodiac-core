@@ -18,7 +18,6 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn
       - run: yarn build
-      - run: yarn build:sdk
       - run: yarn coverage
 
   publish-npm:
@@ -32,7 +31,6 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: yarn
       - run: yarn build
-      - run: yarn build:sdk
       - run: yarn release
         env:
           NODE_AUTH_TOKEN: ${{secrets.PUBLISH_NPM_TOKEN}}
