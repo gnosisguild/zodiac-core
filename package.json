@@ -23,8 +23,6 @@
   "scripts": {
     "build": "hardhat compile && tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",
     "clean": "rm -rf dist build typechain-types",
-    "deploy:factory": "hardhat singleton-deployment --network",
-    "deploy": "hardhat deploy-replay --network",
     "test": "hardhat test",
     "coverage": "hardhat coverage",
     "lint": "yarn lint:sol && yarn lint:ts",
