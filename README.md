@@ -120,69 +120,69 @@ Functions in this section assist module authors in collecting, persisting, and r
 
 Extracts and stores current Mastercopy data from the contract build and adds it to the artifacts file, which defaults to `mastercopies.json`. This function is particularly useful when compiling contracts locally.
 
-- **Inputs:**
+**Inputs**
 
-  • **contractVersion** - The version of the contract.
+• **`contractVersion`** - The version of the contract.
 
-  • **contractName** - The name of the contract.
+• **`contractName`** - The name of the contract.
 
-  • **constructorArgs** - The constructor arguments required for deployment.
+• **`constructorArgs`** - The constructor arguments required for deployment.
 
-  • **salt** - A 32-byte value used for mastercopy deployment.
+• **`salt`** - A 32-byte value used for mastercopy deployment.
 
-  • **factory** - (Optional) The address of the factory contract used to deploy the mastercopy. Defaults to erc2470FactoryAddress.
+• **`factory`** - (Optional) The address of the factory contract used to deploy the mastercopy. Defaults to erc2470FactoryAddress.
 
-  • **bytecode** - (Optional) The bytecode of the contract.
+• **`bytecode`** - (Optional) The bytecode of the contract.
 
-  • **compilerInput** - (Optional) The minimal compiler input.
+• **`compilerInput`** - (Optional) The minimal compiler input.
 
-  • **buildDirPath** - (Optional) The path to the build directory. Defaults to defaultBuildDir().
+• **`buildDirPath`** - (Optional) The path to the build directory. Defaults to defaultBuildDir().
 
-  • **mastercopyArtifactsFile** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
+• **`mastercopyArtifactsFile`** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
 
-- **Retrieves:**
+**Retrieves**
 
-  • **Compiled Bytecode**
+• **Compiled Bytecode**
 
-  • **Source Code** - If compilerInput is not provided, it will be retrieved from the build directory.
+• **Source Code** - If compilerInput is not provided, it will be retrieved from the build directory.
 
-  ```ts
-  import { writeMastercopyFromBuild } from "@gnosis-guild/zodiac-core";
+```ts
+import { writeMastercopyFromBuild } from "@gnosis-guild/zodiac-core";
 
-  writeMastercopyFromBuild({
-    contractVersion: "1.0.0",
-    contractName: "MyNewMod",
-    constructorArgs: {
-      types: ["uint256", "address"],
-      values: [0, "0x<address>"],
-    },
-    salt: "0x<bytes32>",
-  });
-  ```
+writeMastercopyFromBuild({
+  contractVersion: "1.0.0",
+  contractName: "MyNewMod",
+  constructorArgs: {
+    types: ["uint256", "address"],
+    values: [0, "0x<address>"],
+  },
+  salt: "0x<bytes32>",
+});
+```
 
 #### `writeMastercopyFromExplorer`
 
 Fetches and stores the Mastercopy data from a deployed contract on a blockchain by querying an explorer like Etherscan. This function is ideal for contracts already deployed.
 
-- **Inputs:**
+**Inputs**
 
-  • **contractVersion** - The version of the contract.
+• **`contractVersion`** - The version of the contract.
 
-  • **address** - The address of the deployed contract.
+• **`address`** - The address of the deployed contract.
 
-  • **bytecode** - The bytecode of the contract.
+• **`bytecode`** - The bytecode of the contract.
 
-  • **constructorArgs** - The constructor arguments used for deployment.
+• **`constructorArgs`** - The constructor arguments used for deployment.
 
-  • **salt** - A 32-byte value used for mastercopy deployment.
+• **`salt`** - A 32-byte value used for mastercopy deployment.
 
-  • **apiUrlOrChainId** - The API URL or Chain ID of the explorer service.
+• **`apiUrlOrChainId`** - The API URL or Chain ID of the explorer service.
 
-  • **apiKey** - The API key for accessing the explorer service.
+• **`apiKey`** - The API key for accessing the explorer service.
 
-  • **factory** - (Optional) The address of the factory contract used to deploy the mastercopy. Defaults to erc2470FactoryAddress.
+• **`factory`** - (Optional) The address of the factory contract used to deploy the mastercopy. Defaults to erc2470FactoryAddress.
 
-  • **mastercopyArtifactsFile** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
+• **`mastercopyArtifactsFile`** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
 
 ```ts
 import { writeMastercopyFromExplorer } from "@gnosis-guild/zodiac-core";
@@ -205,13 +205,13 @@ await writeMastercopyFromExplorer({
 
 Retrieves the Mastercopy artifact information from the artifacts file. This function is used to access stored data for a specific contract version or the latest available version if no version is specified.
 
-- **Inputs:**
+**Inputs**
 
-  • **contractName** - The name of the contract.
+• **`contractName`** - The name of the contract.
 
-  • **contractVersion** - (Optional) The version of the contract. If not provided, the latest version will be used.
+• **`contractVersion`** - (Optional) The version of the contract. If not provided, the latest version will be used.
 
-  • **mastercopyArtifactsFile** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
+• **`mastercopyArtifactsFile`** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
 
 ```ts
 import { readMastercopy } from "@gnosis-guild/zodiac-core";
@@ -226,11 +226,11 @@ const artifact = readMastercopy({
 
 Deploys each Mastercopy listed in the artifacts file using the provided provider. If a Mastercopy is already deployed, it will be skipped.
 
-- **Inputs:**
+**Inputs**
 
-  • **provider** - An EIP1193-compliant provider to interact with the blockchain.
+• **`provider`** - An EIP1193-compliant provider to interact with the blockchain.
 
-  • **mastercopyArtifactsFile** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
+• **`mastercopyArtifactsFile`** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
 
 ```ts
 import { deployAllMastercopies } from "zodiac-core";
@@ -244,13 +244,13 @@ await deployAllMastercopies({
 
 Verifies each Mastercopy in the artifacts file on an Etherscan-compatible block explorer. This function ensures that the deployed contracts are properly verified and visible on public explorers.
 
-- **Inputs:**
+**Inputs**
 
-  • **apiUrlOrChainId** - The API URL or Chain ID for the verification service.
+• **`apiUrlOrChainId`** - The API URL or Chain ID for the verification service.
 
-  • **apiKey** - The API key used for verification.
+• **`apiKey`** - The API key used for verification.
 
-  • **mastercopyArtifactsFile** - (Optional) The path to the mastercopy artifacts file. Defaults to `defaultMastercopyArtifactsFile()`.
+• **`mastercopyArtifactsFile`** - (Optional) The path to the mastercopy artifacts file. Defaults to `defaultMastercopyArtifactsFile()`.
 
 ```ts
 import { verifyAllMastercopies } from "zodiac-core";
