@@ -232,7 +232,7 @@ Deploys each Mastercopy listed in the artifacts file using the provided provider
 
   • **mastercopyArtifactsFile** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
 
-```
+```ts
 import { deployAllMastercopies } from "zodiac-core";
 
 await deployAllMastercopies({
