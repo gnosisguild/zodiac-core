@@ -18,7 +18,7 @@ import { MastercopyArtifact } from "../types";
  * @returns {MastercopyArtifact} The Mastercopy artifact information.
  * @throws {Error} If the artifacts file does not exist, the contract name is not found, or the contract version is invalid.
  */
-export default function readMastercopyArtifact({
+export default function readMastercopy({
   contractName,
   contractVersion,
   mastercopyArtifactsFile = defaultMastercopyArtifactsFile(),

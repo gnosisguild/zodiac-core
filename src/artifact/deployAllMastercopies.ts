@@ -6,7 +6,7 @@ import deployMastercopy from "../deploy/deployMastercopy";
 import { EIP1193Provider, MastercopyArtifact } from "../types";
 
 /**
- * Iterates through each entry in the mastercopy artifacts file and deploys the mastercopy using the passed in provider.
+ * Iterates through each entry in the mastercopy artifacts file and deploys each mastercopy using the passed in provider.
  * Entries that are already deployed will result in no operation.
  *
  * @param {Object} params - The function parameters.

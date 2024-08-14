@@ -20,25 +20,25 @@ import { resolveApiUrl } from "./chainConfig";
  * @returns {Promise<{ ok: boolean; noop: boolean }>} The verification result.
  * @throws {Error} If the API URL is unreachable, the API key is invalid, or the verification fails.
  */
-export default async function verify(
-  {
-    contractName,
-    sourceName,
-    compilerVersion,
-    compilerInput,
-    address,
-    constructorArgs: { types, values },
-  }: {
-    contractName: string;
-    sourceName: string;
-    compilerVersion: string;
-    compilerInput: string;
-    address: string;
-    constructorArgs: { types: any[]; values: any[] };
-  },
-  apiUrlOrChainId: string,
-  apiKey: string
-): Promise<{ ok: boolean; noop: boolean }> {
+export async function verifySourceCode({
+  contractName,
+  sourceName,
+  compilerVersion,
+  compilerInput,
+  address,
+  constructorArgs: { types, values },
+  apiUrlOrChainId,
+  apiKey,
+}: {
+  contractName: string;
+  sourceName: string;
+  compilerVersion: string;
+  compilerInput: string;
+  address: string;
+  constructorArgs: { types: any[]; values: any[] };
+  apiUrlOrChainId: string;
+  apiKey: string;
+}): Promise<{ ok: boolean; noop: boolean }> {
   const url = resolveApiUrl(apiUrlOrChainId);
 
   if (!(await isLiveUrl(url))) {
@@ -64,7 +64,6 @@ export default async function verify(
     sourceCode: JSON.stringify(compilerInput),
     codeformat: "solidity-standard-json-input",
     contractname: `${sourceName}:${contractName}`,
-    // contractname: contractName,
     compilerversion: compilerVersion,
     constructorArguements: AbiCoder.defaultAbiCoder()
       .encode(types, values)
@@ -93,11 +92,15 @@ export default async function verify(
   };
 }
 
-export async function retrieve(
-  address: string,
-  apiUrlOrChainId: string,
-  apiKey: string
-) {
+export async function getSourceCode({
+  address,
+  apiUrlOrChainId,
+  apiKey,
+}: {
+  address: string;
+  apiUrlOrChainId: string;
+  apiKey: string;
+}) {
   const url = resolveApiUrl(apiUrlOrChainId);
 
   if (!(await isLiveUrl(url))) {
@@ -138,20 +141,15 @@ export async function retrieve(
     throw new Error(`Retrieve Error: ${status} ${message}`);
   }
 
-  console.log("THE TYPE ABI " + typeof result[0].ABI);
-  console.log(JSON.parse(result[0].ABI));
-
-  console.log("THE TYPE SourceCode " + typeof result[0].SourceCode);
-  console.log(JSON.parse(result[0].SourceCode).trim().slice(1, -1));
-
-  const compilerInput = result[0].SourceCode as any;
+  const abi = safeJsonParse(result[0].ABI);
+  const compilerInput = safeJsonParse(result[0].SourceCode) as any;
   const contractName = result[0].ContractName as string;
   const sourceName = sourcePathFromSourceCode(compilerInput, contractName);
 
-  console.log("THE TYPE " + typeof result[0].ABI);
-
   if (!sourceName) {
-    throw new Error(`Could not find source name for contract ${contractName}`);
+    throw new Error(
+      `Could not find a sourceName for contractName ${contractName}`
+    );
   }
 
   return {
@@ -159,7 +157,7 @@ export async function retrieve(
     compilerVersion: result[0].CompilerVersion,
     contractName,
     sourceName,
-    abi: result[0].ABI,
+    abi,
   };
 }
 
@@ -259,4 +257,22 @@ async function isVerified(
  */
 function isOk(status: number): boolean {
   return String(status) === "1";
+}
+
+/**
+ * Parses a JSON string, handling cases where the string may be
+ * improperly wrapped with extra braces `{}`.
+ *
+ * If the JSON is valid, it will be parsed directly.
+ *
+ */
+function safeJsonParse(input: string): any {
+  input = input.trim();
+
+  try {
+    return JSON.parse(input);
+  } catch {
+    input = input.replace(/^\{|\}$/g, "").trim();
+    return JSON.parse(input);
+  }
 }

@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "fs";
 
-import { MastercopyArtifact } from "../types";
-
 import { defaultMastercopyArtifactsFile } from "./internal/paths";
-import verify from "./internal/verify";
+import { verifySourceCode } from "./internal/etherscan";
+
+import { MastercopyArtifact } from "../types";
 
 /**
  * Iterates through each entry in the mastercopy artifacts file and verifies the mastercopy on an Etherscan-compatible block explorer.
@@ -38,11 +38,11 @@ export default async function ({
     for (const [version, artifact] of Object.entries(
       allArtifacts[contractName]
     )) {
-      const { noop } = await verify(
-        artifact as MastercopyArtifact,
+      const { noop } = await verifySourceCode({
+        ...(artifact as MastercopyArtifact),
         apiUrlOrChainId,
-        apiKey
-      );
+        apiKey,
+      });
 
       const { contractName, address } = artifact as MastercopyArtifact;
 
