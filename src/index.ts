@@ -10,12 +10,11 @@ import deployProxy from "./deploy/deployProxy";
 
 import predictSingletonAddress from "./encoding/predictSingletonAddress";
 
-import readMastercopyArtifact from "./artifact/readMastercopyArtifact";
-import writeMastercopyArtifact from "./artifact/writeMastercopyArtifact";
-// temp
-import reconstructMastercopyArtifact from "./artifact/reconstructMastercopyArtifact";
-import deployMastercopiesFromArtifact from "./artifact/deployMastercopies";
-import verifyMastercopiesFromArtifact from "./artifact/verifyMastercopies";
+import writeMastercopyFromBuild from "./artifact/writeMastercopyFromBuild";
+import writeMastercopyFromExplorer from "./artifact/writeMastercopyFromExplorer";
+import readMastercopy from "./artifact/readMastercopy";
+import deployAllMastercopies from "./artifact/deployAllMastercopies";
+import verifyAllMastercopies from "./artifact/verifyAllMastercopies";
 
 export {
   // encoding
@@ -24,17 +23,17 @@ export {
   encodeDeployProxy,
   predictProxyAddress,
 
-  // deploy
+  // low-level tasks
   deployFactories,
   deployMastercopy,
   deployProxy,
 
-  // artifact
-  readMastercopyArtifact,
-  writeMastercopyArtifact,
-  reconstructMastercopyArtifact,
-  deployMastercopiesFromArtifact,
-  verifyMastercopiesFromArtifact,
+  // mastercopy artifact helpers
+  writeMastercopyFromBuild,
+  writeMastercopyFromExplorer,
+  readMastercopy,
+  deployAllMastercopies,
+  verifyAllMastercopies,
 };
 
 import type { EIP1193Provider } from "./types";

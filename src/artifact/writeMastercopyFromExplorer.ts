@@ -5,11 +5,11 @@ import { address as erc2470FactoryAddress } from "../factory/erc2470Factory";
 import predictSingletonAddress from "../encoding/predictSingletonAddress";
 
 import { defaultMastercopyArtifactsFile } from "./internal/paths";
+import { getSourceCode } from "./internal/etherscan";
 
 import { MastercopyArtifact } from "../types";
-import { retrieve } from "./internal/verify";
 
-export default async function reconstructMastercopyArtifact({
+export default async function writeMastercopyFromExplorer({
   contractVersion,
   factory = erc2470FactoryAddress,
   address,
@@ -31,7 +31,7 @@ export default async function reconstructMastercopyArtifact({
   mastercopyArtifactsFile?: string;
 }) {
   const { contractName, sourceName, compilerVersion, compilerInput, abi } =
-    await retrieve(address, apiUrlOrChainId, apiKey);
+    await getSourceCode({ address, apiUrlOrChainId, apiKey });
 
   const mastercopies = existsSync(mastercopyArtifactsFile)
     ? JSON.parse(readFileSync(mastercopyArtifactsFile, "utf8"))

@@ -13,9 +13,8 @@ import getBuildArtifact from "./internal/getBuildArtifact";
 import { MastercopyArtifact } from "../types";
 
 /**
- * Extracts and stores current Mastercopy contract information in the artifacts file.
+ * Extracts and stores current Mastercopy result from current contract build, and stores it in the artifacts file.
  *
- * Optional fields such as `compilerInput` and `bytecode` can be provided externally or extracted from build artifacts.
  * It is recommended to provide `compilerInput`, as the internal code will include all generated sources in the verification, rather than just the sources reached by the current contract through graph traversal.
  *
  * @param {Object} params - The function parameters.
@@ -31,12 +30,11 @@ import { MastercopyArtifact } from "../types";
  * @param {string} [params.buildDirPath=defaultBuildDir()] - The path to the build directory. Optional.
  * @param {string} [params.mastercopyArtifactsFile=defaultMastercopyArtifactsFile()] - The path to the mastercopy artifacts file. Optional.
  */
-export default function extractAndWriteMastercopyArtifact({
+export default function writeMastercopyFromBuild({
   contractVersion,
   contractName,
   compilerInput: minimalCompilerInput,
   factory = erc2470FactoryAddress,
-  bytecode,
   constructorArgs,
   salt,
   buildDirPath = defaultBuildDir(),
@@ -45,7 +43,6 @@ export default function extractAndWriteMastercopyArtifact({
   contractVersion: string;
   contractName: string;
   factory?: string;
-  bytecode?: string;
   constructorArgs: { types: any[]; values: any[] };
   salt: string;
   compilerInput?: any;
@@ -70,11 +67,11 @@ export default function extractAndWriteMastercopyArtifact({
     factory,
     address: predictSingletonAddress({
       factory,
-      bytecode: bytecode || buildArtifact.bytecode,
+      bytecode: buildArtifact.bytecode,
       constructorArgs,
       salt,
     }),
-    bytecode: bytecode || buildArtifact.bytecode,
+    bytecode: buildArtifact.bytecode,
     constructorArgs,
     salt,
     abi: buildArtifact.abi,
