@@ -85,3 +85,21 @@ function searchFile(fileName: string, dirPath: string): string | null {
 
   return null;
 }
+
+export function sourcePathFromSourceCode(
+  compilerInput: any,
+  contractName: string
+): string | null {
+  for (const [sourceName, sourceCodeEntry] of Object.entries(
+    compilerInput.sources
+  )) {
+    const sourceCode = (sourceCodeEntry as any).content;
+    const contractPattern = new RegExp(`contract\\s+${contractName}\\s+`, "g");
+
+    if (contractPattern.test(sourceCode)) {
+      return sourceName;
+    }
+  }
+
+  return null;
+}
