@@ -9,6 +9,26 @@ import { getSourceCode } from "./internal/etherscan";
 
 import { MastercopyArtifact } from "../types";
 
+/**
+ * Extracts and stores the Mastercopy result from a contract deployed on the blockchain by querying an explorer like Etherscan.
+ *
+ * This method fetches the source code, ABI, and other relevant information of the contract from an explorer, then predicts the address of the singleton and stores the relevant data in the artifacts file.
+ *
+ * @param {Object} params - The function parameters.
+ * @param {string} params.contractVersion - The version of the contract.
+ * @param {string} [params.factory=erc2470FactoryAddress] - The address of the factory contract used to deploy the mastercopy. Optional.
+ * @param {string} params.address - The address of the deployed contract.
+ * @param {string} params.bytecode - The bytecode of the contract.
+ * @param {Object} params.constructorArgs - The constructor arguments.
+ * @param {any[]} params.constructorArgs.types - The types of the constructor arguments.
+ * @param {any[]} params.constructorArgs.values - The values of the constructor arguments.
+ * @param {string} params.salt - A 32-byte value used for mastercopy deployment.
+ * @param {string} params.apiUrlOrChainId - The API URL or Chain ID of the explorer service.
+ * @param {string} params.apiKey - The API key for accessing the explorer service.
+ * @param {string} [params.mastercopyArtifactsFile=defaultMastercopyArtifactsFile()] - The path to the mastercopy artifacts file. Optional.
+ *
+ * @returns {Promise<void>} - This function does not return a value but writes the mastercopy artifact to a file.
+ */
 export default async function writeMastercopyFromExplorer({
   contractVersion,
   factory = erc2470FactoryAddress,

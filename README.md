@@ -1,26 +1,22 @@
 # Zodiac-Core
 
-[![Build Status](https://github.com/gnosisguild/zodiac/workflows/zodiac/badge.svg?branch=master)](https://github.com/gnosisguild/zodiac/actions?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/gnosis/zodiac/badge.svg?branch=master)](https://coveralls.io/github/gnosisguild/zodiac?branch=master)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](https://github.com/gnosisguild/CODE_OF_CONDUCT)
-
 This package includes the base [Zodiac](https://github.com/gnosisguild/zodiac) contracts and interfaces from which Zodiac components are derived. It also includes a typescript SDK for encoding, deploying, and managing mastercopies and module instances.
 
 ## Base Contracts
 
-[**`Module.sol`**](/contracts/core/Module.sol)
+`Module.sol`
 
 Modules are contracts enabled by an Avatar that implement some decision making logic. They should import Module.sol.
 
-[**`GuardableModule.sol`**](/contracts/core/GuardableModule.sol)
+`GuardableModule.sol`
 
 A module with a guard enabled that can check transactions before and after execution. Useful for limiting the scope of addresses and functions that a module can call or ensure a certain state is never changed by a module.
 
-[**`Modifier.sol`**](/contracts/core/Modifier.sol)
+`Modifier.sol`
 
 Modifiers are contracts that sit between Modules and Avatars to modify the Module's behavior. For example, they might enforce a delay on all functions a Module attempts to execute. Modifiers should import Modifier.sol and must expose an interface like IAvatar.sol
 
-[**`GuardableModifier.sol`**](/contracts/core/GuardableModifier.sol)
+`GuardableModifier.sol`
 
 A modifier with a guard enabled that can check transactions before and after execution. Useful for limiting the scope of addresses and functions that a modifier can call or ensure a certain state is never changed by a modifier.
 
@@ -37,7 +33,7 @@ The functions in this section produce (but do not execute) payloads that when ex
 Generates a payload for deploying a new instance of a module/modifier - the new instance is a minimal proxy, deploy via ZodiacModuleProxyFactory and pointing to a module/modifier mastercopy.
 
 ```ts
-import { encodeDeployProxy } from "zodiac-core";
+import { encodeDeployProxy } from "@gnosis-guild/zodiac-core";
 
 const transaction = await encodeDeployProxy({
   mastercopy: "0x<address>",
@@ -51,7 +47,7 @@ const transaction = await encodeDeployProxy({
 Predicts the address of a new module instance, deployed via ZodiacModuleProxyFactory. Useful for deploying and making calls to a module or modifier in one multisend transaction.
 
 ```ts
-import { predictProxyAddress } from "zodiac-core";
+import { predictProxyAddress } from "@gnosis-guild/zodiac-core";
 
 const transaction = await predictProxyAddress({
   mastercopy: "0x<address>",
@@ -69,7 +65,7 @@ The functions in this section accept an EIP1193-compliant provider and execute t
 Deploys all factories within a specified network. Typically, these factories are already deployed across networks; however, this function is useful for test setups.
 
 ```ts
-import { deployFactories } from "zodiac-core";
+import { deployFactories } from "@gnosis-guild/zodiac-core";
 
 await deployFactories({
   provider, // an EIP1193 compliant provider
@@ -81,7 +77,7 @@ await deployFactories({
 Deploys a mastercopy using the ERC2470 factory. If the master copy is already deployed, this script will perform no operation. Returns an object containing the mastercopy address and a boolean indicating whether the master copy was previously deployed.
 
 ```ts
-import { deployMastercopy } from "zodiac-core";
+import { deployMastercopy } from "@gnosis-guild/zodiac-core";
 
 await deployMastercopy({
   bytecode, // the mastercopy bytecode
@@ -99,7 +95,7 @@ await deployMastercopy({
 Deploys a module instance as a proxy using the ZodiacModuleProxyFactory. If an instance with the same saltNonce already exists, this function does nothing. Returns an object containing the module instance address and a boolean indicating whether the master copy was previously deployed.
 
 ```ts
-import { deployProxy } from "zodiac-core";
+import { deployProxy } from "@gnosis-guild/zodiac-core";
 
 await deployProxy({
   mastercopy, // the mastercopy address
@@ -116,59 +112,147 @@ await deployProxy({
 
 Functions in this section assist module authors in collecting, persisting, and retrieving mastercopy artifact data to disk. Components should retain all necessary data to deploy and verify mastercopies on a target network and its block explorer. Every released version should be tracked.
 
-#### `writeMastercopyArtifact`
+#### `writeMastercopyFromBuild`
 
-Collects and compiles build artifact data for the current mastercopy version, adding it to the artifacts file, which defaults to `mastercopies.json`. It takes the following inputs:
+Extracts and stores current Mastercopy data from the contract build and adds it to the artifacts file, which defaults to `mastercopies.json`. This function is particularly useful when compiling contracts locally.
 
-- Contract Name
-- Mastercopy Version
-- Constructor Args
-- Creation Salt
-- MinimalSourceCode (optional)
+- **Inputs:**
 
-It crawls the build directory on disk and retrieves:
+  • **contractVersion** - The version of the contract.
 
-- Compiled Bytecode
-- Source Code (if MinimalSourceCode was not provided)
+  • **contractName** - The name of the contract.
 
-A new MastercopyArtifact entry will be written to the artifacts file.
+  • **constructorArgs** - The constructor arguments required for deployment.
+
+  • **salt** - A 32-byte value used for mastercopy deployment.
+
+  • **factory** - (Optional) The address of the factory contract used to deploy the mastercopy. Defaults to erc2470FactoryAddress.
+
+  • **bytecode** - (Optional) The bytecode of the contract.
+
+  • **compilerInput** - (Optional) The minimal compiler input.
+
+  • **buildDirPath** - (Optional) The path to the build directory. Defaults to defaultBuildDir().
+
+  • **mastercopyArtifactsFile** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
+
+- **Retrieves:**
+
+  • **Compiled Bytecode**
+
+  • **Source Code** - If compilerInput is not provided, it will be retrieved from the build directory.
+
+  ```ts
+  import { writeMastercopyFromBuild } from "@gnosis-guild/zodiac-core";
+
+  writeMastercopyFromBuild({
+    contractVersion: "1.0.0",
+    contractName: "MyNewMod",
+    constructorArgs: {
+      types: ["uint256", "address"],
+      values: [0, "0x<address>"],
+    },
+    salt: "0x<bytes32>",
+  });
+  ```
+
+#### `writeMastercopyFromExplorer`
+
+Fetches and stores the Mastercopy data from a deployed contract on a blockchain by querying an explorer like Etherscan. This function is ideal for contracts already deployed.
+
+- **Inputs:**
+
+  • **contractVersion** - The version of the contract.
+
+  • **address** - The address of the deployed contract.
+
+  • **bytecode** - The bytecode of the contract.
+
+  • **constructorArgs** - The constructor arguments used for deployment.
+
+  • **salt** - A 32-byte value used for mastercopy deployment.
+
+  • **apiUrlOrChainId** - The API URL or Chain ID of the explorer service.
+
+  • **apiKey** - The API key for accessing the explorer service.
+
+  • **factory** - (Optional) The address of the factory contract used to deploy the mastercopy. Defaults to erc2470FactoryAddress.
+
+  • **mastercopyArtifactsFile** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
 
 ```ts
-import { storeMastercopy as storeMastercopyArtifact } from "zodiac-core";
+import { writeMastercopyFromExplorer } from "@gnosis-guild/zodiac-core";
 
-storeMastercopyArtifact({
+await writeMastercopyFromExplorer({
   contractVersion: "1.0.0",
-  contractName: "MyNewMod",
+  address: "0x1234567890abcdef1234567890abcdef12345678",
+  bytecode: "0x608060405234801561001057600080fd5b506040516020806101...",
   constructorArgs: {
-    types: ["uint256", "...more constructor types"]
-    values: ["0", "...more constructor values"]
+    types: ["address", "uint256"],
+    values: ["0x<address>", 0],
   },
-  salt, // create2 salt
+  salt: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef",
+  apiUrlOrChainId: "1",
+  apiKey: "YourEtherscanApiKey",
 });
 ```
 
-#### `deployMastercopies`
+#### `readMastercopy`
 
-Iterates through each entry in the mastercopy artifacts file and deploys the mastercopy using the passed in provider. Entries that are already deployed will result in no operation.
+Retrieves the Mastercopy artifact information from the artifacts file. This function is used to access stored data for a specific contract version or the latest available version if no version is specified.
+
+- **Inputs:**
+
+  • **contractName** - The name of the contract.
+
+  • **contractVersion** - (Optional) The version of the contract. If not provided, the latest version will be used.
+
+  • **mastercopyArtifactsFile** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
 
 ```ts
-import { deployMastercopies } from "zodiac-core";
+import { readMastercopy } from "@gnosis-guild/zodiac-core";
 
-await deployMastercopies({
+const artifact = readMastercopy({
+  contractName: "MyNewMod",
+  contractVersion: "1.0.0",
+});
+```
+
+`deployAllMastercopies`
+
+Deploys each Mastercopy listed in the artifacts file using the provided provider. If a Mastercopy is already deployed, it will be skipped.
+
+- **Inputs:**
+
+  • **provider** - An EIP1193-compliant provider to interact with the blockchain.
+
+  • **mastercopyArtifactsFile** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
+
+```
+import { deployAllMastercopies } from "zodiac-core";
+
+await deployAllMastercopies({
   provider, // an EIP1193 compliant provider
 });
 ```
 
-#### `verifyMastercopies`
+#### `verifyAllMastercopies`
 
-Iterates through each entry in the mastercopy artifacts file and verifies the mastercopy on an etherscan compatible block explorer.
+Verifies each Mastercopy in the artifacts file on an Etherscan-compatible block explorer. This function ensures that the deployed contracts are properly verified and visible on public explorers.
+
+- **Inputs:**
+
+  • **apiUrlOrChainId** - The API URL or Chain ID for the verification service.
+
+  • **apiKey** - The API key used for verification.
+
+  • **mastercopyArtifactsFile** - (Optional) The path to the mastercopy artifacts file. Defaults to `defaultMastercopyArtifactsFile()`.
 
 ```ts
-import { verifyMastercopies } from "zodiac-core";
+import { verifyAllMastercopies } from "zodiac-core";
 
-await verifyMastercopies({
-  apiUrl: "chainId or url", // if a chainId is passed in, it will resolve to a block explorer url if one is configured
-  apiKey: "<KEY>",
-  provider, // an EIP1193 compliant provider
+await verifyAllMastercopies({
+  apiUrlOrChainId: "1", // or the explorer's API URL
+  apiKey: "YourEtherscanApiKey",
 });
 ```
