@@ -12,6 +12,8 @@ import predictSingletonAddress from "./encoding/predictSingletonAddress";
 
 import readMastercopyArtifact from "./artifact/readMastercopyArtifact";
 import writeMastercopyArtifact from "./artifact/writeMastercopyArtifact";
+// temp
+import reconstructMastercopyArtifact from "./artifact/reconstructMastercopyArtifact";
 import deployMastercopiesFromArtifact from "./artifact/deployMastercopies";
 import verifyMastercopiesFromArtifact from "./artifact/verifyMastercopies";
 
@@ -30,6 +32,7 @@ export {
   // artifact
   readMastercopyArtifact,
   writeMastercopyArtifact,
+  reconstructMastercopyArtifact,
   deployMastercopiesFromArtifact,
   verifyMastercopiesFromArtifact,
 };

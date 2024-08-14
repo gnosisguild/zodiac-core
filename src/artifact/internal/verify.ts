@@ -1,6 +1,7 @@
 import { AbiCoder } from "ethers";
 
-import { resolveApiUrl } from "../../artifact/internal/chainConfig";
+import { sourcePathFromSourceCode } from "./getBuildArtifact";
+import { resolveApiUrl } from "./chainConfig";
 
 /**
  * Verifies the contract on a blockchain explorer using the provided API.
@@ -63,6 +64,7 @@ export default async function verify(
     sourceCode: JSON.stringify(compilerInput),
     codeformat: "solidity-standard-json-input",
     contractname: `${sourceName}:${contractName}`,
+    // contractname: contractName,
     compilerversion: compilerVersion,
     constructorArguements: AbiCoder.defaultAbiCoder()
       .encode(types, values)
@@ -88,6 +90,76 @@ export default async function verify(
   return {
     ok: true,
     noop: false,
+  };
+}
+
+export async function retrieve(
+  address: string,
+  apiUrlOrChainId: string,
+  apiKey: string
+) {
+  const url = resolveApiUrl(apiUrlOrChainId);
+
+  if (!(await isLiveUrl(url))) {
+    throw new Error(`Couldn't reach ${url}`);
+  }
+
+  if (!(await isValidApiKey({ url, apiKey }))) {
+    throw new Error(`Invalid Api Key`);
+  }
+
+  const parameters = new URLSearchParams({
+    apikey: apiKey,
+    module: "contract",
+    action: "getsourcecode",
+    address,
+  });
+
+  const urlWithParams = new URL(url);
+  urlWithParams.search = parameters.toString();
+
+  const response = await fetch(urlWithParams, {
+    method: "GET",
+  });
+
+  const { status, message, result } = (await response.json()) as {
+    status: number;
+    message: string;
+    result: any;
+  };
+
+  // SourceCode
+  // ContractName
+  // ABI
+  // CompilerVersion
+  // ConstructorArguments
+
+  if (!isOk(status)) {
+    throw new Error(`Retrieve Error: ${status} ${message}`);
+  }
+
+  console.log("THE TYPE ABI " + typeof result[0].ABI);
+  console.log(JSON.parse(result[0].ABI));
+
+  console.log("THE TYPE SourceCode " + typeof result[0].SourceCode);
+  console.log(JSON.parse(result[0].SourceCode).trim().slice(1, -1));
+
+  const compilerInput = result[0].SourceCode as any;
+  const contractName = result[0].ContractName as string;
+  const sourceName = sourcePathFromSourceCode(compilerInput, contractName);
+
+  console.log("THE TYPE " + typeof result[0].ABI);
+
+  if (!sourceName) {
+    throw new Error(`Could not find source name for contract ${contractName}`);
+  }
+
+  return {
+    compilerInput,
+    compilerVersion: result[0].CompilerVersion,
+    contractName,
+    sourceName,
+    abi: result[0].ABI,
   };
 }
 
