@@ -94,10 +94,10 @@ export default async function verify(
 /**
  * Checks if the given URL is reachable.
  *
- * @param {URL} url - The URL to check.
+ * @param {string} url - The URL to check.
  * @returns {Promise<boolean>} True if the URL is reachable, false otherwise.
  */
-async function isLiveUrl(url: URL): Promise<boolean> {
+async function isLiveUrl(url: string): Promise<boolean> {
   try {
     const response = await fetch(url, { method: "HEAD" });
     return response.ok;
@@ -111,15 +111,15 @@ async function isLiveUrl(url: URL): Promise<boolean> {
  * Validates the given API key.
  *
  * @param {Object} params - The function parameters.
- * @param {URL} params.url - The API URL.
+ * @param {string} params.url - The API URL.
  * @param {string} params.apiKey - The API key to validate.
  * @returns {Promise<boolean>} True if the API key is valid, false otherwise.
  */
 async function isValidApiKey({
-  url,
+  url: _url,
   apiKey,
 }: {
-  url: URL;
+  url: string;
   apiKey: string;
 }): Promise<boolean> {
   const parameters = new URLSearchParams({
@@ -127,6 +127,7 @@ async function isValidApiKey({
     module: "stats",
     action: "ethprice",
   });
+  const url = new URL(_url);
   url.search = parameters.toString();
 
   const response = await fetch(url, {
@@ -146,14 +147,14 @@ async function isValidApiKey({
  *
  * @param {string} address - The address of the contract.
  * @param {Object} params - The function parameters.
- * @param {URL} params.url - The API URL.
+ * @param {string} params.url - The API URL.
  * @param {string} params.apiKey - The API key.
  * @returns {Promise<boolean>} True if the contract is verified, false otherwise.
  * @throws {Error} If the verification status cannot be determined.
  */
 async function isVerified(
   address: string,
-  { url, apiKey }: { url: URL; apiKey: string }
+  { url: _url, apiKey }: { url: string; apiKey: string }
 ): Promise<boolean> {
   const parameters = new URLSearchParams({
     apikey: apiKey,
@@ -161,6 +162,7 @@ async function isVerified(
     action: "getsourcecode",
     address,
   });
+  const url = new URL(_url);
   url.search = parameters.toString();
 
   const response = await fetch(url, {
