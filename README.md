@@ -132,8 +132,6 @@ Extracts and stores current Mastercopy data from the contract build and adds it 
 
 • **`factory`** - (Optional) The address of the factory contract used to deploy the mastercopy. Defaults to erc2470FactoryAddress.
 
-• **`bytecode`** - (Optional) The bytecode of the contract.
-
 • **`compilerInput`** - (Optional) The minimal compiler input.
 
 • **`buildDirPath`** - (Optional) The path to the build directory. Defaults to defaultBuildDir().

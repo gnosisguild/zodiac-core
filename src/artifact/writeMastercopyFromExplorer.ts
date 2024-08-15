@@ -10,7 +10,7 @@ import { getSourceCode } from "./internal/etherscan";
 import { MastercopyArtifact } from "../types";
 
 /**
- * Extracts and stores the Mastercopy result from a contract deployed on the blockchain by querying an explorer like Etherscan.
+ * Extracts and stores the Mastercopy result from a contract deployed on the blockchain by querying an Etherscan-like explorer.
  *
  * This method fetches the source code, ABI, and other relevant information of the contract from an explorer, then predicts the address of the singleton and stores the relevant data in the artifacts file.
  *
