@@ -25,7 +25,6 @@ import { MastercopyArtifact } from "../types";
  * @param {any[]} params.constructorArgs.values - The values of the constructor arguments.
  * @param {string} params.salt - A 32-byte value used for mastercopy deployment.
  * @param {string} [params.factory=erc2470FactoryAddress] - The address of the factory contract used to deploy the mastercopy. Optional.
- * @param {string} [params.bytecode] - The bytecode of the contract. Optional.
  * @param {any} [params.compilerInput] - The minimal compiler input. Optional.
  * @param {string} [params.buildDirPath=defaultBuildDir()] - The path to the build directory. Optional.
  * @param {string} [params.mastercopyArtifactsFile=defaultMastercopyArtifactsFile()] - The path to the mastercopy artifacts file. Optional.
