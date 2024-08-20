@@ -16,7 +16,6 @@ import { MastercopyArtifact } from "../types";
  * @param {string} [params.contractVersion] - The version of the contract. If not provided, the latest version will be used.
  * @param {string} [params.mastercopyArtifactsFile=defaultMastercopyArtifactsFile()] - The path to the mastercopy artifacts file. Optional.
  * @returns {MastercopyArtifact} The Mastercopy artifact information.
- * @throws {Error} If the artifacts file does not exist, the contract name is not found, or the contract version is invalid.
  */
 export default function readMastercopy({
   contractName,
@@ -26,7 +25,7 @@ export default function readMastercopy({
   contractName: string;
   contractVersion?: string;
   mastercopyArtifactsFile?: string;
-}): MastercopyArtifact {
+}): MastercopyArtifact | null {
   if (!existsSync(mastercopyArtifactsFile)) {
     throw new Error(
       `MastercopyArtifacts file not found at ${mastercopyArtifactsFile}`
@@ -38,24 +37,14 @@ export default function readMastercopy({
   );
 
   if (!mastercopies[contractName]) {
-    throw new Error(
-      `MastercopyArtifacts file does not contain any entries for ${contractName}`
-    );
+    return null;
   }
 
   if (!contractVersion) {
     contractVersion = findLatestVersion(mastercopies[contractName]);
   }
 
-  const artifact = mastercopies[contractName][contractVersion];
-
-  if (!artifact) {
-    throw new Error(
-      `MastercopyArtifacts file: no artifact ${contractName}@${contractVersion}`
-    );
-  }
-
-  return artifact;
+  return mastercopies[contractName][contractVersion] || null;
 }
 
 function findLatestVersion(mastercopies: JSON) {
