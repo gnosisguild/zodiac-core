@@ -33,7 +33,7 @@
     "format:ts": "prettier --write ./src/**/*.ts ./test/**/*.ts ./*.ts",
     "prepare": "yarn clean && yarn build",
     "prerelease": "yarn clean && yarn build",
-    "release": "yarn publish --access public"
+    "release": "yarn publish --access public --non-interactive"
   },
   "directories": {
     "test": "test"
