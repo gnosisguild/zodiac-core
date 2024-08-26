@@ -1,20 +1,19 @@
-// Core
+// encoding
 import encodeDeployProxy from "./encoding/encodeDeployProxy";
 import predictProxyAddress from "./encoding/predictProxyAddress";
 import encodeDeploySingleton from "./encoding/encodeDeploySingleton";
-
-// Tooling Scripts
-import deployFactories from "./deploy/deployFactories";
-import deployMastercopy from "./deploy/deployMastercopy";
-import deployProxy from "./deploy/deployProxy";
-
 import predictSingletonAddress from "./encoding/predictSingletonAddress";
 
+// tooling
+import deployFactories from "./tooling/deployFactories";
+import deployMastercopy from "./tooling/deployMastercopy";
+import deployProxy from "./tooling/deployProxy";
+import verifyMastercopy from "./tooling/verifyMastercopy";
+
+// artifact
+import readMastercopies from "./artifact/readMastercopies";
 import writeMastercopyFromBuild from "./artifact/writeMastercopyFromBuild";
 import writeMastercopyFromExplorer from "./artifact/writeMastercopyFromExplorer";
-import readMastercopy from "./artifact/readMastercopy";
-import deployAllMastercopies from "./artifact/deployAllMastercopies";
-import verifyAllMastercopies from "./artifact/verifyAllMastercopies";
 
 export {
   // encoding
@@ -27,13 +26,12 @@ export {
   deployFactories,
   deployMastercopy,
   deployProxy,
+  verifyMastercopy,
 
   // mastercopy artifact helpers
+  readMastercopies,
   writeMastercopyFromBuild,
   writeMastercopyFromExplorer,
-  readMastercopy,
-  deployAllMastercopies,
-  verifyAllMastercopies,
 };
 
 import type { EIP1193Provider } from "./types";

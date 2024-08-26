@@ -38,7 +38,7 @@ export async function verifySourceCode({
   constructorArgs: { types: any[]; values: any[] };
   apiUrlOrChainId: string;
   apiKey: string;
-}): Promise<{ ok: boolean; noop: boolean }> {
+}): Promise<{ noop: boolean }> {
   const url = resolveApiUrl(apiUrlOrChainId);
 
   if (!(await isLiveUrl(url))) {
@@ -51,7 +51,6 @@ export async function verifySourceCode({
 
   if (await isVerified(address, { url, apiKey })) {
     return {
-      ok: true,
       noop: true,
     };
   }
@@ -87,7 +86,6 @@ export async function verifySourceCode({
   }
 
   return {
-    ok: true,
     noop: false,
   };
 }
@@ -130,12 +128,6 @@ export async function getSourceCode({
     message: string;
     result: any;
   };
-
-  // SourceCode
-  // ContractName
-  // ABI
-  // CompilerVersion
-  // ConstructorArguments
 
   if (!isOk(status)) {
     throw new Error(`Retrieve Error: ${status} ${message}`);
