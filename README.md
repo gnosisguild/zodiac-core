@@ -199,62 +199,23 @@ await writeMastercopyFromExplorer({
 });
 ```
 
-#### `readMastercopy`
+#### `readMastercopies`
 
-Retrieves the Mastercopy artifact information from the artifacts file. This function is used to access stored data for a specific contract version or the latest available version if no version is specified.
+Retrieves a collection of Mastercopy artifacts from a JSON artifacts file. This function allows access to stored mastercopy data, with optional filters for contractName and contractVersion to refine the results. If no filters are provided, all artifacts are returned.
 
 **Inputs**
 
-• **`contractName`** - The name of the contract.
+• **`contractName`** - (Optional) The name of the contract.
 
-• **`contractVersion`** - (Optional) The version of the contract. If not provided, the latest version will be used.
+• **`contractVersion`** - (Optional) The version of the contract or "latest". If not provided, all versions will be retrieved.
 
 • **`mastercopyArtifactsFile`** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
 
 ```ts
-import { readMastercopy } from "@gnosis-guild/zodiac-core";
+import { readMastercopies } from "@gnosis-guild/zodiac-core";
 
 const artifact = readMastercopy({
   contractName: "MyNewMod",
   contractVersion: "1.0.0",
-});
-```
-
-`deployAllMastercopies`
-
-Deploys each Mastercopy listed in the artifacts file using the provided provider. If a Mastercopy is already deployed, it will be skipped.
-
-**Inputs**
-
-• **`provider`** - An EIP1193-compliant provider to interact with the blockchain.
-
-• **`mastercopyArtifactsFile`** - (Optional) The path to the mastercopy artifacts file. Defaults to defaultMastercopyArtifactsFile().
-
-```ts
-import { deployAllMastercopies } from "zodiac-core";
-
-await deployAllMastercopies({
-  provider, // an EIP1193 compliant provider
-});
-```
-
-#### `verifyAllMastercopies`
-
-Verifies each Mastercopy in the artifacts file on an Etherscan-compatible block explorer. This function ensures that the deployed contracts are properly verified and visible on public explorers.
-
-**Inputs**
-
-• **`apiUrlOrChainId`** - The API URL or Chain ID for the verification service.
-
-• **`apiKey`** - The API key used for verification.
-
-• **`mastercopyArtifactsFile`** - (Optional) The path to the mastercopy artifacts file. Defaults to `defaultMastercopyArtifactsFile()`.
-
-```ts
-import { verifyAllMastercopies } from "zodiac-core";
-
-await verifyAllMastercopies({
-  apiUrlOrChainId: "1", // or the explorer's API URL
-  apiKey: "YourEtherscanApiKey",
 });
 ```
