@@ -76,13 +76,14 @@ export async function verifySourceCode({
     },
     body: parameters.toString(),
   });
-  const { status, message } = (await response.json()) as {
+  const { status, message, result } = (await response.json()) as {
     status: number;
     message: string;
+    result: string;
   };
 
   if (!isOk(status)) {
-    throw new Error(`Verification Error: ${status} ${message}`);
+    throw new Error(`Verifying SourceCode: ${message} ${result}`);
   }
 
   return {
