@@ -2,10 +2,22 @@ import { MastercopyArtifact } from "../types";
 import { verifySourceCode } from "../artifact/internal/etherscan";
 
 /**
+ * Pauses the execution for a specified amount of time.
+ *
+ * @param {number} ms - The number of milliseconds to wait.
+ * @returns {Promise<void>} A promise that resolves after the specified delay.
+ */
+const sleep = (ms: number): Promise<void> => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+/**
  * Verifies a Mastercopy contract on an Etherscan-like block explorer.
  *
  * This function submits the source code and metadata of a Mastercopy contract to a block explorer
- * for verification. It interacts with the explorer's API using the provided API key and endpoint.
+ * for verification. It interacts with the explorer's API
+ * using the provided API key and endpoint. A debounced timer of 500 milliseconds
+ * is added between each verification to prevent rate-limiting issues.
  *
  * @param {Object} params - The parameters required for verification.
  * @param {string} params.apiUrlOrChainId - The base URL of the block explorer's API or the chain ID.
@@ -30,6 +42,8 @@ export default async function verifyMastercopy({
   address: string;
   noop: boolean;
 }> {
+  await sleep(500);
+
   const { noop } = await verifySourceCode({
     ...artifact,
     apiUrlOrChainId,
