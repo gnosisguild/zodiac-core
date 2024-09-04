@@ -94,8 +94,10 @@ export function sourcePathFromSourceCode(
     compilerInput.sources
   )) {
     const sourceCode = (sourceCodeEntry as any).content;
-    const contractPattern = new RegExp(`contract\\s+${contractName}\\s+`, "g");
-
+    const contractPattern = new RegExp(
+      `(contract|library)\\s+${contractName}\\s+`,
+      "g"
+    );
     if (contractPattern.test(sourceCode)) {
       return sourceName;
     }
