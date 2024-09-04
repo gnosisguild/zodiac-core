@@ -48,7 +48,12 @@ export default function writeMastercopyFromBuild({
   buildDirPath?: string;
   mastercopyArtifactsFile?: string;
 }) {
-  const buildArtifact = getBuildArtifact(contractName, buildDirPath);
+  const buildArtifact = getBuildArtifact(
+    contractName,
+    buildDirPath,
+    factory,
+    salt
+  );
 
   const mastercopies = existsSync(mastercopyArtifactsFile)
     ? JSON.parse(readFileSync(mastercopyArtifactsFile, "utf8"))
@@ -57,7 +62,7 @@ export default function writeMastercopyFromBuild({
   if (mastercopies[contractVersion]) {
     console.warn(`Warning: overriding artifact for ${contractVersion}`);
   }
-
+  console.log("buildArtifact.bytecode", buildArtifact.bytecode);
   const mastercopyArtifact: MastercopyArtifact = {
     contractName,
     sourceName: buildArtifact.sourceName,

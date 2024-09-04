@@ -2,6 +2,67 @@ import path from "path";
 import { readdirSync, readFileSync, statSync } from "fs";
 
 import { BuildArtifact } from "../../types";
+import { getCreate2Address, keccak256 } from "ethers";
+
+/**
+ * Replaces library references in the bytecode with actual deployed addresses.
+ *
+ * This function scans the bytecode and replaces placeholder references
+ * to libraries with their actual on-chain addresses. It ensures that
+ * the library addresses are valid and properly formatted.
+ *
+ * @param {string} bytecode - The bytecode that may contain library references.
+ * @param {Record<string, any>} linkReferences - References to libraries, as returned by the compiler.
+ * @param {Record<string, string>} libraryAddresses - A map of library names to their deployed addresses.
+ * @returns {string} - The updated bytecode with library references replaced by actual addresses.
+ *
+ * @throws {Error} - Throws if a library address is missing or incorrectly formatted.
+ */
+function replaceLibraryReferences(
+  bytecode: string,
+  linkReferences: Record<string, any>,
+  libraryAddresses: Record<string, string>
+): string {
+  // Iterate through each source file in the linkReferences object
+  for (const sourceFile in linkReferences) {
+    // Iterate through each library name in the source file
+    for (const libName in linkReferences[sourceFile]) {
+      const libAddress = libraryAddresses[libName];
+
+      // Ensure that the library address is provided
+      if (!libAddress) {
+        throw new Error(`Library address for "${libName}" not found.`);
+      }
+
+      // Ensure the address is properly formatted (without '0x' and exactly 40 characters long)
+      const addressHex = libAddress.toLowerCase().replace("0x", "");
+      if (addressHex.length !== 40) {
+        throw new Error(
+          `Invalid library address for "${libName}": ${libAddress}`
+        );
+      }
+
+      // Iterate through each reference of the library within the bytecode
+      linkReferences[sourceFile][libName].forEach(
+        (ref: { start: number; length: number }) => {
+          // Extract the placeholder in the bytecode corresponding to the library
+          const placeholder = bytecode.slice(
+            ref.start * 2,
+            (ref.start + ref.length) * 2
+          );
+
+          // Replace the placeholder with the correctly padded address (if necessary)
+          const paddedAddress = addressHex.padEnd(ref.length * 2, "0");
+          bytecode = bytecode.replace(placeholder, paddedAddress);
+        }
+      );
+    }
+  }
+
+  // Remove any trailing underscores or erroneous placeholders
+
+  return bytecode.replace("__", "");
+}
 
 /**
  * Retrieves the build artifact for a specified contract.
@@ -13,16 +74,41 @@ import { BuildArtifact } from "../../types";
  */
 export default function getBuildArtifact(
   _contractName: string,
-  buildDirPath: string
+  buildDirPath: string,
+  factory: string,
+  salt: string
 ): BuildArtifact {
   const { artifactPath, buildInfoPath } = resolvePaths(
     _contractName,
     buildDirPath
   );
 
-  const { sourceName, contractName, bytecode, abi } = JSON.parse(
-    readFileSync(artifactPath, "utf8")
-  );
+  const {
+    sourceName,
+    contractName,
+    bytecode: artifactBytecode,
+    abi,
+    linkReferences,
+  } = JSON.parse(readFileSync(artifactPath, "utf8"));
+  let bytecode = artifactBytecode;
+  if (linkReferences && Object.keys(linkReferences).length > 0) {
+    let libraryAddresses: Record<string, string> = {};
+    Object.keys(linkReferences).forEach((sourceFile) => {
+      Object.keys(linkReferences[sourceFile]).forEach((libName) => {
+        console.log(`Processing library: ${libName}`);
+        const { artifactPath } = resolvePaths(libName, buildDirPath);
+        const { bytecode } = JSON.parse(readFileSync(artifactPath, "utf8"));
+        const address = getCreate2Address(factory, salt, keccak256(bytecode));
+        libraryAddresses = { ...libraryAddresses, [libName]: address };
+      });
+    });
+
+    bytecode = replaceLibraryReferences(
+      artifactBytecode,
+      linkReferences,
+      libraryAddresses
+    );
+  }
 
   const { solcLongVersion, input } = JSON.parse(
     readFileSync(buildInfoPath, "utf8")
