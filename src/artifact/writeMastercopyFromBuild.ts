@@ -8,7 +8,9 @@ import {
   defaultBuildDir,
   defaultMastercopyArtifactsFile,
 } from "./internal/paths";
-import getBuildArtifact from "./internal/getBuildArtifact";
+import getBuildArtifact, {
+  resolveLinksInBytecode,
+} from "./internal/getBuildArtifact";
 
 import { MastercopyArtifact } from "../types";
 
@@ -48,12 +50,7 @@ export default function writeMastercopyFromBuild({
   buildDirPath?: string;
   mastercopyArtifactsFile?: string;
 }) {
-  const buildArtifact = getBuildArtifact(
-    contractName,
-    buildDirPath,
-    factory,
-    salt
-  );
+  const buildArtifact = getBuildArtifact(contractName, buildDirPath);
 
   const mastercopies = existsSync(mastercopyArtifactsFile)
     ? JSON.parse(readFileSync(mastercopyArtifactsFile, "utf8"))
@@ -75,7 +72,11 @@ export default function writeMastercopyFromBuild({
       constructorArgs,
       salt,
     }),
-    bytecode: buildArtifact.bytecode,
+    bytecode: resolveLinksInBytecode(
+      contractVersion,
+      buildArtifact,
+      mastercopies
+    ),
     constructorArgs,
     salt,
     abi: buildArtifact.abi,

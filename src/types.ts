@@ -20,9 +20,13 @@ export type BuildArtifact = {
   compilerInput: any;
   bytecode: string;
   abi: any;
+  linkReferences: Record<
+    string,
+    Record<string, { length: number; start: number }>
+  >;
 };
 
-export type MastercopyArtifact = BuildArtifact & {
+export type MastercopyArtifact = Omit<BuildArtifact, "linkReferences"> & {
   contractVersion: string;
   factory: string;
   constructorArgs: {
