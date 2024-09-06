@@ -59,7 +59,13 @@ export default function writeMastercopyFromBuild({
   if (mastercopies[contractVersion]) {
     console.warn(`Warning: overriding artifact for ${contractVersion}`);
   }
-  console.log("buildArtifact.bytecode", buildArtifact.bytecode);
+
+  const bytecode = resolveLinksInBytecode(
+    contractVersion,
+    buildArtifact,
+    mastercopies
+  );
+
   const mastercopyArtifact: MastercopyArtifact = {
     contractName,
     sourceName: buildArtifact.sourceName,
@@ -68,15 +74,11 @@ export default function writeMastercopyFromBuild({
     factory,
     address: predictSingletonAddress({
       factory,
-      bytecode: buildArtifact.bytecode,
+      bytecode,
       constructorArgs,
       salt,
     }),
-    bytecode: resolveLinksInBytecode(
-      contractVersion,
-      buildArtifact,
-      mastercopies
-    ),
+    bytecode,
     constructorArgs,
     salt,
     abi: buildArtifact.abi,

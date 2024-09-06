@@ -62,6 +62,7 @@ export function resolveLinksInBytecode(
     for (const libraryName of Object.keys(
       artifact.linkReferences[libraryPath]
     )) {
+      console.log(`libraryPath ${libraryPath} libraryName ${libraryName}`);
       if (
         !mastercopies[libraryName] ||
         !mastercopies[libraryName][contractVersion]
@@ -72,12 +73,15 @@ export function resolveLinksInBytecode(
       }
       const { address: libraryAddress } =
         mastercopies[libraryName][contractVersion];
-      const { length, start } =
-        artifact.linkReferences[libraryPath][libraryName];
 
-      const left = bytecode.slice(0, start);
-      const right = bytecode.slice(start + length);
-      bytecode = `${left}${libraryAddress.slice(2).toLowerCase()}${right}`;
+      for (const { length, start } of artifact.linkReferences[libraryPath][
+        libraryName
+      ]) {
+        const left = bytecode.slice(0, start);
+        const right = bytecode.slice(start + length);
+        bytecode = `${left}${libraryAddress.slice(2).toLowerCase()}${right}`;
+        console.log(`start ${start} length ${length}`);
+      }
     }
   }
 
