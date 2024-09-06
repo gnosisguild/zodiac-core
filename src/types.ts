@@ -22,7 +22,7 @@ export type BuildArtifact = {
   abi: any;
   linkReferences: Record<
     string,
-    Record<string, { length: number; start: number }>
+    Record<string, { length: number; start: number }[]>
   >;
 };
 
