@@ -1,8 +1,42 @@
 import path from "path";
 import { readdirSync, readFileSync, statSync } from "fs";
 
-import { BuildArtifact } from "../../types";
-import { getCreate2Address, keccak256 } from "ethers";
+import { BuildArtifact, MastercopyArtifact } from "../../types";
+
+/**
+ * Retrieves the build artifact for a specified contract.
+ *
+ * @param {string} _contractName - The name of the contract.
+ * @param {string} buildDirPath - The path to the directory containing build artifacts.
+ * @returns {BuildArtifact} The build artifact containing the contract's bytecode, ABI, and compiler information.
+ * @throws {Error} If the artifact or build info is not found.
+ */
+export default function getBuildArtifact(
+  _contractName: string,
+  buildDirPath: string
+): BuildArtifact {
+  const { artifactPath, buildInfoPath } = resolvePaths(
+    _contractName,
+    buildDirPath
+  );
+
+  const { sourceName, contractName, bytecode, abi, linkReferences } =
+    JSON.parse(readFileSync(artifactPath, "utf8"));
+
+  const { solcLongVersion, input } = JSON.parse(
+    readFileSync(buildInfoPath, "utf8")
+  );
+
+  return {
+    contractName,
+    sourceName,
+    compilerVersion: `v${solcLongVersion}`,
+    compilerInput: input,
+    bytecode,
+    abi,
+    linkReferences,
+  };
+}
 
 /**
  * Replaces library references in the bytecode with actual deployed addresses.
@@ -18,110 +52,36 @@ import { getCreate2Address, keccak256 } from "ethers";
  *
  * @throws {Error} - Throws if a library address is missing or incorrectly formatted.
  */
-function replaceLibraryReferences(
-  bytecode: string,
-  linkReferences: Record<string, any>,
-  libraryAddresses: Record<string, string>
+export function resolveLinksInBytecode(
+  contractVersion: string,
+  artifact: BuildArtifact,
+  mastercopies: Record<string, Record<string, MastercopyArtifact>>
 ): string {
-  // Iterate through each source file in the linkReferences object
-  for (const sourceFile in linkReferences) {
-    // Iterate through each library name in the source file
-    for (const libName in linkReferences[sourceFile]) {
-      const libAddress = libraryAddresses[libName];
-
-      // Ensure that the library address is provided
-      if (!libAddress) {
-        throw new Error(`Library address for "${libName}" not found.`);
-      }
-
-      // Ensure the address is properly formatted (without '0x' and exactly 40 characters long)
-      const addressHex = libAddress.toLowerCase().replace("0x", "");
-      if (addressHex.length !== 40) {
+  let bytecode = artifact.bytecode;
+  for (const libraryPath of Object.keys(artifact.linkReferences)) {
+    for (const libraryName of Object.keys(
+      artifact.linkReferences[libraryPath]
+    )) {
+      if (
+        !mastercopies[libraryName] ||
+        !mastercopies[libraryName][contractVersion]
+      ) {
         throw new Error(
-          `Invalid library address for "${libName}": ${libAddress}`
+          `Could not link ${libraryName} for ${artifact.contractName}`
         );
       }
+      const { address: libraryAddress } =
+        mastercopies[libraryName][contractVersion];
+      const { length, start } =
+        artifact.linkReferences[libraryPath][libraryName];
 
-      // Iterate through each reference of the library within the bytecode
-      linkReferences[sourceFile][libName].forEach(
-        (ref: { start: number; length: number }) => {
-          // Extract the placeholder in the bytecode corresponding to the library
-          const placeholder = bytecode.slice(
-            ref.start * 2,
-            (ref.start + ref.length) * 2
-          );
-
-          // Replace the placeholder with the correctly padded address (if necessary)
-          const paddedAddress = addressHex.padEnd(ref.length * 2, "0");
-          bytecode = bytecode.replace(placeholder, paddedAddress);
-        }
-      );
+      const left = bytecode.slice(0, start);
+      const right = bytecode.slice(start + length);
+      bytecode = `${left}${libraryAddress.slice(2).toLowerCase()}${right}`;
     }
   }
 
-  // Remove any trailing underscores or erroneous placeholders
-
-  return bytecode.replace("__", "");
-}
-
-/**
- * Retrieves the build artifact for a specified contract.
- *
- * @param {string} _contractName - The name of the contract.
- * @param {string} buildDirPath - The path to the directory containing build artifacts.
- * @returns {BuildArtifact} The build artifact containing the contract's bytecode, ABI, and compiler information.
- * @throws {Error} If the artifact or build info is not found.
- */
-export default function getBuildArtifact(
-  _contractName: string,
-  buildDirPath: string,
-  factory: string,
-  salt: string
-): BuildArtifact {
-  const { artifactPath, buildInfoPath } = resolvePaths(
-    _contractName,
-    buildDirPath
-  );
-
-  const {
-    sourceName,
-    contractName,
-    bytecode: artifactBytecode,
-    abi,
-    linkReferences,
-  } = JSON.parse(readFileSync(artifactPath, "utf8"));
-  let bytecode = artifactBytecode;
-  if (linkReferences && Object.keys(linkReferences).length > 0) {
-    let libraryAddresses: Record<string, string> = {};
-    Object.keys(linkReferences).forEach((sourceFile) => {
-      Object.keys(linkReferences[sourceFile]).forEach((libName) => {
-        console.log(`Processing library: ${libName}`);
-        const { artifactPath } = resolvePaths(libName, buildDirPath);
-        const { bytecode } = JSON.parse(readFileSync(artifactPath, "utf8"));
-        const address = getCreate2Address(factory, salt, keccak256(bytecode));
-        libraryAddresses = { ...libraryAddresses, [libName]: address };
-      });
-    });
-
-    bytecode = replaceLibraryReferences(
-      artifactBytecode,
-      linkReferences,
-      libraryAddresses
-    );
-  }
-
-  const { solcLongVersion, input } = JSON.parse(
-    readFileSync(buildInfoPath, "utf8")
-  );
-
-  return {
-    contractName,
-    sourceName,
-    compilerVersion: `v${solcLongVersion}`,
-    compilerInput: input,
-    abi,
-    bytecode,
-  };
+  return bytecode;
 }
 
 /**
