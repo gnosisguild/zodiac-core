@@ -2,6 +2,7 @@ import path from "path";
 import { readdirSync, readFileSync, statSync } from "fs";
 
 import { BuildArtifact, MastercopyArtifact } from "../../types";
+import assert from "assert";
 
 /**
  * Retrieves the build artifact for a specified contract.
@@ -79,27 +80,16 @@ export function resolveLinksInBytecode(
 
       libraryAddress = libraryAddress.toLowerCase().replace(/^0x/, "");
 
-      if (libraryAddress.length !== 40) {
-        throw new Error(`Invalid library address: ${libraryAddress}`);
-      }
+      assert(libraryAddress.length == 40);
 
       for (const { length, start } of artifact.linkReferences[libraryPath][
         libraryName
       ]) {
-        if (length !== 20) {
-          throw new Error(
-            `Library reference length mismatch: expected 20, got ${length}`
-          );
-        }
+        assert(length == 20);
+        const left = bytecode.slice(0, start * 2);
+        const right = bytecode.slice((start + length) * 2);
+        bytecode = `${left}${libraryAddress}${right}`;
 
-        const bytecodeArray = bytecode.split("");
-        const addressArray = libraryAddress.split("");
-
-        for (let i = 0; i < addressArray.length; i++) {
-          bytecodeArray[start * 2 + i] = addressArray[i];
-        }
-
-        bytecode = bytecodeArray.join("");
         console.log(
           `Replaced library reference at ${start} with address ${libraryAddress}`
         );
