@@ -58,11 +58,13 @@ export function resolveLinksInBytecode(
   mastercopies: Record<string, Record<string, MastercopyArtifact>>
 ): string {
   let bytecode = artifact.bytecode;
+
   for (const libraryPath of Object.keys(artifact.linkReferences)) {
     for (const libraryName of Object.keys(
       artifact.linkReferences[libraryPath]
     )) {
       console.log(`libraryPath ${libraryPath} libraryName ${libraryName}`);
+
       if (
         !mastercopies[libraryName] ||
         !mastercopies[libraryName][contractVersion]
@@ -71,21 +73,41 @@ export function resolveLinksInBytecode(
           `Could not link ${libraryName} for ${artifact.contractName}`
         );
       }
-      const { address: libraryAddress } =
+
+      let { address: libraryAddress } =
         mastercopies[libraryName][contractVersion];
+
+      libraryAddress = libraryAddress.toLowerCase().replace(/^0x/, "");
+
+      if (libraryAddress.length !== 40) {
+        throw new Error(`Invalid library address: ${libraryAddress}`);
+      }
 
       for (const { length, start } of artifact.linkReferences[libraryPath][
         libraryName
       ]) {
-        const left = bytecode.slice(0, start);
-        const right = bytecode.slice(start + length);
-        bytecode = `${left}${libraryAddress.slice(2).toLowerCase()}${right}`;
-        console.log(`start ${start} length ${length}`);
+        if (length !== 20) {
+          throw new Error(
+            `Library reference length mismatch: expected 20, got ${length}`
+          );
+        }
+
+        const bytecodeArray = bytecode.split("");
+        const addressArray = libraryAddress.split("");
+
+        for (let i = 0; i < addressArray.length; i++) {
+          bytecodeArray[start * 2 + i] = addressArray[i];
+        }
+
+        bytecode = bytecodeArray.join("");
+        console.log(
+          `Replaced library reference at ${start} with address ${libraryAddress}`
+        );
       }
     }
   }
 
-  return bytecode;
+  return bytecode.replace("__", "");
 }
 
 /**
