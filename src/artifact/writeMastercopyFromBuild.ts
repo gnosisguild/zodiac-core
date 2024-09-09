@@ -8,7 +8,9 @@ import {
   defaultBuildDir,
   defaultMastercopyArtifactsFile,
 } from "./internal/paths";
-import getBuildArtifact from "./internal/getBuildArtifact";
+import getBuildArtifact, {
+  resolveLinksInBytecode,
+} from "./internal/getBuildArtifact";
 
 import { MastercopyArtifact } from "../types";
 
@@ -58,6 +60,12 @@ export default function writeMastercopyFromBuild({
     console.warn(`Warning: overriding artifact for ${contractVersion}`);
   }
 
+  const bytecode = resolveLinksInBytecode(
+    contractVersion,
+    buildArtifact,
+    mastercopies
+  );
+
   const mastercopyArtifact: MastercopyArtifact = {
     contractName,
     sourceName: buildArtifact.sourceName,
@@ -66,11 +74,11 @@ export default function writeMastercopyFromBuild({
     factory,
     address: predictSingletonAddress({
       factory,
-      bytecode: buildArtifact.bytecode,
+      bytecode,
       constructorArgs,
       salt,
     }),
-    bytecode: buildArtifact.bytecode,
+    bytecode,
     constructorArgs,
     salt,
     abi: buildArtifact.abi,
