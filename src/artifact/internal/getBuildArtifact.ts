@@ -1,8 +1,9 @@
+import assert from "assert";
 import path from "path";
+import { isAddress } from "ethers";
 import { readdirSync, readFileSync, statSync } from "fs";
 
 import { BuildArtifact, MastercopyArtifact } from "../../types";
-import assert from "assert";
 
 /**
  * Retrieves the build artifact for a specified contract.
@@ -78,26 +79,27 @@ export function resolveLinksInBytecode(
       let { address: libraryAddress } =
         mastercopies[libraryName][contractVersion];
 
-      libraryAddress = libraryAddress.toLowerCase().replace(/^0x/, "");
+      assert(isAddress(libraryAddress));
 
-      assert(libraryAddress.length == 40);
-
-      for (const { length, start } of artifact.linkReferences[libraryPath][
-        libraryName
-      ]) {
+      for (const { length, start: offset } of artifact.linkReferences[
+        libraryPath
+      ][libraryName]) {
         assert(length == 20);
-        const left = bytecode.slice(0, start * 2);
-        const right = bytecode.slice((start + length) * 2);
-        bytecode = `${left}${libraryAddress}${right}`;
+
+        // the offset is in bytes, and does not account for the trailing 0x
+        const left = 2 + offset * 2;
+        const right = left + length * 2;
+
+        bytecode = `${bytecode.slice(0, left)}${libraryAddress.slice(2).toLowerCase()}${bytecode.slice(right)}`;
 
         console.log(
-          `Replaced library reference at ${start} with address ${libraryAddress}`
+          `Replaced library reference at ${offset} with address ${libraryAddress}`
         );
       }
     }
   }
 
-  return bytecode.replace("__", "");
+  return bytecode;
 }
 
 /**
