@@ -49,7 +49,7 @@ export default function writeMastercopyFromBuild({
   compilerInput?: any;
   buildDirPath?: string;
   mastercopyArtifactsFile?: string;
-}) {
+}): MastercopyArtifact {
   const buildArtifact = getBuildArtifact(contractName, buildDirPath);
 
   const mastercopies = existsSync(mastercopyArtifactsFile)
@@ -111,4 +111,6 @@ export default function writeMastercopyFromBuild({
     JSON.stringify(sortedMastercopies, null, 2),
     "utf8"
   );
+
+  return mastercopyArtifact;
 }
