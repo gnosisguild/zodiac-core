@@ -66,6 +66,23 @@ export default function writeMastercopyFromBuild({
     mastercopies
   );
 
+  const compilerInput = minimalCompilerInput || buildArtifact.compilerInput;
+  compilerInput.settings = compilerInput.settings || {};
+  compilerInput.settings.libraries = compilerInput.settings.libraries || {};
+  for (const libraryPath of Object.keys(buildArtifact.linkReferences)) {
+    compilerInput.settings.libraries[libraryPath] =
+      compilerInput.settings.libraries[libraryPath] || {};
+    for (const libraryName of Object.keys(
+      buildArtifact.linkReferences[libraryPath]
+    )) {
+      const libraryAddress =
+        mastercopies[libraryName]?.[contractVersion]?.address;
+      if (libraryAddress) {
+        compilerInput.settings.libraries[libraryPath][libraryName] =
+          libraryAddress;
+      }
+    }
+  }
   const mastercopyArtifact: MastercopyArtifact = {
     contractName,
     sourceName: buildArtifact.sourceName,
@@ -82,7 +99,7 @@ export default function writeMastercopyFromBuild({
     constructorArgs,
     salt,
     abi: buildArtifact.abi,
-    compilerInput: minimalCompilerInput || buildArtifact.compilerInput,
+    compilerInput,
   };
 
   const nextMastercopies = {
