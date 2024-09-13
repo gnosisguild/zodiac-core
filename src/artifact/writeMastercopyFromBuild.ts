@@ -8,9 +8,8 @@ import {
   defaultBuildDir,
   defaultMastercopyArtifactsFile,
 } from "./internal/paths";
-import getBuildArtifact, {
-  resolveLinksInBytecode,
-} from "./internal/getBuildArtifact";
+import getBuildArtifact from "./internal/getBuildArtifact";
+import linkBuildArtifact from "./internal/linkBuildArtifact";
 
 import { MastercopyArtifact } from "../types";
 
@@ -60,29 +59,13 @@ export default function writeMastercopyFromBuild({
     console.warn(`Warning: overriding artifact for ${contractVersion}`);
   }
 
-  const bytecode = resolveLinksInBytecode(
+  const artifact = linkBuildArtifact({
+    artifact: buildArtifact,
     contractVersion,
-    buildArtifact,
-    mastercopies
-  );
+    minimalCompilerInput,
+    mastercopies,
+  });
 
-  const compilerInput = minimalCompilerInput || buildArtifact.compilerInput;
-  compilerInput.settings = compilerInput.settings || {};
-  compilerInput.settings.libraries = compilerInput.settings.libraries || {};
-  for (const libraryPath of Object.keys(buildArtifact.linkReferences)) {
-    compilerInput.settings.libraries[libraryPath] =
-      compilerInput.settings.libraries[libraryPath] || {};
-    for (const libraryName of Object.keys(
-      buildArtifact.linkReferences[libraryPath]
-    )) {
-      const libraryAddress =
-        mastercopies[libraryName]?.[contractVersion]?.address;
-      if (libraryAddress) {
-        compilerInput.settings.libraries[libraryPath][libraryName] =
-          libraryAddress;
-      }
-    }
-  }
   const mastercopyArtifact: MastercopyArtifact = {
     contractName,
     sourceName: buildArtifact.sourceName,
@@ -91,15 +74,15 @@ export default function writeMastercopyFromBuild({
     factory,
     address: predictSingletonAddress({
       factory,
-      bytecode,
+      bytecode: artifact.bytecode,
       constructorArgs,
       salt,
     }),
-    bytecode,
+    bytecode: artifact.bytecode,
     constructorArgs,
     salt,
     abi: buildArtifact.abi,
-    compilerInput,
+    compilerInput: artifact.compilerInput,
   };
 
   const nextMastercopies = {

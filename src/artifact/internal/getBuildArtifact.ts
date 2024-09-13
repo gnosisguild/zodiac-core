@@ -41,68 +41,6 @@ export default function getBuildArtifact(
 }
 
 /**
- * Replaces library references in the bytecode with actual deployed addresses.
- *
- * This function scans the bytecode and replaces placeholder references
- * to libraries with their actual on-chain addresses. It ensures that
- * the library addresses are valid and properly formatted.
- *
- * @param {string} bytecode - The bytecode that may contain library references.
- * @param {Record<string, any>} linkReferences - References to libraries, as returned by the compiler.
- * @param {Record<string, string>} libraryAddresses - A map of library names to their deployed addresses.
- * @returns {string} - The updated bytecode with library references replaced by actual addresses.
- *
- * @throws {Error} - Throws if a library address is missing or incorrectly formatted.
- */
-export function resolveLinksInBytecode(
-  contractVersion: string,
-  artifact: BuildArtifact,
-  mastercopies: Record<string, Record<string, MastercopyArtifact>>
-): string {
-  let bytecode = artifact.bytecode;
-
-  for (const libraryPath of Object.keys(artifact.linkReferences)) {
-    for (const libraryName of Object.keys(
-      artifact.linkReferences[libraryPath]
-    )) {
-      console.log(`libraryPath ${libraryPath} libraryName ${libraryName}`);
-
-      if (
-        !mastercopies[libraryName] ||
-        !mastercopies[libraryName][contractVersion]
-      ) {
-        throw new Error(
-          `Could not link ${libraryName} for ${artifact.contractName}`
-        );
-      }
-
-      let { address: libraryAddress } =
-        mastercopies[libraryName][contractVersion];
-
-      assert(isAddress(libraryAddress));
-
-      for (const { length, start: offset } of artifact.linkReferences[
-        libraryPath
-      ][libraryName]) {
-        assert(length == 20);
-
-        // the offset is in bytes, and does not account for the trailing 0x
-        const left = 2 + offset * 2;
-        const right = left + length * 2;
-
-        bytecode = `${bytecode.slice(0, left)}${libraryAddress.slice(2).toLowerCase()}${bytecode.slice(right)}`;
-
-        console.log(
-          `Replaced library reference at ${offset} with address ${libraryAddress}`
-        );
-      }
-    }
-  }
-
-  return bytecode;
-}
-
-/**
  * Resolves the paths to the artifact and build info files for a specified contract.
  *
  * @param {string} name - The name of the contract.
