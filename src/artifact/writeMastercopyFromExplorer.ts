@@ -106,4 +106,6 @@ export default async function writeMastercopyFromExplorer({
     JSON.stringify(sortedMastercopies, null, 2),
     "utf8"
   );
+
+  return mastercopyArtifact;
 }
