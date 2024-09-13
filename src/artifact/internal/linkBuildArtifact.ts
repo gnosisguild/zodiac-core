@@ -101,9 +101,8 @@ function linkCompilerInput(
   compilerInput: any,
   mastercopies: Record<string, Record<string, MastercopyArtifact>>
 ): any {
+  const result = { ...compilerInput };
   for (const libraryPath of Object.keys(artifact.linkReferences)) {
-    compilerInput.settings.libraries[libraryPath] =
-      compilerInput.settings.libraries[libraryPath] || {};
     for (const libraryName of Object.keys(
       artifact.linkReferences[libraryPath]
     )) {
@@ -115,13 +114,15 @@ function linkCompilerInput(
 
       assert(isAddress(libraryAddress));
 
-      compilerInput.settings = {
-        ...compilerInput.settings,
+      result.settings = {
+        ...result.settings,
         libraries: {
-          ...compilerInput.settings.libraries,
+          ...result.settings.libraries,
           [libraryPath]: { [libraryName]: libraryAddress },
         },
       };
     }
   }
+
+  return result;
 }
