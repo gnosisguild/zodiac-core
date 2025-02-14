@@ -102,6 +102,7 @@ async function deployKnownFactory({
       method: "eth_getCode",
       params: [factoryAddress, "latest"],
     });
+
     if (code != "0x") {
       return;
     }
