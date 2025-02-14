@@ -155,7 +155,7 @@ export async function getSourceCode({
 }
 
 /**
- * Checks if the given URL is reachable.
+ * Checks if the given URL is reachable using HEAD first, then OPTIONS.
  *
  * @param {string} url - The URL to check.
  * @returns {Promise<boolean>} True if the URL is reachable, false otherwise.
@@ -163,9 +163,16 @@ export async function getSourceCode({
 async function isLiveUrl(url: string): Promise<boolean> {
   try {
     const response = await fetch(url, { method: "HEAD" });
-    return response.ok;
+    if (response.ok) return true;
   } catch (error) {
-    console.error(`Error pinging ${url}:`, error);
+    console.warn(`HEAD request failed for ${url}, trying OPTIONS...`);
+  }
+
+  try {
+    const response = await fetch(url, { method: "OPTIONS" });
+    return response.status < 500;
+  } catch (error) {
+    console.error(`Both HEAD and OPTIONS failed for ${url}:`, error);
     return false;
   }
 }

@@ -112,6 +112,14 @@ export const chainConfig = [
     },
   },
   {
+    network: "lisk",
+    chainId: 1135,
+    urls: {
+      apiURL: "https://blockscout.lisk.com/api",
+      browserURL: "https://blockscout.lisk.com",
+    },
+  },
+  {
     network: "moonbeam",
     chainId: 1284,
     urls: {
@@ -149,6 +157,14 @@ export const chainConfig = [
     urls: {
       apiURL: "https://api-testnet.ftmscan.com/api",
       browserURL: "https://testnet.ftmscan.com",
+    },
+  },
+  {
+    network: "lisk-sepolia",
+    chainId: 4202,
+    urls: {
+      apiURL: "https://sepolia-blockscout.lisk.com/api",
+      browserURL: "https://sepolia-blockscout.lisk.com",
     },
   },
   {
@@ -200,6 +216,14 @@ export const chainConfig = [
     },
   },
   {
+    network: "bob",
+    chainId: 60808,
+    urls: {
+      apiURL: "https://explorer.gobob.xyz/api",
+      browserURL: "https://explorer.gobob.xyz",
+    },
+  },
+  {
     network: "polygonMumbai",
     chainId: 80001,
     urls: {
@@ -237,6 +261,14 @@ export const chainConfig = [
     urls: {
       apiURL: "https://api-sepolia.arbiscan.io/api",
       browserURL: "https://sepolia.arbiscan.io/",
+    },
+  },
+  {
+    network: "bobSepolia",
+    chainId: 808813,
+    urls: {
+      apiURL: "https://bob-sepolia.explorer.gobob.xyz/api",
+      browserURL: "https://bob-sepolia.explorer.gobob.xyz",
     },
   },
   {
