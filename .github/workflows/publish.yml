@@ -21,8 +21,10 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn
       - run: yarn build
-      - run: npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-      - run: npm config set scope "@gnosis-guild"
+      - run: npm config set //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
       - run: npm publish --access public --non-interactive
         env:
           NODE_AUTH_TOKEN: ${{secrets.PUBLISH_NPM_TOKEN}}
+          NPM_AUTH_TOKEN: ${{secrets.PUBLISH_NPM_TOKEN}}
+          NPM_AUTH: ${{secrets.PUBLISH_NPM_TOKEN}}
+          NPM_TOKEN: ${{secrets.PUBLISH_NPM_TOKEN}}
