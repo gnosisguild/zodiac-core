@@ -6,7 +6,7 @@ on:
   #   types: [created]
 
 jobs:
-  build:
+  publish-npm:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,19 +19,6 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn
       - run: yarn build
-      - run: yarn coverage
-
-  publish-npm:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 22
-          registry-url: https://registry.npmjs.org
-          scope: "@gnosis-guild"
-      - run: yarn
-      - run: yarn release
+      - run: npm publish --access public --non-interactive
         env:
           NODE_AUTH_TOKEN: ${{secrets.PUBLISH_NPM_TOKEN}}

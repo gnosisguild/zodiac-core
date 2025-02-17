@@ -30,10 +30,7 @@
     "lint:ts": "eslint --max-warnings 0 .",
     "format": "yarn format:sol && yarn format:ts",
     "format:sol": "prettier --write --plugin=prettier-plugin-solidity ./contracts/**/*.sol",
-    "format:ts": "prettier --write ./src/**/*.ts ./test/**/*.ts ./*.ts",
-    "prepare": "yarn clean && yarn build",
-    "prerelease": "yarn clean && yarn build",
-    "release": "npm publish --access public --non-interactive"
+    "format:ts": "prettier --write ./src/**/*.ts ./test/**/*.ts ./*.ts"
   },
   "directories": {
     "test": "test"
