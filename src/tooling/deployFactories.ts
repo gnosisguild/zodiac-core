@@ -1,3 +1,4 @@
+import { toBeHex } from "ethers";
 import {
   funding as nickFunding,
   deployer as nickDeployer,
@@ -112,7 +113,7 @@ async function deployKnownFactory({
   {
     const hash = (await provider.request({
       method: "eth_sendTransaction",
-      params: [{ to: deployer, value: funding }],
+      params: [{ to: deployer, value: toBeHex(funding) }],
     })) as string;
     await waitForTransaction(hash, provider);
   }
