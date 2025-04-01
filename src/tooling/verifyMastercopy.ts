@@ -15,14 +15,19 @@ const sleep = (ms: number): Promise<void> => {
  * Verifies a Mastercopy contract on an Etherscan-like block explorer.
  *
  * This function submits the source code and metadata of a Mastercopy contract to a block explorer
- * for verification. It interacts with the explorer's API
- * using the provided API key and endpoint. A debounced timer of 500 milliseconds
- * is added between each verification to prevent rate-limiting issues.
+ * for verification. It interacts with the explorer's API using the provided API key and endpoint.
+ * A debounced timer of 500 milliseconds is added between each verification to prevent rate-limiting issues.
  *
  * @param {Object} params - The parameters required for verification.
  * @param {string} params.apiUrlOrChainId - The base URL of the block explorer's API or the chain ID.
  * @param {string} params.apiKey - The API key for authenticating requests to the block explorer.
  * @param {MastercopyArtifact} params.artifact - The Mastercopy artifact containing the contract's address, source code, ABI, and other metadata.
+ * @param {Object} [params.customChainConfig] - An optional custom chain configuration object. This object should include:
+ *   - `network` (string): The name of the network.
+ *   - `chainId` (number): The chain ID.
+ *   - `urls` (object): An object containing:
+ *       - `apiURL` (string): The API endpoint URL of the block explorer.
+ *       - `browserURL` (string): The browser URL of the block explorer.
  *
  * @returns {Promise<{ address: string; noop: boolean }>} A promise that resolves to an object containing:
  * - `address` (string): The address of the verified Mastercopy contract.
@@ -34,10 +39,16 @@ export default async function verifyMastercopy({
   apiUrlOrChainId,
   apiKey,
   artifact,
+  customChainConfig,
 }: {
   apiUrlOrChainId: string;
   apiKey: string;
   artifact: MastercopyArtifact;
+  customChainConfig?: {
+    network: string;
+    chainId: number;
+    urls: { apiURL: string; browserURL: string };
+  };
 }): Promise<{
   address: string;
   noop: boolean;
@@ -48,6 +59,7 @@ export default async function verifyMastercopy({
     ...artifact,
     apiUrlOrChainId,
     apiKey,
+    customChainConfig,
   });
 
   return { address: artifact.address, noop };

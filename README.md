@@ -219,3 +219,49 @@ const artifact = readMastercopy({
   contractVersion: "1.0.0",
 });
 ```
+
+### \
+
+Verification
+
+The verification functions allow you to confirm that a deployed contract’s source code and metadata match what is expected on a blockchain explorer (such as Etherscan). These functions ensure that the API URL is reachable, the provided API key is valid, and check if the contract has already been verified. They also support an optional custom chain configuration for explorers that are not part of the default configuration.
+
+**verifyMastercopy**
+
+Verifies a Mastercopy contract by checking if it’s already verified on the explorer, and if not, submits the contract’s source code and metadata for verification. The function pauses for 500ms between verifications to prevent rate-limiting issues.
+
+```
+import verifyMastercopy from "@gnosis-guild/zodiac-core";
+
+const result = await verifyMastercopy({
+  apiUrlOrChainId: "1", // or chain ID as a string
+  apiKey: "YourEtherscanApiKey",
+  artifact: {
+    contractName: "MyContract",
+    sourceName: "MyContract.sol",
+    compilerVersion: "v0.8.0+commit.c7dfd78e",
+    compilerInput: "{}",
+    address: "0x1234567890abcdef1234567890abcdef12345678",
+    constructorArgs: {
+      types: ["uint256"],
+      values: [42],
+    },
+  },
+  customChainConfig: { // Optional custom chain configuration
+    network: "customnet",
+    chainId: 1337,
+    urls: {
+      apiURL: "https://api.customnet.io/api",
+      browserURL: "https://customnet.io",
+    },
+  },
+});
+
+console.log(result);
+```
+
+**verifySourceCode**
+
+Internally used by verifyMastercopy, this function submits the contract’s source code and metadata to the explorer’s API for verification. It verifies that the provided API endpoint is reachable, the API key is valid, and that the contract is not already verified.
+
+_Note: In most cases, you will directly use verifyMastercopy for verifying mastercopies._

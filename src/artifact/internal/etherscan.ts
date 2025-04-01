@@ -17,7 +17,14 @@ import { resolveApiUrl } from "./chainConfig";
  * @param {any[]} params.constructorArgs.values - The values of the constructor arguments.
  * @param {string} apiUrlOrChainId - The API URL of the blockchain explorer or the chain id.
  * @param {string} apiKey - The API key for the blockchain explorer.
- * @returns {Promise<{ ok: boolean; noop: boolean }>} The verification result.
+ * @param {Object} [customChainConfig] - An optional custom chain configuration object. This object should include:
+ *   - `network` (string): The name of the network.
+ *   - `chainId` (number): The chain ID.
+ *   - `urls` (object): An object containing:
+ *       - `apiURL` (string): The API endpoint URL of the block explorer.
+ *       - `browserURL` (string): The browser URL of the block explorer.
+ *
+ * @returns {Promise<{ noop: boolean }>} The verification result.
  * @throws {Error} If the API URL is unreachable, the API key is invalid, or the verification fails.
  */
 export async function verifySourceCode({
@@ -29,6 +36,7 @@ export async function verifySourceCode({
   constructorArgs: { types, values },
   apiUrlOrChainId,
   apiKey,
+  customChainConfig,
 }: {
   contractName: string;
   sourceName: string;
@@ -38,8 +46,13 @@ export async function verifySourceCode({
   constructorArgs: { types: any[]; values: any[] };
   apiUrlOrChainId: string;
   apiKey: string;
+  customChainConfig?: {
+    network: string;
+    chainId: number;
+    urls: { apiURL: string; browserURL: string };
+  };
 }): Promise<{ noop: boolean }> {
-  const url = resolveApiUrl(apiUrlOrChainId);
+  const url = resolveApiUrl(apiUrlOrChainId, customChainConfig);
 
   if (!(await isLiveUrl(url))) {
     throw new Error(`Couldn't reach ${url}`);
