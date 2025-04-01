@@ -220,9 +220,7 @@ const artifact = readMastercopy({
 });
 ```
 
-### \
-
-Verification
+### Verification
 
 The verification functions allow you to confirm that a deployed contract’s source code and metadata match what is expected on a blockchain explorer (such as Etherscan). These functions ensure that the API URL is reachable, the provided API key is valid, and check if the contract has already been verified. They also support an optional custom chain configuration for explorers that are not part of the default configuration.
 
@@ -230,7 +228,7 @@ The verification functions allow you to confirm that a deployed contract’s sou
 
 Verifies a Mastercopy contract by checking if it’s already verified on the explorer, and if not, submits the contract’s source code and metadata for verification. The function pauses for 500ms between verifications to prevent rate-limiting issues.
 
-```
+```ts
 import verifyMastercopy from "@gnosis-guild/zodiac-core";
 
 const result = await verifyMastercopy({
