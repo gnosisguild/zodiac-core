@@ -313,12 +313,44 @@ export const chainConfig = [
   },
 ];
 
-export function resolveApiUrl(apiUrlIsh: string) {
+function validateCustomChainConfig(customChainConfig: {
+  network: string;
+  chainId: number;
+  urls: { apiURL: string; browserURL: string };
+}): void {
+  if (
+    !customChainConfig.network ||
+    typeof customChainConfig.chainId !== "number" ||
+    !customChainConfig.urls ||
+    !customChainConfig.urls.apiURL ||
+    !customChainConfig.urls.browserURL
+  ) {
+    throw new Error("The custom chain configuration is invalid");
+  }
+}
+
+export function resolveApiUrl(
+  apiUrlIsh: string,
+  customChainConfig?: {
+    network: string;
+    chainId: number;
+    urls: { apiURL: string; browserURL: string };
+  }
+) {
+  if (customChainConfig) {
+    validateCustomChainConfig(customChainConfig);
+    if (
+      String(customChainConfig.chainId) === apiUrlIsh ||
+      customChainConfig.network.toLowerCase() === apiUrlIsh.toLowerCase()
+    ) {
+      return customChainConfig.urls.apiURL;
+    }
+  }
+
   const entry = chainConfig.find(
     (entry) =>
-      String(entry.chainId) == apiUrlIsh ||
-      entry.network.toLowerCase() == apiUrlIsh.toLowerCase()
+      String(entry.chainId) === apiUrlIsh ||
+      entry.network.toLowerCase() === apiUrlIsh.toLowerCase()
   );
-
   return entry ? entry.urls.apiURL : apiUrlIsh;
 }
