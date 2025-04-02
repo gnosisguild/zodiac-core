@@ -258,8 +258,4 @@ const result = await verifyMastercopy({
 console.log(result);
 ```
 
-**verifySourceCode**
-
-Internally used by verifyMastercopy, this function submits the contract’s source code and metadata to the explorer’s API for verification. It verifies that the provided API endpoint is reachable, the API key is valid, and that the contract is not already verified.
-
 _Note: In most cases, you will directly use verifyMastercopy for verifying mastercopies._
