@@ -8,7 +8,7 @@ contract TestGuardableModifier is GuardableModifier {
     address to,
     uint256 value,
     bytes data,
-    Enum.Operation operation,
+    Operation operation,
     bool success
   );
 
@@ -16,7 +16,7 @@ contract TestGuardableModifier is GuardableModifier {
     address to,
     uint256 value,
     bytes data,
-    Enum.Operation operation,
+    Operation operation,
     bytes returnData,
     bool success
   );
@@ -36,7 +36,7 @@ contract TestGuardableModifier is GuardableModifier {
     address to,
     uint256 value,
     bytes calldata data,
-    Enum.Operation operation
+    Operation operation
   ) public override moduleOnly returns (bool success) {
     success = exec(to, value, data, operation);
     emit Executed(to, value, data, operation, success);
@@ -52,7 +52,7 @@ contract TestGuardableModifier is GuardableModifier {
     address to,
     uint256 value,
     bytes calldata data,
-    Enum.Operation operation
+    Operation operation
   ) public override moduleOnly returns (bool success, bytes memory returnData) {
     (success, returnData) = execAndReturnData(to, value, data, operation);
     emit ExecutedAndReturnedData(

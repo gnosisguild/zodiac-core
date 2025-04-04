@@ -4,9 +4,10 @@ pragma solidity >=0.7.0 <0.9.0;
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 import {BaseGuard} from "../guard/BaseGuard.sol";
-import {Enum} from "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
 import {FactoryFriendly} from "../factory/FactoryFriendly.sol";
 import {GuardableModule} from "../core/GuardableModule.sol";
+
+import "../core/Operation.sol";
 
 /* solhint-disable */
 
@@ -29,7 +30,7 @@ contract TestGuard is FactoryFriendly, BaseGuard {
     address to,
     uint256 value,
     bytes memory data,
-    Enum.Operation operation,
+    Operation operation,
     uint256,
     uint256,
     uint256,
@@ -41,7 +42,7 @@ contract TestGuard is FactoryFriendly, BaseGuard {
     require(to != address(0), "Cannot send to zero address");
     require(value != 1337, "Cannot send 1337");
     require(bytes3(data) != bytes3(0xbaddad), "Cannot call 0xbaddad");
-    require(operation != Enum.Operation(1), "No delegate calls");
+    require(operation != Operation(1), "No delegate calls");
     emit PreChecked(sender);
   }
 
@@ -68,7 +69,7 @@ contract TestNonCompliantGuard is IERC165 {
     address,
     uint256,
     bytes memory,
-    Enum.Operation,
+    Operation,
     uint256,
     uint256,
     uint256,

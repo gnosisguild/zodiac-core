@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.7.0 <0.9.0;
 
-import {Enum} from "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
 import {ExecutionTracker} from "../signature/ExecutionTracker.sol";
 import {IAvatar} from "../interfaces/IAvatar.sol";
 import {Module} from "./Module.sol";
 import {SignatureChecker} from "../signature/SignatureChecker.sol";
+
+import "./Operation.sol";
 
 /// @title Modifier Interface - A contract that sits between a Module and an Avatar and enforce some additional logic.
 abstract contract Modifier is
@@ -55,7 +56,7 @@ abstract contract Modifier is
     address to,
     uint256 value,
     bytes calldata data,
-    Enum.Operation operation
+    Operation operation
   ) public virtual returns (bool success);
 
   /// @dev Passes a transaction to the modifier, expects return data.
@@ -68,7 +69,7 @@ abstract contract Modifier is
     address to,
     uint256 value,
     bytes calldata data,
-    Enum.Operation operation
+    Operation operation
   ) public virtual returns (bool success, bytes memory returnData);
 
   /*

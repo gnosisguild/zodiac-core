@@ -1,4 +1,3 @@
-import { AddressOne } from "@gnosis.pm/safe-contracts";
 import { expect } from "chai";
 import { AbiCoder, Contract, getAddress, ZeroAddress } from "ethers";
 import { ethers } from "hardhat";
@@ -6,6 +5,7 @@ import { ethers } from "hardhat";
 import { predictProxyAddress } from "../src";
 
 const AddressZero = ZeroAddress;
+const AddressOne = "0x0000000000000000000000000000000000000001";
 
 describe("ModuleProxyFactory", async () => {
   let moduleFactory: Contract;

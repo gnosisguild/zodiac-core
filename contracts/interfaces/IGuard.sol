@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.7.0 <0.9.0;
 
-import {Enum} from "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
+import "../core/Operation.sol";
 
 interface IGuard {
   function checkTransaction(
     address to,
     uint256 value,
     bytes memory data,
-    Enum.Operation operation,
+    Operation operation,
     uint256 safeTxGas,
     uint256 baseGas,
     uint256 gasPrice,
