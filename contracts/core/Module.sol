@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.7.0 <0.9.0;
 
-import {Enum} from "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
-
 import {FactoryFriendly} from "../factory/FactoryFriendly.sol";
 import {IAvatar} from "../interfaces/IAvatar.sol";
+import "./Operation.sol";
 
 /// @title Module Interface - A contract that can pass messages to a Module Manager contract if enabled by that contract.
 abstract contract Module is FactoryFriendly {
@@ -44,7 +43,7 @@ abstract contract Module is FactoryFriendly {
     address to,
     uint256 value,
     bytes memory data,
-    Enum.Operation operation
+    Operation operation
   ) internal virtual returns (bool success) {
     return
       IAvatar(target).execTransactionFromModule(to, value, data, operation);
@@ -60,7 +59,7 @@ abstract contract Module is FactoryFriendly {
     address to,
     uint256 value,
     bytes memory data,
-    Enum.Operation operation
+    Operation operation
   ) internal virtual returns (bool success, bytes memory returnData) {
     return
       IAvatar(target).execTransactionFromModuleReturnData(

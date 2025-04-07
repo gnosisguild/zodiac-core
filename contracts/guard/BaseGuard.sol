@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.7.0 <0.9.0;
 
-import {Enum} from "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 import {IGuard} from "../interfaces/IGuard.sol";
+
+import "../core/Operation.sol";
 
 abstract contract BaseGuard is IERC165 {
   function supportsInterface(
@@ -22,7 +23,7 @@ abstract contract BaseGuard is IERC165 {
     address to,
     uint256 value,
     bytes memory data,
-    Enum.Operation operation,
+    Operation operation,
     uint256 safeTxGas,
     uint256 baseGas,
     uint256 gasPrice,

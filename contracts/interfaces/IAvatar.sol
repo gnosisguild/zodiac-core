@@ -3,7 +3,7 @@
 /// @title Zodiac Avatar - A contract that manages modules that can execute transactions via this contract.
 pragma solidity >=0.7.0 <0.9.0;
 
-import {Enum} from "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
+import "../core/Operation.sol";
 
 interface IAvatar {
   event EnabledModule(address module);
@@ -37,7 +37,7 @@ interface IAvatar {
     address to,
     uint256 value,
     bytes memory data,
-    Enum.Operation operation
+    Operation operation
   ) external returns (bool success);
 
   /// @dev Allows a Module to execute a transaction and return data
@@ -52,7 +52,7 @@ interface IAvatar {
     address to,
     uint256 value,
     bytes memory data,
-    Enum.Operation operation
+    Operation operation
   ) external returns (bool success, bytes memory returnData);
 
   /// @dev Returns if an module is enabled

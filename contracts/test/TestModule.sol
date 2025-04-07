@@ -15,14 +15,14 @@ contract TestModule is GuardableModule {
     address to,
     uint256 value,
     bytes data,
-    Enum.Operation operation,
+    Operation operation,
     bool success
   );
   event executedAndReturnedData(
     address to,
     uint256 value,
     bytes data,
-    Enum.Operation operation,
+    Operation operation,
     bytes returnData,
     bool success
   );
@@ -31,7 +31,7 @@ contract TestModule is GuardableModule {
     address to,
     uint256 value,
     bytes memory data,
-    Enum.Operation operation
+    Operation operation
   ) public returns (bool success) {
     success = exec(to, value, data, operation);
     emit executed(to, value, data, operation, success);
@@ -41,7 +41,7 @@ contract TestModule is GuardableModule {
     address to,
     uint256 value,
     bytes memory data,
-    Enum.Operation operation
+    Operation operation
   ) public returns (bool success, bytes memory returnData) {
     (success, returnData) = execAndReturnData(to, value, data, operation);
     emit executedAndReturnedData(

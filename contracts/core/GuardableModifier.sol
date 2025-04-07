@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.7.0 <0.9.0;
 
-import {Enum} from "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
-
 import {Guardable} from "../guard/Guardable.sol";
 import {IAvatar} from "../interfaces/IAvatar.sol";
 import {IGuard} from "../interfaces/IGuard.sol";
 import {Modifier} from "./Modifier.sol";
 import {Module} from "./Module.sol";
+
+import "./Operation.sol";
 
 abstract contract GuardableModifier is Module, Guardable, Modifier {
   /// @dev Passes a transaction to be executed by the avatar.
@@ -20,7 +20,7 @@ abstract contract GuardableModifier is Module, Guardable, Modifier {
     address to,
     uint256 value,
     bytes memory data,
-    Enum.Operation operation
+    Operation operation
   ) internal virtual override returns (bool success) {
     address currentGuard = guard;
     if (currentGuard != address(0)) {
@@ -61,7 +61,7 @@ abstract contract GuardableModifier is Module, Guardable, Modifier {
     address to,
     uint256 value,
     bytes memory data,
-    Enum.Operation operation
+    Operation operation
   ) internal virtual override returns (bool success, bytes memory returnData) {
     address currentGuard = guard;
     if (currentGuard != address(0)) {
