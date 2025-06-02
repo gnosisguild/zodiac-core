@@ -111,11 +111,18 @@ async function deployKnownFactory({
 
   // Send funding to the deployer address
   {
-    const hash = (await provider.request({
-      method: "eth_sendTransaction",
-      params: [{ to: deployer, value: toBeHex(funding) }],
+    const balance = (await provider.request({
+      method: "eth_getBalance",
+      params: [deployer],
     })) as string;
-    await waitForTransaction(hash, provider);
+    const missingFunds = funding - BigInt(balance || 0);
+    if (missingFunds > 0) {
+      const hash = (await provider.request({
+        method: "eth_sendTransaction",
+        params: [{ to: deployer, value: toBeHex(missingFunds) }],
+      })) as string;
+      await waitForTransaction(hash, provider);
+    }
   }
 
   // Send the signed deploy transaction
