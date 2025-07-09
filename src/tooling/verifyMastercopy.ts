@@ -53,8 +53,6 @@ export default async function verifyMastercopy({
   address: string;
   noop: boolean;
 }> {
-  await sleep(500);
-
   const { noop } = await verifySourceCode({
     ...artifact,
     apiUrlOrChainId,
