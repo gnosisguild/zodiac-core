@@ -23,8 +23,9 @@ import { MastercopyArtifact } from "../types";
  * @param {any[]} params.constructorArgs.types - The types of the constructor arguments.
  * @param {any[]} params.constructorArgs.values - The values of the constructor arguments.
  * @param {string} params.salt - A 32-byte value used for mastercopy deployment.
- * @param {string} params.apiUrlOrChainId - The API URL or Chain ID of the explorer service.
+ * @param {number} params.chainId - The chain ID.
  * @param {string} params.apiKey - The API key for accessing the explorer service.
+ * @param {string} [params.apiUrl] - Optional custom API URL. If not provided, will use the default for the chain.
  * @param {string} [params.mastercopyArtifactsFile=defaultMastercopyArtifactsFile()] - The path to the mastercopy artifacts file. Optional.
  *
  * @returns {Promise<void>} - This function does not return a value but writes the mastercopy artifact to a file.
@@ -36,8 +37,9 @@ export default async function writeMastercopyFromExplorer({
   bytecode,
   constructorArgs,
   salt,
-  apiUrlOrChainId,
+  chainId,
   apiKey,
+  apiUrl,
   mastercopyArtifactsFile = defaultMastercopyArtifactsFile(),
 }: {
   contractVersion: string;
@@ -46,12 +48,13 @@ export default async function writeMastercopyFromExplorer({
   bytecode: string;
   constructorArgs: { types: any[]; values: any[] };
   salt: string;
-  apiUrlOrChainId: string;
+  chainId: number;
   apiKey: string;
+  apiUrl?: string;
   mastercopyArtifactsFile?: string;
 }) {
   const { contractName, sourceName, compilerVersion, compilerInput, abi } =
-    await getSourceCode({ address, apiUrlOrChainId, apiKey });
+    await getSourceCode({ address, chainId, apiKey, apiUrl });
 
   const mastercopies = existsSync(mastercopyArtifactsFile)
     ? JSON.parse(readFileSync(mastercopyArtifactsFile, "utf8"))

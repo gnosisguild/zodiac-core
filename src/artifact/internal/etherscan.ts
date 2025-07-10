@@ -1,7 +1,7 @@
 import { AbiCoder } from "ethers";
 
 import { sourcePathFromSourceCode } from "./getBuildArtifact";
-import { resolveApiUrl } from "./chainConfig";
+import { resolveApiUrl } from "./etherscanApiUrl";
 
 /**
  * Verifies the contract on a blockchain explorer using the provided API.
@@ -15,14 +15,9 @@ import { resolveApiUrl } from "./chainConfig";
  * @param {Object} params.constructorArgs - The constructor arguments of the contract.
  * @param {any[]} params.constructorArgs.types - The types of the constructor arguments.
  * @param {any[]} params.constructorArgs.values - The values of the constructor arguments.
- * @param {string} apiUrlOrChainId - The API URL of the blockchain explorer or the chain id.
+ * @param {number} chainId - The chain ID.
  * @param {string} apiKey - The API key for the blockchain explorer.
- * @param {Object} [customChainConfig] - An optional custom chain configuration object. This object should include:
- *   - `network` (string): The name of the network.
- *   - `chainId` (number): The chain ID.
- *   - `urls` (object): An object containing:
- *       - `apiURL` (string): The API endpoint URL of the block explorer.
- *       - `browserURL` (string): The browser URL of the block explorer.
+ * @param {string} [apiUrl] - Optional custom API URL. If not provided, will use the default for the chain.
  *
  * @returns {Promise<{ noop: boolean }>} The verification result.
  * @throws {Error} If the API URL is unreachable, the API key is invalid, or the verification fails.
@@ -34,9 +29,9 @@ export async function verifySourceCode({
   compilerInput,
   address,
   constructorArgs: { types, values },
-  apiUrlOrChainId,
+  chainId,
   apiKey,
-  customChainConfig,
+  apiUrl,
 }: {
   contractName: string;
   sourceName: string;
@@ -44,25 +39,21 @@ export async function verifySourceCode({
   compilerInput: string;
   address: string;
   constructorArgs: { types: any[]; values: any[] };
-  apiUrlOrChainId: string;
+  chainId: number;
   apiKey: string;
-  customChainConfig?: {
-    network: string;
-    chainId: number;
-    urls: { apiURL: string; browserURL: string };
-  };
+  apiUrl?: string;
 }): Promise<{ noop: boolean }> {
-  const url = resolveApiUrl(apiUrlOrChainId, customChainConfig);
+  const url = resolveApiUrl(chainId, apiUrl);
 
   if (!(await isLiveUrl(url))) {
     throw new Error(`Couldn't reach ${url}`);
   }
 
-  if (!(await isValidApiKey({ url, apiKey }))) {
+  if (!(await isValidApiKey({ url, apiKey, chainId }))) {
     throw new Error(`Invalid Api Key`);
   }
 
-  if (await isVerified(address, { url, apiKey })) {
+  if (await isVerified(address, { url, apiKey, chainId })) {
     return {
       noop: true,
     };
@@ -106,24 +97,27 @@ export async function verifySourceCode({
 
 export async function getSourceCode({
   address,
-  apiUrlOrChainId,
+  chainId,
   apiKey,
+  apiUrl,
 }: {
   address: string;
-  apiUrlOrChainId: string;
+  chainId: number;
   apiKey: string;
+  apiUrl?: string;
 }) {
-  const url = resolveApiUrl(apiUrlOrChainId);
+  const url = resolveApiUrl(chainId, apiUrl);
 
   if (!(await isLiveUrl(url))) {
     throw new Error(`Couldn't reach ${url}`);
   }
 
-  if (!(await isValidApiKey({ url, apiKey }))) {
+  if (!(await isValidApiKey({ url, apiKey, chainId }))) {
     throw new Error(`Invalid Api Key`);
   }
 
   const parameters = new URLSearchParams({
+    chainid: chainId.toString(),
     apikey: apiKey,
     module: "contract",
     action: "getsourcecode",
@@ -200,15 +194,19 @@ async function isLiveUrl(url: string): Promise<boolean> {
  */
 async function isValidApiKey({
   url: _url,
+  chainId,
   apiKey,
 }: {
   url: string;
+  chainId: number;
   apiKey: string;
 }): Promise<boolean> {
   const parameters = new URLSearchParams({
+    chainid: chainId.toString(),
     apikey: apiKey,
-    module: "stats",
-    action: "ethprice",
+    module: "account",
+    action: "balance",
+    address: "0x0000000000000000000000000000000000000000",
   });
   const url = new URL(_url);
   url.search = parameters.toString();
@@ -237,10 +235,15 @@ async function isValidApiKey({
  */
 async function isVerified(
   address: string,
-  { url: _url, apiKey }: { url: string; apiKey: string }
+  {
+    url: _url,
+    apiKey,
+    chainId,
+  }: { url: string; apiKey: string; chainId: number }
 ): Promise<boolean> {
   const parameters = new URLSearchParams({
     apikey: apiKey,
+    chainid: chainId.toString(),
     module: "contract",
     action: "getsourcecode",
     address,

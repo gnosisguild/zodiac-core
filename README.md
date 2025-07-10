@@ -174,7 +174,7 @@ Fetches and stores the Mastercopy data from a deployed contract on a blockchain 
 
 • **`salt`** - A 32-byte value used for mastercopy deployment.
 
-• **`apiUrlOrChainId`** - The API URL or Chain ID of the explorer service.
+• **`chainId`** - The chain ID.
 
 • **`apiKey`** - The API key for accessing the explorer service.
 
@@ -193,8 +193,8 @@ await writeMastercopyFromExplorer({
     types: ["address", "uint256"],
     values: ["0x<address>", 0],
   },
-  salt: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef",
-  apiUrlOrChainId: "1",
+  salt: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef",
+  chainId: 1,
   apiKey: "YourEtherscanApiKey",
 });
 ```
@@ -222,7 +222,7 @@ const artifact = readMastercopy({
 
 ### Verification
 
-The verification functions allow you to confirm that a deployed contract’s source code and metadata match what is expected on a blockchain explorer (such as Etherscan). These functions ensure that the API URL is reachable, the provided API key is valid, and check if the contract has already been verified. They also support an optional custom chain configuration for explorers that are not part of the default configuration.
+The verification functions allow you to confirm that a deployed contract’s source code and metadata match what is expected on a blockchain explorer (such as Etherscan). These functions ensure that the API URL is reachable, the provided API key is valid, and check if the contract has already been verified. They also support an optional custom API URL for explorers that are not part of the default configuration.
 
 **verifyMastercopy**
 
@@ -232,7 +232,7 @@ Verifies a Mastercopy contract by checking if it’s already verified on the exp
 import verifyMastercopy from "@gnosis-guild/zodiac-core";
 
 const result = await verifyMastercopy({
-  apiUrlOrChainId: "1", // or chain ID as a string
+  chainId: 1,
   apiKey: "YourEtherscanApiKey",
   artifact: {
     contractName: "MyContract",
@@ -245,14 +245,7 @@ const result = await verifyMastercopy({
       values: [42],
     },
   },
-  customChainConfig: { // Optional custom chain configuration
-    network: "customnet",
-    chainId: 1337,
-    urls: {
-      apiURL: "https://api.customnet.io/api",
-      browserURL: "https://customnet.io",
-    },
-  },
+  apiUrl: "https://api.customnet.io/api", // Optional custom API URL
 });
 
 console.log(result);

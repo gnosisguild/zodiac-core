@@ -19,15 +19,10 @@ const sleep = (ms: number): Promise<void> => {
  * A debounced timer of 500 milliseconds is added between each verification to prevent rate-limiting issues.
  *
  * @param {Object} params - The parameters required for verification.
- * @param {string} params.apiUrlOrChainId - The base URL of the block explorer's API or the chain ID.
+ * @param {number} params.chainId - The chain ID.
  * @param {string} params.apiKey - The API key for authenticating requests to the block explorer.
  * @param {MastercopyArtifact} params.artifact - The Mastercopy artifact containing the contract's address, source code, ABI, and other metadata.
- * @param {Object} [params.customChainConfig] - An optional custom chain configuration object. This object should include:
- *   - `network` (string): The name of the network.
- *   - `chainId` (number): The chain ID.
- *   - `urls` (object): An object containing:
- *       - `apiURL` (string): The API endpoint URL of the block explorer.
- *       - `browserURL` (string): The browser URL of the block explorer.
+ * @param {string} [params.apiUrl] - Optional custom API URL. If not provided, will use the default for the chain.
  *
  * @returns {Promise<{ address: string; noop: boolean }>} A promise that resolves to an object containing:
  * - `address` (string): The address of the verified Mastercopy contract.
@@ -36,30 +31,24 @@ const sleep = (ms: number): Promise<void> => {
  * @throws {Error} Throws an error if the verification process fails or if the provided parameters are invalid.
  */
 export default async function verifyMastercopy({
-  apiUrlOrChainId,
+  chainId,
   apiKey,
   artifact,
-  customChainConfig,
+  apiUrl,
 }: {
-  apiUrlOrChainId: string;
+  chainId: number;
   apiKey: string;
   artifact: MastercopyArtifact;
-  customChainConfig?: {
-    network: string;
-    chainId: number;
-    urls: { apiURL: string; browserURL: string };
-  };
+  apiUrl?: string;
 }): Promise<{
   address: string;
   noop: boolean;
 }> {
-  await sleep(500);
-
   const { noop } = await verifySourceCode({
     ...artifact,
-    apiUrlOrChainId,
+    chainId,
     apiKey,
-    customChainConfig,
+    apiUrl,
   });
 
   return { address: artifact.address, noop };

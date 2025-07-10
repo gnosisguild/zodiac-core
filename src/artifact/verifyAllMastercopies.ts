@@ -9,32 +9,23 @@ import { MastercopyArtifact } from "../types";
  * Iterates through each entry in the mastercopy artifacts file and verifies the mastercopy on an Etherscan-compatible block explorer.
  *
  * @param {Object} params - The function parameters.
- * @param {string} params.apiUrlOrChainId - The API URL used for verification. If a chain id is provided, the function will attempt to resolve it to a valid explorer URL.
+ * @param {number} params.chainId - The chain ID.
  * @param {string} params.apiKey - The API key used for verification.
  * @param {string} [params.mastercopyArtifactsFile=defaultMastercopyArtifactsFile()] - The path to the mastercopy artifacts file. Optional. Defaults to the result of `defaultMastercopyArtifactsFile()`.
- * @param {Object} [customChainConfig] - An optional custom chain configuration object. This object should include:
- *   - `network` (string): The name of the network.
- *   - `chainId` (number): The chain ID.
- *   - `urls` (object): An object containing:
- *       - `apiURL` (string): The API endpoint URL of the block explorer.
- *       - `browserURL` (string): The browser URL of the block explorer.
+ * @param {string} [params.apiUrl] - Optional custom API URL. If not provided, will use the default for the chain.
  *
  * @throws {Error} If the mastercopy artifacts file does not exist at the specified path.
  */
 export default async function ({
-  apiUrlOrChainId,
+  chainId,
   apiKey,
   mastercopyArtifactsFile = defaultMastercopyArtifactsFile(),
-  customChainConfig,
+  apiUrl,
 }: {
-  apiUrlOrChainId: string;
+  chainId: number;
   apiKey: string;
   mastercopyArtifactsFile?: string;
-  customChainConfig?: {
-    network: string;
-    chainId: number;
-    urls: { apiURL: string; browserURL: string };
-  };
+  apiUrl?: string;
 }) {
   if (!existsSync(mastercopyArtifactsFile)) {
     throw new Error(
@@ -52,9 +43,9 @@ export default async function ({
     )) {
       const { noop } = await verifySourceCode({
         ...(artifact as MastercopyArtifact),
-        apiUrlOrChainId,
+        chainId,
         apiKey,
-        customChainConfig,
+        apiUrl,
       });
 
       const { contractName, address } = artifact as MastercopyArtifact;
