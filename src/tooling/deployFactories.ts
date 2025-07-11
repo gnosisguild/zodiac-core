@@ -113,7 +113,7 @@ async function deployKnownFactory({
   {
     const balance = (await provider.request({
       method: "eth_getBalance",
-      params: [deployer],
+      params: [deployer, "latest"],
     })) as string;
     const missingFunds = funding - BigInt(balance || 0);
     if (missingFunds > 0) {
