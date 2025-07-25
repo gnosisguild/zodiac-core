@@ -76,6 +76,7 @@ export default async function deployMastercopy({
 
   const transaction = {
     ...encodeDeploySingleton({
+      factory,
       bytecode,
       constructorArgs,
       salt,
