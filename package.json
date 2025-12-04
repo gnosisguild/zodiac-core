@@ -64,6 +64,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.4",
     "hardhat": "^2.27.0",
+    "hardhat-contract-sizer": "^2.10.1",
     "hardhat-gas-reporter": "^2.3.0",
     "husky": "^9.1.7",
     "prettier": "^3.6.2",
@@ -77,9 +78,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.4.0",
-    "@openzeppelin/contracts-upgradeable": "^5.4.0",
-    "ethers": "^6.15.0",
+    "ethers": "^6.16.0",
     "semver": "^7.7.3"
   },
   "packageManager": "yarn@1.22.19+sha512.ff4579ab459bb25aa7c0ff75b62acebe576f6084b36aa842971cf250a5d8c6cd3bc9420b22ce63c7f93a0857bc6ef29291db39c3e7a23aab5adfd5a4dd6c5d71"

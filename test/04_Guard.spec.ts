@@ -73,9 +73,9 @@ describe("Guardable", async () => {
      */
     it("reverts if caller is not the owner", async () => {
       const { other, guard, module } = await loadFixture(setupTests);
-      await expect(module.connect(other).setGuard(await guard.getAddress()))
-        .to.be.revertedWithCustomError(module, "OwnableUnauthorizedAccount")
-        .withArgs(other.address);
+      await expect(
+        module.connect(other).setGuard(await guard.getAddress())
+      ).to.be.revertedWithCustomError(module, "OwnableUnauthorized");
     });
 
     /**

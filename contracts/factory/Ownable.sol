@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: LGPL-3.0-only
+pragma solidity >=0.7.0 <0.9.0;
+
+abstract contract Ownable {
+  address public owner;
+
+  event OwnershipTransferred(
+    address indexed previousOwner,
+    address indexed newOwner
+  );
+
+  error OwnableUnauthorized();
+
+  modifier onlyOwner() {
+    if (msg.sender != owner) revert OwnableUnauthorized();
+    _;
+  }
+
+  function transferOwnership(address newOwner) public onlyOwner {
+    _transferOwnership(newOwner);
+  }
+
+  function _transferOwnership(address newOwner) internal {
+    address oldOwner = owner;
+    owner = newOwner;
+    emit OwnershipTransferred(oldOwner, newOwner);
+  }
+}

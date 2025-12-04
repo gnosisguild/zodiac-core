@@ -2,11 +2,12 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import {FactoryFriendly} from "../factory/FactoryFriendly.sol";
+import {Ownable} from "../factory/Ownable.sol";
 import {IAvatar} from "../interfaces/IAvatar.sol";
 import "./Operation.sol";
 
 /// @title Module Interface - A contract that can pass messages to a Module Manager contract if enabled by that contract.
-abstract contract Module is FactoryFriendly {
+abstract contract Module is FactoryFriendly, Ownable {
   /// @dev Address that will ultimately execute function calls.
   address public avatar;
   /// @dev Address that this module will pass transactions to.

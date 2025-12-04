@@ -1,4 +1,5 @@
 import "@nomicfoundation/hardhat-toolbox";
+import "hardhat-contract-sizer";
 
 import dotenv from "dotenv";
 
@@ -31,7 +32,7 @@ export default {
   solidity: {
     compilers: [
       {
-        version: "0.8.20",
+        version: "0.8.29",
         settings: {
           optimizer: {
             enabled: true,
@@ -39,7 +40,6 @@ export default {
           },
         },
       },
-      { version: "0.6.12" },
     ],
   },
   networks: {

@@ -55,7 +55,7 @@ contract TestModule is GuardableModule {
   }
 
   function setUp(bytes memory initializeParams) public override initializer {
-    __Ownable_init(msg.sender);
+    _transferOwnership(msg.sender);
     (address _avatar, address _target) = abi.decode(
       initializeParams,
       (address, address)

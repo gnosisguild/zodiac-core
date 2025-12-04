@@ -3,8 +3,7 @@ pragma solidity >=0.8.0;
 
 /**
  * @title Singleton Factory (EIP-2470)
- * @notice Exposes CREATE2 (EIP-1014) to deploy bytecode on deterministic addresses based on initialization code and salt.
- * @author Ricardo Guilherme Schmidt (Status Research & Development GmbH)
+ *
  */
 contract SingletonFactory {
   /**
@@ -27,5 +26,3 @@ contract SingletonFactory {
     }
   }
 }
-// IV is a value changed to generate the vanity address.
-// IV: 6583047

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.7.0 <0.9.0;
 
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {Ownable} from "../factory/Ownable.sol";
 
 import {BaseGuard} from "../guard/BaseGuard.sol";
 import {IGuard} from "../interfaces/IGuard.sol";
 
 /// @title Guardable - A contract that manages fallback calls made to this contract
-contract Guardable is OwnableUpgradeable {
+contract Guardable is Ownable {
   address public guard;
 
   event ChangedGuard(address guard);
