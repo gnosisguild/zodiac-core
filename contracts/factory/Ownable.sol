@@ -9,10 +9,10 @@ abstract contract Ownable {
     address indexed newOwner
   );
 
-  error OwnableUnauthorized();
+  error OwnableUnauthorizedAccount(address account);
 
   modifier onlyOwner() {
-    if (msg.sender != owner) revert OwnableUnauthorized();
+    if (msg.sender != owner) revert OwnableUnauthorizedAccount(msg.sender);
     _;
   }
 

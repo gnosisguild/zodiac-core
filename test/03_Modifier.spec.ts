@@ -89,7 +89,7 @@ describe("Modifier", async () => {
 
       await expect(
         modifier.connect(user2).enableModule(user2.address)
-      ).to.be.revertedWithCustomError(modifier, "OwnableUnauthorized");
+      ).to.be.revertedWithCustomError(modifier, "OwnableUnauthorizedAccount");
     });
     /**
      * Tests enabling a module.
@@ -150,7 +150,7 @@ describe("Modifier", async () => {
       const [, user2] = await hre.ethers.getSigners();
       await expect(
         modifier.connect(user2).disableModule(SENTINEL_MODULES, user2.address)
-      ).to.be.revertedWithCustomError(modifier, "OwnableUnauthorized");
+      ).to.be.revertedWithCustomError(modifier, "OwnableUnauthorizedAccount");
     });
     /**
      * Tests disabling a module.

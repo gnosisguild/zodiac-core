@@ -75,7 +75,7 @@ describe("Guardable", async () => {
       const { other, guard, module } = await loadFixture(setupTests);
       await expect(
         module.connect(other).setGuard(await guard.getAddress())
-      ).to.be.revertedWithCustomError(module, "OwnableUnauthorized");
+      ).to.be.revertedWithCustomError(module, "OwnableUnauthorizedAccount");
     });
 
     /**

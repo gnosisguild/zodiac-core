@@ -57,7 +57,7 @@ describe("Module", async () => {
       await module.transferOwnership(wallet1.address);
       await expect(
         module.setAvatar(await iAvatar.getAddress())
-      ).to.be.revertedWithCustomError(module, "OwnableUnauthorized");
+      ).to.be.revertedWithCustomError(module, "OwnableUnauthorizedAccount");
     });
 
     /**
@@ -93,7 +93,7 @@ describe("Module", async () => {
       await module.transferOwnership(wallet1.address);
       await expect(
         module.setTarget(await iAvatar.getAddress())
-      ).to.be.revertedWithCustomError(module, "OwnableUnauthorized");
+      ).to.be.revertedWithCustomError(module, "OwnableUnauthorizedAccount");
     });
 
     /**
