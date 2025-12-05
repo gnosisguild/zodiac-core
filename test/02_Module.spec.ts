@@ -55,9 +55,9 @@ describe("Module", async () => {
       const { iAvatar, module } = await loadFixture(setupTests);
       const [owner, wallet1] = await hre.ethers.getSigners();
       await module.transferOwnership(wallet1.address);
-      await expect(
-        module.setAvatar(await iAvatar.getAddress())
-      ).to.be.revertedWithCustomError(module, "OwnableUnauthorizedAccount");
+      await expect(module.setAvatar(await iAvatar.getAddress()))
+        .to.be.revertedWithCustomError(module, "OwnableUnauthorizedAccount")
+        .withArgs(owner.address);
     });
 
     /**
@@ -91,9 +91,9 @@ describe("Module", async () => {
       const { iAvatar, module } = await loadFixture(setupTests);
       const [owner, wallet1] = await hre.ethers.getSigners();
       await module.transferOwnership(wallet1.address);
-      await expect(
-        module.setTarget(await iAvatar.getAddress())
-      ).to.be.revertedWithCustomError(module, "OwnableUnauthorizedAccount");
+      await expect(module.setTarget(await iAvatar.getAddress()))
+        .to.be.revertedWithCustomError(module, "OwnableUnauthorizedAccount")
+        .withArgs(owner.address);
     });
 
     /**
