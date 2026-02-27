@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.7.0 <0.9.0;
 
-import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {IERC165} from "../interfaces/IERC165.sol";
 
 import {BaseGuard} from "../guard/BaseGuard.sol";
 import {FactoryFriendly} from "../factory/FactoryFriendly.sol";

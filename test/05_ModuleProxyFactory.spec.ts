@@ -64,7 +64,10 @@ describe("ModuleProxyFactory", async () => {
       );
 
       const transaction = await deploymentTx.wait();
-      const [actualAddress] = transaction.logs[2].args;
+      const event = transaction.logs.find(
+        (log: any) => log.fragment?.name === "ModuleProxyCreation"
+      );
+      const [actualAddress] = event.args;
 
       expect(expectedAddress).to.be.equal(actualAddress);
     });
@@ -124,7 +127,10 @@ describe("ModuleProxyFactory", async () => {
         saltNonce
       );
       const transaction = await deploymentTx.wait();
-      const [moduleAddress] = transaction.logs[2].args;
+      const event = transaction.logs.find(
+        (log: any) => log.fragment?.name === "ModuleProxyCreation"
+      );
+      const [moduleAddress] = event.args;
 
       const newModule = await ethers.getContractAt("TestModule", moduleAddress);
 

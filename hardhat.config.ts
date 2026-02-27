@@ -1,18 +1,9 @@
 import "@nomicfoundation/hardhat-toolbox";
+import "hardhat-contract-sizer";
 
 import dotenv from "dotenv";
-import yargs from "yargs";
 
 import type { HttpNetworkUserConfig } from "hardhat/types";
-
-const { network } = yargs
-  .option("network", {
-    type: "string",
-    default: "hardhat",
-  })
-  .help(false)
-  .version(false)
-  .parseSync();
 
 // Load environment variables.
 dotenv.config();
@@ -31,15 +22,6 @@ if (PK) {
   };
 }
 
-if (
-  ["mainnet", "goerli", "sepolia", "ropsten"].includes(network) &&
-  INFURA_KEY === undefined
-) {
-  throw new Error(
-    `Could not find Infura key in env, unable to connect to network ${network}`
-  );
-}
-
 export default {
   paths: {
     artifacts: "build/artifacts",
@@ -50,15 +32,15 @@ export default {
   solidity: {
     compilers: [
       {
-        version: "0.8.20",
+        version: "0.8.30",
         settings: {
+          evmVersion: "cancun",
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },
-      { version: "0.6.12" },
     ],
   },
   networks: {
