@@ -124,7 +124,7 @@ abstract contract SignatureChecker {
       return false;
     }
 
-    (, bytes memory returnData) = signer.staticcall(
+    (bool success, bytes memory returnData) = signer.staticcall(
       abi.encodeWithSelector(
         IERC1271.isValidSignature.selector,
         hash,
@@ -132,7 +132,7 @@ abstract contract SignatureChecker {
       )
     );
 
-    return bytes4(returnData) == EIP1271_MAGIC_VALUE;
+    return success && bytes4(returnData) == EIP1271_MAGIC_VALUE;
   }
 
   // keccak256(
