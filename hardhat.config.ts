@@ -32,11 +32,12 @@ export default {
   solidity: {
     compilers: [
       {
-        version: "0.8.29",
+        version: "0.8.30",
         settings: {
+          evmVersion: "cancun",
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 100,
           },
         },
       },
