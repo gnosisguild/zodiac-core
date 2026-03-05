@@ -3,11 +3,11 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import {IERC165} from "../interfaces/IERC165.sol";
 
-import {IGuard} from "../interfaces/IGuard.sol";
+import {IGuard, IModuleGuard} from "../interfaces/IGuard.sol";
 
 import "../core/Operation.sol";
 
-abstract contract BaseGuard is IERC165 {
+abstract contract BaseGuard is IGuard, IERC165 {
   function supportsInterface(
     bytes4 interfaceId
   ) external pure override returns (bool) {
@@ -34,4 +34,27 @@ abstract contract BaseGuard is IERC165 {
   ) external virtual;
 
   function checkAfterExecution(bytes32 txHash, bool success) external virtual;
+}
+
+abstract contract BaseModuleGuard is IModuleGuard, IERC165 {
+  function checkModuleTransaction(
+    address to,
+    uint256 value,
+    bytes memory data,
+    Operation operation,
+    address module
+  ) external virtual returns (bytes32 moduleTxHash);
+
+  function checkAfterModuleExecution(
+    bytes32 txHash,
+    bool success
+  ) external virtual;
+
+  function supportsInterface(
+    bytes4 interfaceId
+  ) external pure override returns (bool) {
+    return
+      interfaceId == type(IModuleGuard).interfaceId || // 0x58401ed8
+      interfaceId == type(IERC165).interfaceId; // 0x01ffc9a7
+  }
 }

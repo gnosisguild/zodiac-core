@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.7.0 <0.9.0;
 
-import {IGuard} from "../interfaces/IGuard.sol";
+import {IModuleGuard} from "../interfaces/IGuard.sol";
 import {Guardable} from "../guard/Guardable.sol";
 import {Module} from "./Module.sol";
 import {IAvatar} from "../interfaces/IAvatar.sol";
@@ -21,22 +21,15 @@ abstract contract GuardableModule is Module, Guardable {
     bytes memory data,
     Operation operation
   ) internal override returns (bool success) {
+    bytes32 moduleTxHash;
     address currentGuard = guard;
     if (currentGuard != address(0)) {
-      IGuard(currentGuard).checkTransaction(
-        /// Transaction info used by module transactions.
+      moduleTxHash = IModuleGuard(currentGuard).checkModuleTransaction(
         to,
         value,
         data,
         operation,
-        /// Zero out the redundant transaction information only used for Safe multisig transctions.
-        0,
-        0,
-        0,
-        address(0),
-        payable(0),
-        "",
-        msg.sender
+        address(this)
       );
     }
     success = IAvatar(target).execTransactionFromModule(
@@ -46,7 +39,10 @@ abstract contract GuardableModule is Module, Guardable {
       operation
     );
     if (currentGuard != address(0)) {
-      IGuard(currentGuard).checkAfterExecution(bytes32(0), success);
+      IModuleGuard(currentGuard).checkAfterModuleExecution(
+        moduleTxHash,
+        success
+      );
     }
   }
 
@@ -62,22 +58,15 @@ abstract contract GuardableModule is Module, Guardable {
     bytes memory data,
     Operation operation
   ) internal virtual override returns (bool success, bytes memory returnData) {
+    bytes32 moduleTxHash;
     address currentGuard = guard;
     if (currentGuard != address(0)) {
-      IGuard(currentGuard).checkTransaction(
-        /// Transaction info used by module transactions.
+      moduleTxHash = IModuleGuard(currentGuard).checkModuleTransaction(
         to,
         value,
         data,
         operation,
-        /// Zero out the redundant transaction information only used for Safe multisig transctions.
-        0,
-        0,
-        0,
-        address(0),
-        payable(0),
-        "",
-        msg.sender
+        address(this)
       );
     }
 
@@ -89,7 +78,10 @@ abstract contract GuardableModule is Module, Guardable {
     );
 
     if (currentGuard != address(0)) {
-      IGuard(currentGuard).checkAfterExecution(bytes32(0), success);
+      IModuleGuard(currentGuard).checkAfterModuleExecution(
+        moduleTxHash,
+        success
+      );
     }
   }
 }

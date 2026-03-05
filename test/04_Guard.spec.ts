@@ -37,23 +37,7 @@ async function setupTests() {
   const GuardNonCompliant = await hre.ethers.getContractFactory(
     "TestNonCompliantGuard"
   );
-  const guardNonCompliant = TestGuard__factory.connect(
-    await (await GuardNonCompliant.deploy()).getAddress(),
-    hre.ethers.provider
-  );
-
-  const tx = {
-    to: await avatar.getAddress(),
-    value: 0,
-    data: "0x",
-    operation: 0,
-    avatarTxGas: 0,
-    baseGas: 0,
-    gasPrice: 0,
-    gasToken: ZeroAddress,
-    refundReceiver: ZeroAddress,
-    signatures: "0x",
-  };
+  const guardNonCompliant = await GuardNonCompliant.deploy();
 
   return {
     owner,
@@ -61,7 +45,6 @@ async function setupTests() {
     module,
     guard,
     guardNonCompliant,
-    tx,
   };
 }
 
@@ -137,90 +120,85 @@ describe("Guardable", async () => {
   });
 });
 
-describe("BaseGuard", async () => {
-  const txHash =
+describe("BaseModuleGuard", async () => {
+  const moduleTxHash =
     "0x0000000000000000000000000000000000000000000000000000000000000001";
 
   /**
    * Tests support for interfaces.
    * Verifies that the guard supports the required interfaces.
    */
-  it("supports interface", async () => {
+  it("supports IModuleGuard interface", async () => {
     const { guard } = await loadFixture(setupTests);
-    expect(await guard.supportsInterface("0xe6d7a83a")).to.be.true;
+    // IModuleGuard interface ID
+    const iModuleGuardId = "0x58401ed8";
+    expect(await guard.supportsInterface(iModuleGuardId)).to.be.true;
     expect(await guard.supportsInterface("0x01ffc9a7")).to.be.true;
   });
 
-  describe("checkTransaction", async () => {
+  it("does not support IGuard interface", async () => {
+    const { guard } = await loadFixture(setupTests);
+    expect(await guard.supportsInterface("0xe6d7a83a")).to.be.false;
+  });
+
+  describe("checkModuleTransaction", async () => {
     /**
-     * Tests checking a transaction.
+     * Tests checking a module transaction.
      * Verifies that checking the transaction reverts if the test fails.
      */
     it("reverts if test fails", async () => {
-      const { guard, tx } = await loadFixture(setupTests);
+      const { guard, module } = await loadFixture(setupTests);
       await expect(
-        guard.checkTransaction(
-          tx.to,
+        guard.checkModuleTransaction(
+          await module.getAddress(),
           1337,
-          tx.data,
-          tx.operation,
-          tx.avatarTxGas,
-          tx.baseGas,
-          tx.gasPrice,
-          tx.gasToken,
-          tx.refundReceiver,
-          tx.signatures,
-          ZeroAddress
+          "0x",
+          0,
+          await module.getAddress()
         )
       ).to.be.revertedWith("Cannot send 1337");
     });
 
     /**
-     * Tests checking a transaction.
+     * Tests checking a module transaction.
      * Verifies that the transaction can be checked successfully.
      */
-    it("checks transaction", async () => {
-      const { guard, tx } = await loadFixture(setupTests);
+    it("checks module transaction", async () => {
+      const { guard, module } = await loadFixture(setupTests);
       await expect(
-        guard.checkTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
-          tx.avatarTxGas,
-          tx.baseGas,
-          tx.gasPrice,
-          tx.gasToken,
-          tx.refundReceiver,
-          tx.signatures,
-          ZeroAddress
+        guard.checkModuleTransaction(
+          await module.getAddress(),
+          0,
+          "0x",
+          0,
+          await module.getAddress()
         )
       ).to.emit(guard, "PreChecked");
     });
   });
 
-  describe("checkAfterExecution", async () => {
+  describe("checkAfterModuleExecution", async () => {
     /**
-     * Tests checking the state after execution.
+     * Tests checking the state after module execution.
      * Verifies that checking the state after execution reverts if the test fails.
      */
     it("reverts if test fails", async () => {
       const { guard } = await loadFixture(setupTests);
-      await expect(guard.checkAfterExecution(txHash, true)).to.be.revertedWith(
-        "Module cannot remove its own guard."
-      );
+      await expect(
+        guard.checkAfterModuleExecution(moduleTxHash, true)
+      ).to.be.revertedWith("Module cannot remove its own guard.");
     });
 
     /**
-     * Tests checking the state after execution.
+     * Tests checking the state after module execution.
      * Verifies that the state can be checked successfully after execution.
      */
-    it("checks state after execution", async () => {
+    it("checks state after module execution", async () => {
       const { module, guard } = await loadFixture(setupTests);
       await expect(module.setGuard(await guard.getAddress()))
         .to.emit(module, "ChangedGuard")
         .withArgs(await guard.getAddress());
-      await expect(guard.checkAfterExecution(txHash, true))
+      await expect(guard.checkAfterModuleExecution(moduleTxHash, true))
         .to.emit(guard, "PostChecked")
         .withArgs(true);
     });

@@ -3,7 +3,7 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import {Guardable} from "../guard/Guardable.sol";
 import {IAvatar} from "../interfaces/IAvatar.sol";
-import {IGuard} from "../interfaces/IGuard.sol";
+import {IModuleGuard} from "../interfaces/IGuard.sol";
 import {Modifier} from "./Modifier.sol";
 import {Module} from "./Module.sol";
 
@@ -22,21 +22,14 @@ abstract contract GuardableModifier is Module, Guardable, Modifier {
     bytes memory data,
     Operation operation
   ) internal virtual override returns (bool success) {
+    bytes32 moduleTxHash;
     address currentGuard = guard;
     if (currentGuard != address(0)) {
-      IGuard(currentGuard).checkTransaction(
-        /// Transaction info used by module transactions.
+      moduleTxHash = IModuleGuard(currentGuard).checkModuleTransaction(
         to,
         value,
         data,
         operation,
-        /// Zero out the redundant transaction information only used for Safe multisig transctions.
-        0,
-        0,
-        0,
-        address(0),
-        payable(0),
-        "",
         sentOrSignedByModule()
       );
     }
@@ -47,7 +40,10 @@ abstract contract GuardableModifier is Module, Guardable, Modifier {
       operation
     );
     if (currentGuard != address(0)) {
-      IGuard(currentGuard).checkAfterExecution(bytes32(0), success);
+      IModuleGuard(currentGuard).checkAfterModuleExecution(
+        moduleTxHash,
+        success
+      );
     }
   }
 
@@ -63,22 +59,15 @@ abstract contract GuardableModifier is Module, Guardable, Modifier {
     bytes memory data,
     Operation operation
   ) internal virtual override returns (bool success, bytes memory returnData) {
+    bytes32 moduleTxHash;
     address currentGuard = guard;
     if (currentGuard != address(0)) {
-      IGuard(currentGuard).checkTransaction(
-        /// Transaction info used by module transactions.
+      moduleTxHash = IModuleGuard(currentGuard).checkModuleTransaction(
         to,
         value,
         data,
         operation,
-        /// Zero out the redundant transaction information only used for Safe multisig transctions.
-        0,
-        0,
-        0,
-        address(0),
-        payable(0),
-        "",
-        sentOrSignedByModule()
+        address(this)
       );
     }
 
@@ -90,7 +79,10 @@ abstract contract GuardableModifier is Module, Guardable, Modifier {
     );
 
     if (currentGuard != address(0)) {
-      IGuard(currentGuard).checkAfterExecution(bytes32(0), success);
+      IModuleGuard(currentGuard).checkAfterModuleExecution(
+        moduleTxHash,
+        success
+      );
     }
   }
 }

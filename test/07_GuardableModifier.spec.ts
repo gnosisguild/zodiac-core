@@ -76,7 +76,7 @@ describe("GuardableModifier", async () => {
 
     /**
      * Tests executing a transaction with a guard set.
-     * Verifies that the guard's pre-check is called and emits the PreChecked event.
+     * Verifies that the guard's pre-check is called and emits the PreChecked event with the executor address.
      */
     it("pre-checks transaction if guard is set", async () => {
       const { avatar, executor, modifier, guard } =
@@ -94,9 +94,9 @@ describe("GuardableModifier", async () => {
 
     /**
      * Tests executing a relayed transaction with a guard set.
-     * Verifies that the guard's pre-check is called with the signer's address.
+     * Verifies that the guard's pre-check is called with the signer's address (via sentOrSignedByModule).
      */
-    it("pre-check gets called with signer when transaction is relayed", async () => {
+    it("pre-check gets called with signer address when transaction is relayed", async () => {
       const { signer, modifier, relayer, avatar, guard } =
         await loadFixture(setupTests);
 
@@ -223,14 +223,14 @@ describe("GuardableModifier", async () => {
           )
       )
         .to.emit(guard, "PreChecked")
-        .withArgs(await executor.getAddress());
+        .withArgs(await modifier.getAddress());
     });
 
     /**
      * Tests executing a relayed transaction that returns data with a guard set.
-     * Verifies that the guard's pre-check is called with the signer's address.
+     * Verifies that the guard's pre-check is called with the modifier's address.
      */
-    it("pre-check gets called with signer when transaction is relayed", async () => {
+    it("pre-check gets called with modifier address when transaction is relayed", async () => {
       const { signer, modifier, relayer, avatar, guard } =
         await loadFixture(setupTests);
 
@@ -264,7 +264,7 @@ describe("GuardableModifier", async () => {
 
       await expect(await relayer.sendTransaction(transactionWithSig))
         .to.emit(guard, "PreChecked")
-        .withArgs(signer.address);
+        .withArgs(await modifier.getAddress());
     });
 
     /**
