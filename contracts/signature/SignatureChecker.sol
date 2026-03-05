@@ -52,16 +52,18 @@ abstract contract SignatureChecker {
       if (start < 4 || start > end) {
         return (bytes32(0), address(0));
       }
+      bytes32 hash = moduleTxHash(data[:start], salt);
       address signer = address(uint160(uint256(r)));
 
-      bytes32 hash = moduleTxHash(data[:start], salt);
       return
         _isValidContractSignature(signer, hash, data[start:end])
           ? (hash, signer)
           : (bytes32(0), address(0));
     } else {
       bytes32 hash = moduleTxHash(data[:end], salt);
-      return (hash, ecrecover(hash, v, r, s));
+      address signer = ecrecover(hash, v, r, s);
+
+      return signer != address(0) ? (hash, signer) : (bytes32(0), address(0));
     }
   }
 
