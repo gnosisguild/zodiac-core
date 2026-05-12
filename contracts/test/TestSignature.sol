@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-only
-pragma solidity >=0.8.0;
+pragma solidity ^0.8.28;
 
 import "../signature/SignatureChecker.sol";
 
@@ -55,17 +55,24 @@ contract ContractSignerReturnSize {
 }
 
 contract TestSignature is SignatureChecker {
-  event Hello(address signer);
+  event Recovered(address signer);
 
-  event Goodbye(address signer);
-
-  function hello() public {
-    (, address signer) = moduleTxSignedBy();
-    emit Hello(signer);
-  }
-
-  function goodbye(uint256, bytes memory) public {
-    (, address signer) = moduleTxSignedBy();
-    emit Goodbye(signer);
+  function check(
+    address to,
+    uint256 value,
+    bytes calldata data,
+    Operation operation,
+    bytes32 salt,
+    bytes calldata signature
+  ) public {
+    (, address signer) = moduleTxSignedBy(
+      to,
+      value,
+      data,
+      operation,
+      salt,
+      signature
+    );
+    emit Recovered(signer);
   }
 }

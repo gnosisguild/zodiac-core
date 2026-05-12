@@ -9,7 +9,7 @@ import {Module} from "./Module.sol";
 
 import "./Operation.sol";
 
-abstract contract GuardableModifier is Module, Guardable, Modifier {
+abstract contract GuardableModifier is Guardable, Modifier {
   /// @dev Passes a transaction to be executed by the avatar.
   /// @notice Can only be called by this contract.
   /// @param to Destination address of module transaction.
@@ -67,7 +67,7 @@ abstract contract GuardableModifier is Module, Guardable, Modifier {
         value,
         data,
         operation,
-        address(this)
+        sentOrSignedByModule()
       );
     }
 

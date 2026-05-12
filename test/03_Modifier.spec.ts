@@ -1,7 +1,7 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import {
-  TransactionLike,
+  BigNumberish,
   keccak256,
   toUtf8Bytes,
   AbiCoder,
@@ -13,6 +13,13 @@ import hre from "hardhat";
 import { TestAvatar__factory, TestModifier__factory } from "../typechain-types";
 
 import typedDataForTransaction from "./typedDataForTransaction";
+
+type ModuleTx = {
+  to: string;
+  value: BigNumberish;
+  data: string;
+  operation: number;
+};
 
 const AddressZero = ZeroAddress;
 const AddressOne = "0x0000000000000000000000000000000000000001";
@@ -431,25 +438,33 @@ describe("Modifier", async () => {
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
 
+      const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
-        await modifier.execTransactionFromModule.populateTransaction(
+        await modifier.execTransactionFromModuleSigned.populateTransaction(
           tx.to,
           tx.value,
           tx.data,
-          tx.operation
+          tx.operation,
+          salt,
+          "0x"
         );
 
       const signature = await sign(
         await modifier.getAddress(),
-        transaction,
-        keccak256(toUtf8Bytes("salt")),
+        tx,
+        salt,
         user1
       );
 
-      const transactionWithSig = {
-        ...transaction,
-        data: `${transaction.data}${signature.slice(2)}`,
-      };
+      const transactionWithSig =
+        await modifier.execTransactionFromModuleSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signature
+        );
 
       await expect(
         relayer.sendTransaction(transaction)
@@ -471,36 +486,49 @@ describe("Modifier", async () => {
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
 
+      const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
-        await modifier.execTransactionFromModule.populateTransaction(
+        await modifier.execTransactionFromModuleSigned.populateTransaction(
           tx.to,
           tx.value,
           tx.data,
-          tx.operation
+          tx.operation,
+          salt,
+          "0x"
         );
 
       const signatureOk = await sign(
         await modifier.getAddress(),
-        transaction,
-        keccak256(toUtf8Bytes("salt")),
+        tx,
+        salt,
         user1
       );
       const signatureBad = await sign(
         await modifier.getAddress(),
-        transaction,
-        keccak256(toUtf8Bytes("salt")),
+        tx,
+        salt,
         user2
       );
 
-      const transactionWithBadSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureBad.slice(2)}`,
-      };
+      const transactionWithBadSig =
+        await modifier.execTransactionFromModuleSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signatureBad
+        );
 
-      const transactionWithOkSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureOk.slice(2)}`,
-      };
+      const transactionWithOkSig =
+        await modifier.execTransactionFromModuleSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signatureOk
+        );
 
       await expect(
         relayer.sendTransaction(transactionWithBadSig)
@@ -522,36 +550,49 @@ describe("Modifier", async () => {
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
 
+      const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
-        await modifier.execTransactionFromModule.populateTransaction(
+        await modifier.execTransactionFromModuleSigned.populateTransaction(
           tx.to,
           tx.value,
           tx.data,
-          tx.operation
+          tx.operation,
+          salt,
+          "0x"
         );
 
       const signatureOk = await sign(
         await modifier.getAddress(),
-        transaction,
-        keccak256(toUtf8Bytes("salt")),
+        tx,
+        salt,
         user1
       );
       const signatureBad = await sign(
         await modifier.getAddress(),
-        transaction,
-        keccak256(toUtf8Bytes("salt")),
+        tx,
+        salt,
         user2
       );
 
-      const transactionWithBadSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureBad.slice(2)}`,
-      };
+      const transactionWithBadSig =
+        await modifier.execTransactionFromModuleSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signatureBad
+        );
 
-      const transactionWithOkSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureOk.slice(2)}`,
-      };
+      const transactionWithOkSig =
+        await modifier.execTransactionFromModuleSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signatureOk
+        );
 
       await expect(
         relayer.sendTransaction(transactionWithBadSig)
@@ -576,30 +617,39 @@ describe("Modifier", async () => {
 
       await modifier.enableModule(user1.address);
 
+      const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
-        await modifier.execTransactionFromModule.populateTransaction(
+        await modifier.execTransactionFromModuleSigned.populateTransaction(
           tx.to,
           tx.value,
           tx.data,
-          tx.operation
+          tx.operation,
+          salt,
+          "0x"
         );
-
-      const salt = keccak256(toUtf8Bytes("salt"));
 
       const signatureOk = await sign(
         await modifier.getAddress(),
-        transaction,
+        tx,
         salt,
         user1
       );
 
-      const transactionWithSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureOk.slice(2)}`,
-      };
+      const transactionWithSig =
+        await modifier.execTransactionFromModuleSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signatureOk
+        );
 
       const hash = await modifier.moduleTxHash(
-        transaction.data as string,
+        tx.to,
+        tx.value,
+        tx.data,
+        tx.operation,
         salt
       );
 
@@ -663,25 +713,33 @@ describe("Modifier", async () => {
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
 
+      const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
-        await modifier.execTransactionFromModuleReturnData.populateTransaction(
+        await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
           tx.to,
           tx.value,
           tx.data,
-          tx.operation
+          tx.operation,
+          salt,
+          "0x"
         );
 
       const signature = await sign(
         await modifier.getAddress(),
-        transaction,
-        keccak256(toUtf8Bytes("salt")),
+        tx,
+        salt,
         user1
       );
 
-      const transactionWithSig = {
-        ...transaction,
-        data: `${transaction.data}${signature.slice(2)}`,
-      };
+      const transactionWithSig =
+        await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signature
+        );
 
       await expect(
         relayer.sendTransaction(transaction)
@@ -703,36 +761,49 @@ describe("Modifier", async () => {
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
 
+      const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
-        await modifier.execTransactionFromModuleReturnData.populateTransaction(
+        await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
           tx.to,
           tx.value,
           tx.data,
-          tx.operation
+          tx.operation,
+          salt,
+          "0x"
         );
 
       const signatureBad = await sign(
         await modifier.getAddress(),
-        transaction,
-        keccak256(toUtf8Bytes("salt")),
+        tx,
+        salt,
         user2
       );
       const signatureOk = await sign(
         await modifier.getAddress(),
-        transaction,
-        keccak256(toUtf8Bytes("salt")),
+        tx,
+        salt,
         user1
       );
 
-      const transactionWithBadSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureBad.slice(2)}`,
-      };
+      const transactionWithBadSig =
+        await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signatureBad
+        );
 
-      const transactionWithOkSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureOk.slice(2)}`,
-      };
+      const transactionWithOkSig =
+        await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signatureOk
+        );
 
       await expect(
         relayer.sendTransaction(transactionWithBadSig)
@@ -754,36 +825,49 @@ describe("Modifier", async () => {
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
 
+      const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
-        await modifier.execTransactionFromModuleReturnData.populateTransaction(
+        await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
           tx.to,
           tx.value,
           tx.data,
-          tx.operation
+          tx.operation,
+          salt,
+          "0x"
         );
 
       const signatureOk = await sign(
         await modifier.getAddress(),
-        transaction,
-        keccak256(toUtf8Bytes("salt")),
+        tx,
+        salt,
         user1
       );
       const signatureBad = await sign(
         await modifier.getAddress(),
-        transaction,
-        keccak256(toUtf8Bytes("salt")),
+        tx,
+        salt,
         user2
       );
 
-      const transactionWithBadSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureBad.slice(2)}`,
-      };
+      const transactionWithBadSig =
+        await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signatureBad
+        );
 
-      const transactionWithOkSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureOk.slice(2)}`,
-      };
+      const transactionWithOkSig =
+        await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signatureOk
+        );
 
       await expect(
         relayer.sendTransaction(transactionWithBadSig)
@@ -808,30 +892,39 @@ describe("Modifier", async () => {
 
       await modifier.enableModule(user1.address);
 
+      const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
-        await modifier.execTransactionFromModuleReturnData.populateTransaction(
+        await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
           tx.to,
           tx.value,
           tx.data,
-          tx.operation
+          tx.operation,
+          salt,
+          "0x"
         );
-
-      const salt = keccak256(toUtf8Bytes("salt"));
 
       const signatureOk = await sign(
         await modifier.getAddress(),
-        transaction,
+        tx,
         salt,
         user1
       );
 
-      const transactionWithSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureOk.slice(2)}`,
-      };
+      const transactionWithSig =
+        await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signatureOk
+        );
 
       const hash = await modifier.moduleTxHash(
-        transaction.data as string,
+        tx.to,
+        tx.value,
+        tx.data,
+        tx.operation,
         salt
       );
 
@@ -853,37 +946,46 @@ describe("Modifier", async () => {
 
       await modifier.enableModule(alice.address);
       expect(
-        await modifier.connect(alice).exposeSentOrSignedByModule()
+        await modifier
+          .connect(alice)
+          .exposeSentOrSignedByModuleDirect.staticCall()
       ).to.equal(alice.address);
 
       expect(await modifier.connect(bob).exposeSentOrSignedByModule()).to.equal(
         AddressZero
       );
     });
+
     /**
      * Tests checking if a transaction was sent or signed by a module.
-     * Verifies that it returns the sender if the sender is a module, even if a valid signature is appended.
+     * Verifies that direct and signed authentication set the current module.
      */
-    it("returns msg.sender if msg.sender is module, even if valid sig appended", async () => {
-      const { modifier, alice, bob, charlie } = await loadFixture(setupTests);
+    it("returns authenticated module for direct and signed calls", async () => {
+      const { modifier, tx, alice, bob, charlie } =
+        await loadFixture(setupTests);
 
       await modifier.enableModule(alice.address);
       await modifier.enableModule(bob.address);
 
-      const transaction = await signTransaction(
-        await modifier.getAddress(),
-        await modifier.exposeSentOrSignedByModule.populateTransaction(),
-        keccak256(toUtf8Bytes("something salty")),
-        bob
-      );
+      const salt = keccak256(toUtf8Bytes("something salty"));
+      const signature = await sign(await modifier.getAddress(), tx, salt, bob);
+      const transactionWithSig =
+        await modifier.exposeSentOrSignedByModuleSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signature
+        );
 
-      // if alice sends it, msg.sender is taken into account, because alice module
-      expect(await alice.call(transaction)).to.equal(
-        AbiCoder.defaultAbiCoder().encode(["address"], [alice.address])
-      );
+      expect(
+        await modifier
+          .connect(alice)
+          .exposeSentOrSignedByModuleDirect.staticCall()
+      ).to.equal(alice.address);
 
-      // if charlie sends it, signature is taken into account because bob module
-      expect(await charlie.call(transaction)).to.equal(
+      expect(await charlie.call(transactionWithSig)).to.equal(
         AbiCoder.defaultAbiCoder().encode(["address"], [bob.address])
       );
     });
@@ -893,19 +995,29 @@ describe("Modifier", async () => {
      * Verifies that it returns the signer if the signer is a module.
      */
     it("returns signer if signer is module", async () => {
-      const { modifier, alice, charlie } = await loadFixture(setupTests);
+      const { modifier, tx, alice } = await loadFixture(setupTests);
+      const [, , , relayer] = await hre.ethers.getSigners();
 
       await modifier.enableModule(alice.address);
 
-      const transaction = await signTransaction(
+      const salt = keccak256(toUtf8Bytes("something salty"));
+      const signature = await sign(
         await modifier.getAddress(),
-        await modifier.exposeSentOrSignedByModule.populateTransaction(),
-        keccak256(toUtf8Bytes("something salty")),
+        tx,
+        salt,
         alice
       );
+      const transactionWithSig =
+        await modifier.exposeSentOrSignedByModuleSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signature
+        );
 
-      // if alice sends it, msg.sender is taken into account, because alice module
-      expect(await charlie.call(transaction)).to.equal(
+      expect(await relayer.call(transactionWithSig)).to.equal(
         AbiCoder.defaultAbiCoder().encode(["address"], [alice.address])
       );
     });
@@ -915,21 +1027,33 @@ describe("Modifier", async () => {
      * Verifies that it returns zero if the signer is not a module and the sender is not a module.
      */
     it("returns zero if signer is not module and message sender not a module", async () => {
-      const { modifier, alice, charlie } = await loadFixture(setupTests);
+      const { modifier, tx, alice } = await loadFixture(setupTests);
+      const [, , , relayer] = await hre.ethers.getSigners();
 
       // no modules enabled
 
-      const transaction = await signTransaction(
+      const salt = keccak256(toUtf8Bytes("something salty"));
+      const signature = await sign(
         await modifier.getAddress(),
-        await modifier.exposeSentOrSignedByModule.populateTransaction(),
-        keccak256(toUtf8Bytes("something salty")),
+        tx,
+        salt,
         alice
       );
+      const transactionWithSig =
+        await modifier.exposeSentOrSignedByModuleSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signature
+        );
 
-      // if alice sends it, msg.sender is taken into account, because alice module
-      expect(await charlie.call(transaction)).to.equal(
-        AbiCoder.defaultAbiCoder().encode(["address"], [AddressZero])
-      );
+      await expect(
+        relayer.sendTransaction(transactionWithSig)
+      ).to.be.revertedWithCustomError(modifier, "NotAuthorized");
+
+      expect(await modifier.exposeSentOrSignedByModule()).to.equal(AddressZero);
     });
   });
 });
@@ -945,44 +1069,14 @@ describe("Modifier", async () => {
  */
 async function sign(
   contract: string,
-  transaction: TransactionLike,
+  tx: ModuleTx,
   salt: string,
   signer: Signer
 ) {
   const { domain, types, message } = typedDataForTransaction(
-    { contract, chainId: 31337, salt },
-    transaction.data || "0x"
+    { contract, chainId: 31337 },
+    { ...tx, salt }
   );
 
-  const signature = await signer.signTypedData(domain, types, message);
-
-  return `${salt}${signature.slice(2)}`;
-}
-
-/**
- *	Signs a transaction and returns the transaction object with the signature.
- *
- *	@param {string} contract - The contract address.
- *	@param {TransactionLike} transaction - The transaction object.
- *	@param {string} salt - The salt value.
- *	@param {Signer} signer - The signer object.
- *	@returns {Promise} The transaction object with the signature.
- */
-async function signTransaction(
-  contract: string,
-  { from, ...transaction }: TransactionLike,
-  salt: string,
-  signer: Signer
-) {
-  const { domain, types, message } = typedDataForTransaction(
-    { contract, chainId: 31337, salt },
-    transaction.data || "0x"
-  );
-
-  const signature = await signer.signTypedData(domain, types, message);
-
-  return {
-    ...transaction,
-    data: `${transaction.data as string}${salt.slice(2)}${signature.slice(2)}`,
-  };
+  return signer.signTypedData(domain, types, message);
 }

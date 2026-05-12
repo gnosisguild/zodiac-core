@@ -1,6 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { Signer, TransactionLike, keccak256, toUtf8Bytes } from "ethers";
+import { BigNumberish, Signer, keccak256, toUtf8Bytes } from "ethers";
 import hre from "hardhat";
 
 import {
@@ -10,6 +10,13 @@ import {
 } from "../typechain-types";
 
 import typedDataForTransaction from "./typedDataForTransaction";
+
+type ModuleTx = {
+  to: string;
+  value: BigNumberish;
+  data: string;
+  operation: number;
+};
 
 describe("GuardableModifier", async () => {
   /**
@@ -107,26 +114,29 @@ describe("GuardableModifier", async () => {
         "0xff00000000000000000000000000000000ff3456"
       );
 
-      const { from, ...transaction } =
-        await modifier.execTransactionFromModule.populateTransaction(
-          await avatar.getAddress(),
-          0,
-          inner.data as string,
-          0
-        );
+      const tx: ModuleTx = {
+        to: await avatar.getAddress(),
+        value: 0,
+        data: inner.data as string,
+        operation: 0,
+      };
+      const salt = keccak256(toUtf8Bytes("salt"));
 
       const signature = await sign(
         await modifier.getAddress(),
-        transaction,
-        keccak256(toUtf8Bytes("salt")),
+        tx,
+        salt,
         signer
       );
-      const transactionWithSig = {
-        ...transaction,
-        to: await modifier.getAddress(),
-        data: `${transaction.data}${signature.slice(2)}`,
-        value: 0,
-      };
+      const transactionWithSig =
+        await modifier.execTransactionFromModuleSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signature
+        );
 
       await expect(await relayer.sendTransaction(transactionWithSig))
         .to.emit(guard, "PreChecked")
@@ -223,14 +233,14 @@ describe("GuardableModifier", async () => {
           )
       )
         .to.emit(guard, "PreChecked")
-        .withArgs(await modifier.getAddress());
+        .withArgs(await executor.getAddress());
     });
 
     /**
      * Tests executing a relayed transaction that returns data with a guard set.
-     * Verifies that the guard's pre-check is called with the modifier's address.
+     * Verifies that the guard's pre-check is called with the signer's address.
      */
-    it("pre-check gets called with modifier address when transaction is relayed", async () => {
+    it("pre-check gets called with signer address when return-data transaction is relayed", async () => {
       const { signer, modifier, relayer, avatar, guard } =
         await loadFixture(setupTests);
 
@@ -241,30 +251,33 @@ describe("GuardableModifier", async () => {
         "0xff00000000000000000000000000000000ff3456"
       );
 
-      const { from, ...transaction } =
-        await modifier.execTransactionFromModuleReturnData.populateTransaction(
-          await avatar.getAddress(),
-          0,
-          inner.data as string,
-          0
-        );
+      const tx: ModuleTx = {
+        to: await avatar.getAddress(),
+        value: 0,
+        data: inner.data as string,
+        operation: 0,
+      };
+      const salt = keccak256(toUtf8Bytes("salt"));
 
       const signature = await sign(
         await modifier.getAddress(),
-        transaction,
-        keccak256(toUtf8Bytes("salt")),
+        tx,
+        salt,
         signer
       );
-      const transactionWithSig = {
-        ...transaction,
-        to: await modifier.getAddress(),
-        data: `${transaction.data}${signature.slice(2)}`,
-        value: 0,
-      };
+      const transactionWithSig =
+        await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          salt,
+          signature
+        );
 
       await expect(await relayer.sendTransaction(transactionWithSig))
         .to.emit(guard, "PreChecked")
-        .withArgs(await modifier.getAddress());
+        .withArgs(await signer.getAddress());
     });
 
     /**
@@ -343,16 +356,14 @@ describe("GuardableModifier", async () => {
  */
 async function sign(
   contract: string,
-  transaction: TransactionLike,
+  tx: ModuleTx,
   salt: string,
   signer: Signer
 ) {
   const { domain, types, message } = typedDataForTransaction(
-    { contract, chainId: 31337, salt },
-    transaction.data || "0x"
+    { contract, chainId: 31337 },
+    { ...tx, salt }
   );
 
-  const signature = await signer.signTypedData(domain, types, message);
-
-  return `${salt}${signature.slice(2)}`;
+  return signer.signTypedData(domain, types, message);
 }
