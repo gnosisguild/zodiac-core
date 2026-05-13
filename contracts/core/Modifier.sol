@@ -77,10 +77,8 @@ abstract contract Modifier is
     Operation operation
   ) public virtual returns (bool success, bytes memory returnData);
 
-  /*
-    --------------------------------------------------
-    */
-
+  /// @dev Authenticates a direct call from an enabled module.
+  /// @notice Can only be called by enabled modules.
   modifier moduleOnly() {
     if (_authenticatedModule != address(0)) {
       revert AlreadyAuthenticated();
@@ -98,11 +96,11 @@ abstract contract Modifier is
   /// @dev Authenticates a relayed call signed by an enabled module.
   ///      The signed message is the EIP-712 ModuleTx struct over the call's
   ///      (to, value, data, operation, salt). See SignatureChecker.
+  /// @param moduleTx Module transaction that was signed.
+  /// @param salt Salt value included in the signed ModuleTx.
+  /// @param signature Signature over the ModuleTx.
   modifier moduleOnlySigned(
-    address to,
-    uint256 value,
-    bytes calldata data,
-    Operation operation,
+    ModuleTx memory moduleTx,
     bytes32 salt,
     bytes calldata signature
   ) {
@@ -110,11 +108,8 @@ abstract contract Modifier is
       revert AlreadyAuthenticated();
     }
 
-    (bytes32 hash, address signer) = moduleTxSignedBy(
-      to,
-      value,
-      data,
-      operation,
+    (address signer, bytes32 hash) = moduleTxSignedBy(
+      moduleTx,
       salt,
       signature
     );
@@ -138,6 +133,8 @@ abstract contract Modifier is
     _authenticatedModule = address(0);
   }
 
+  /// @dev Returns the module authenticated for the current execution context.
+  /// @return The module that directly called or signed the current execution.
   function sentOrSignedByModule() internal view returns (address) {
     return _authenticatedModule;
   }

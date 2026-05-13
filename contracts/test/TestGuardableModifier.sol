@@ -66,63 +66,57 @@ contract TestGuardableModifier is GuardableModifier {
   }
 
   function execTransactionFromModuleSigned(
-    address to,
-    uint256 value,
-    bytes calldata data,
-    Operation operation,
+    ModuleTx memory moduleTx,
     bytes32 salt,
     bytes calldata signature
-  )
-    public
-    moduleOnlySigned(to, value, data, operation, salt, signature)
-    returns (bool success)
-  {
-    success = _execTransactionFromModuleSigned(to, value, data, operation);
+  ) public moduleOnlySigned(moduleTx, salt, signature) returns (bool success) {
+    success = _execTransactionFromModuleSigned(moduleTx);
   }
 
   function _execTransactionFromModuleSigned(
-    address to,
-    uint256 value,
-    bytes calldata data,
-    Operation operation
+    ModuleTx memory moduleTx
   ) private returns (bool success) {
-    success = exec(to, value, data, operation);
-    emit Executed(to, value, data, operation, success);
+    success = exec(
+      moduleTx.to,
+      moduleTx.value,
+      moduleTx.data,
+      moduleTx.operation
+    );
+    emit Executed(
+      moduleTx.to,
+      moduleTx.value,
+      moduleTx.data,
+      moduleTx.operation,
+      success
+    );
   }
 
   function execTransactionFromModuleReturnDataSigned(
-    address to,
-    uint256 value,
-    bytes calldata data,
-    Operation operation,
+    ModuleTx memory moduleTx,
     bytes32 salt,
     bytes calldata signature
   )
     public
-    moduleOnlySigned(to, value, data, operation, salt, signature)
+    moduleOnlySigned(moduleTx, salt, signature)
     returns (bool, bytes memory)
   {
-    return
-      _execTransactionFromModuleReturnDataSigned(to, value, data, operation);
+    return _execTransactionFromModuleReturnDataSigned(moduleTx);
   }
 
   function _execTransactionFromModuleReturnDataSigned(
-    address to,
-    uint256 value,
-    bytes calldata data,
-    Operation operation
+    ModuleTx memory moduleTx
   ) private returns (bool, bytes memory) {
     (bool success, bytes memory returnData) = execAndReturnData(
-      to,
-      value,
-      data,
-      operation
+      moduleTx.to,
+      moduleTx.value,
+      moduleTx.data,
+      moduleTx.operation
     );
     emit ExecutedAndReturnedData(
-      to,
-      value,
-      data,
-      operation,
+      moduleTx.to,
+      moduleTx.value,
+      moduleTx.data,
+      moduleTx.operation,
       returnData,
       success
     );

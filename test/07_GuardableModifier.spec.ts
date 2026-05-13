@@ -130,10 +130,7 @@ describe("GuardableModifier", async () => {
       );
       const transactionWithSig =
         await modifier.execTransactionFromModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signature
         );
@@ -267,10 +264,7 @@ describe("GuardableModifier", async () => {
       );
       const transactionWithSig =
         await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signature
         );

@@ -441,12 +441,9 @@ describe("Modifier", async () => {
       const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
         await modifier.execTransactionFromModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
-          "0x"
+          emptySignature()
         );
 
       const signature = await sign(
@@ -458,10 +455,7 @@ describe("Modifier", async () => {
 
       const transactionWithSig =
         await modifier.execTransactionFromModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signature
         );
@@ -489,12 +483,9 @@ describe("Modifier", async () => {
       const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
         await modifier.execTransactionFromModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
-          "0x"
+          emptySignature()
         );
 
       const signatureOk = await sign(
@@ -512,20 +503,14 @@ describe("Modifier", async () => {
 
       const transactionWithBadSig =
         await modifier.execTransactionFromModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signatureBad
         );
 
       const transactionWithOkSig =
         await modifier.execTransactionFromModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signatureOk
         );
@@ -553,12 +538,9 @@ describe("Modifier", async () => {
       const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
         await modifier.execTransactionFromModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
-          "0x"
+          emptySignature()
         );
 
       const signatureOk = await sign(
@@ -576,20 +558,14 @@ describe("Modifier", async () => {
 
       const transactionWithBadSig =
         await modifier.execTransactionFromModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signatureBad
         );
 
       const transactionWithOkSig =
         await modifier.execTransactionFromModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signatureOk
         );
@@ -620,12 +596,9 @@ describe("Modifier", async () => {
       const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
         await modifier.execTransactionFromModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
-          "0x"
+          emptySignature()
         );
 
       const signatureOk = await sign(
@@ -637,21 +610,12 @@ describe("Modifier", async () => {
 
       const transactionWithSig =
         await modifier.execTransactionFromModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signatureOk
         );
 
-      const hash = await modifier.moduleTxHash(
-        tx.to,
-        tx.value,
-        tx.data,
-        tx.operation,
-        salt
-      );
+      const hash = await modifier.moduleTxHash(tx, salt);
 
       await modifier.invalidate(hash);
 
@@ -716,12 +680,9 @@ describe("Modifier", async () => {
       const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
         await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
-          "0x"
+          emptySignature()
         );
 
       const signature = await sign(
@@ -733,10 +694,7 @@ describe("Modifier", async () => {
 
       const transactionWithSig =
         await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signature
         );
@@ -764,12 +722,9 @@ describe("Modifier", async () => {
       const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
         await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
-          "0x"
+          emptySignature()
         );
 
       const signatureBad = await sign(
@@ -787,20 +742,14 @@ describe("Modifier", async () => {
 
       const transactionWithBadSig =
         await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signatureBad
         );
 
       const transactionWithOkSig =
         await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signatureOk
         );
@@ -828,12 +777,9 @@ describe("Modifier", async () => {
       const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
         await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
-          "0x"
+          emptySignature()
         );
 
       const signatureOk = await sign(
@@ -851,20 +797,14 @@ describe("Modifier", async () => {
 
       const transactionWithBadSig =
         await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signatureBad
         );
 
       const transactionWithOkSig =
         await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signatureOk
         );
@@ -895,12 +835,9 @@ describe("Modifier", async () => {
       const salt = keccak256(toUtf8Bytes("salt"));
       const { from, ...transaction } =
         await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
-          "0x"
+          emptySignature()
         );
 
       const signatureOk = await sign(
@@ -912,21 +849,12 @@ describe("Modifier", async () => {
 
       const transactionWithSig =
         await modifier.execTransactionFromModuleReturnDataSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signatureOk
         );
 
-      const hash = await modifier.moduleTxHash(
-        tx.to,
-        tx.value,
-        tx.data,
-        tx.operation,
-        salt
-      );
+      const hash = await modifier.moduleTxHash(tx, salt);
 
       await modifier.invalidate(hash);
 
@@ -971,10 +899,7 @@ describe("Modifier", async () => {
       const signature = await sign(await modifier.getAddress(), tx, salt, bob);
       const transactionWithSig =
         await modifier.exposeSentOrSignedByModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signature
         );
@@ -1009,10 +934,7 @@ describe("Modifier", async () => {
       );
       const transactionWithSig =
         await modifier.exposeSentOrSignedByModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signature
         );
@@ -1041,10 +963,7 @@ describe("Modifier", async () => {
       );
       const transactionWithSig =
         await modifier.exposeSentOrSignedByModuleSigned.populateTransaction(
-          tx.to,
-          tx.value,
-          tx.data,
-          tx.operation,
+          tx,
           salt,
           signature
         );
@@ -1079,4 +998,8 @@ async function sign(
   );
 
   return signer.signTypedData(domain, types, message);
+}
+
+function emptySignature() {
+  return "0x";
 }

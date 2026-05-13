@@ -65,11 +65,8 @@ contract TestSignature is SignatureChecker {
     bytes32 salt,
     bytes calldata signature
   ) public {
-    (, address signer) = moduleTxSignedBy(
-      to,
-      value,
-      data,
-      operation,
+    (address signer, ) = moduleTxSignedBy(
+      ModuleTx(to, value, data, operation),
       salt,
       signature
     );
