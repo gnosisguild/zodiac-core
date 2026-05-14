@@ -1,13 +1,7 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { BigNumberish, Signer, keccak256, toUtf8Bytes } from "ethers";
-import hre from "hardhat";
+import { type BigNumberish, type Signer, keccak256, toUtf8Bytes } from "ethers";
 
-import {
-  TestAvatar__factory,
-  TestGuard__factory,
-  TestGuardableModifier__factory,
-} from "../typechain-types";
+import { network } from "hardhat";
 
 import typedDataForTransaction from "./typedDataForTransaction";
 
@@ -18,7 +12,15 @@ type ModuleTx = {
   operation: number;
 };
 
-describe("GuardableModifier", async () => {
+const connection = await network.create();
+const { ethers, networkHelpers } = connection;
+const { loadFixture } = networkHelpers;
+
+describe("GuardableModifier", () => {
+  after(async () => {
+    await connection.close();
+  });
+
   /**
    * Sets up the test environment by deploying the necessary contracts.
    *
@@ -26,18 +28,18 @@ describe("GuardableModifier", async () => {
    */
   async function setupTests() {
     const [deployer, executor, signer, someone, relayer] =
-      await hre.ethers.getSigners();
+      await ethers.getSigners();
 
-    const Avatar = await hre.ethers.getContractFactory("TestAvatar");
-    const avatar = TestAvatar__factory.connect(
+    const Avatar = await ethers.getContractFactory("TestAvatar");
+    const avatar = (await ethers.getContractAt(
+      "TestAvatar",
       await (await Avatar.deploy()).getAddress(),
       deployer
-    );
+    )) as any;
 
-    const Modifier = await hre.ethers.getContractFactory(
-      "TestGuardableModifier"
-    );
-    const modifier = TestGuardableModifier__factory.connect(
+    const Modifier = await ethers.getContractFactory("TestGuardableModifier");
+    const modifier = (await ethers.getContractAt(
+      "TestGuardableModifier",
       await (
         await Modifier.connect(deployer).deploy(
           await avatar.getAddress(),
@@ -45,12 +47,13 @@ describe("GuardableModifier", async () => {
         )
       ).getAddress(),
       deployer
-    );
-    const Guard = await hre.ethers.getContractFactory("TestGuard");
-    const guard = TestGuard__factory.connect(
+    )) as any;
+    const Guard = await ethers.getContractFactory("TestGuard");
+    const guard = (await ethers.getContractAt(
+      "TestGuard",
       await (await Guard.deploy(await modifier.getAddress())).getAddress(),
-      hre.ethers.provider
-    );
+      deployer
+    )) as any;
 
     await avatar.enableModule(await modifier.getAddress());
     await modifier.enableModule(await executor.getAddress());
@@ -78,7 +81,7 @@ describe("GuardableModifier", async () => {
         modifier
           .connect(executor)
           .execTransactionFromModule(await avatar.getAddress(), 0, "0x", 0)
-      ).to.not.be.reverted;
+      ).to.not.be.revert(ethers);
     });
 
     /**
@@ -207,7 +210,7 @@ describe("GuardableModifier", async () => {
             "0x",
             0
           )
-      ).to.not.be.reverted;
+      ).to.not.be.revert(ethers);
     });
 
     /**

@@ -1,5 +1,5 @@
-import { Signer } from "ethers";
-import { EIP1193Provider } from "../src/types";
+import type { Signer } from "ethers";
+import type { EIP1193Provider } from "../src/types";
 
 /**
  * Wraps an EIP1193Provider with a Signer to intercept eth_sendTransaction requests.

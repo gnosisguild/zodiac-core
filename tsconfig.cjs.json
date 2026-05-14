@@ -1,9 +1,13 @@
 {
   "extends": "./tsconfig",
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es2020",
     "outDir": "dist/cjs",
-    "module": "commonjs"
+    "rootDir": "./src",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+    "noEmit": false
   },
   "include": ["src/**/*.ts"]
 }

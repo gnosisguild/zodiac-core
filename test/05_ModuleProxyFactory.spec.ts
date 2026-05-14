@@ -1,13 +1,19 @@
 import { expect } from "chai";
 import { AbiCoder, Contract, getAddress, ZeroAddress } from "ethers";
-import { ethers } from "hardhat";
 
-import { predictProxyAddress } from "../src";
+import { network } from "hardhat";
+import { predictProxyAddress } from "../src/index";
 
-const AddressZero = ZeroAddress;
-const AddressOne = "0x0000000000000000000000000000000000000001";
+const connection = await network.create();
+const { ethers } = connection;
 
-describe("ModuleProxyFactory", async () => {
+describe("ModuleProxyFactory", () => {
+  after(async () => {
+    await connection.close();
+  });
+
+  const AddressOne = "0x0000000000000000000000000000000000000001";
+
   let moduleFactory: Contract;
   let moduleMasterCopy: Contract;
   let avatarAddress: string;
@@ -77,9 +83,9 @@ describe("ModuleProxyFactory", async () => {
      * Verifies that the deployment fails and reverts with a ZeroAddress error.
      */
     it("should fail to deploy module because address is zero", async () => {
-      await expect(moduleFactory.deployModule(AddressZero, initData, saltNonce))
+      await expect(moduleFactory.deployModule(ZeroAddress, initData, saltNonce))
         .to.be.revertedWithCustomError(moduleFactory, "ZeroAddress")
-        .withArgs(AddressZero);
+        .withArgs(ZeroAddress);
     });
 
     /**
@@ -111,7 +117,7 @@ describe("ModuleProxyFactory", async () => {
         )
       )
         .to.be.revertedWithCustomError(moduleFactory, "TakenAddress")
-        .withArgs(AddressZero);
+        .withArgs(ZeroAddress);
     });
   });
 

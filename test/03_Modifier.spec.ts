@@ -1,16 +1,14 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import {
-  BigNumberish,
+  type BigNumberish,
   keccak256,
   toUtf8Bytes,
   AbiCoder,
   ZeroAddress,
-  Signer,
+  type Signer,
 } from "ethers";
-import hre from "hardhat";
 
-import { TestAvatar__factory, TestModifier__factory } from "../typechain-types";
+import { network } from "hardhat";
 
 import typedDataForTransaction from "./typedDataForTransaction";
 
@@ -25,7 +23,15 @@ const AddressZero = ZeroAddress;
 const AddressOne = "0x0000000000000000000000000000000000000001";
 const SENTINEL_MODULES = AddressOne;
 
-describe("Modifier", async () => {
+const connection = await network.create();
+const { ethers, networkHelpers } = connection;
+const { loadFixture } = networkHelpers;
+
+describe("Modifier", () => {
+  after(async () => {
+    await connection.close();
+  });
+
   /**
    * Sets up the test environment.
    * Deploys the TestAvatar and TestModifier contracts, enables the modifier module, and prepares a transaction object for testing.
@@ -33,14 +39,15 @@ describe("Modifier", async () => {
    * @returns {Promise<{ iAvatar: any, modifier: any, tx: object, alice: any, bob: any, charlie: any }>} The deployed contract instances and a sample transaction object along with test signers.
    */
   async function setupTests() {
-    const [signer, alice, bob, charlie] = await hre.ethers.getSigners();
-    const Avatar = await hre.ethers.getContractFactory("TestAvatar");
+    const [signer, alice, bob, charlie] = await ethers.getSigners();
+    const Avatar = await ethers.getContractFactory("TestAvatar");
     const avatar = await Avatar.connect(signer).deploy();
-    const iAvatar = TestAvatar__factory.connect(
+    const iAvatar = (await ethers.getContractAt(
+      "TestAvatar",
       await avatar.getAddress(),
       signer
-    );
-    const Modifier = await hre.ethers.getContractFactory("TestModifier");
+    )) as any;
+    const Modifier = await ethers.getContractFactory("TestModifier");
     const modifier = await Modifier.connect(signer).deploy(
       await iAvatar.getAddress(),
       await iAvatar.getAddress()
@@ -61,10 +68,11 @@ describe("Modifier", async () => {
     };
     return {
       iAvatar,
-      modifier: TestModifier__factory.connect(
+      modifier: (await ethers.getContractAt(
+        "TestModifier",
         await modifier.getAddress(),
         signer
-      ),
+      )) as any,
       tx,
       alice,
       bob,
@@ -92,7 +100,7 @@ describe("Modifier", async () => {
     it("reverts if caller is not the owner", async () => {
       const { modifier } = await loadFixture(setupTests);
 
-      const [, user2] = await hre.ethers.getSigners();
+      const [, user2] = await ethers.getSigners();
 
       await expect(modifier.connect(user2).enableModule(user2.address))
         .to.be.revertedWithCustomError(modifier, "OwnableUnauthorizedAccount")
@@ -125,7 +133,7 @@ describe("Modifier", async () => {
     it("reverts if module is already enabled", async () => {
       const { modifier } = await loadFixture(setupTests);
 
-      const [user1] = await hre.ethers.getSigners();
+      const [user1] = await ethers.getSigners();
 
       await expect(modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
@@ -140,7 +148,7 @@ describe("Modifier", async () => {
      */
     it("enables a module", async () => {
       const { modifier } = await loadFixture(setupTests);
-      const [user1] = await hre.ethers.getSigners();
+      const [user1] = await ethers.getSigners();
       await expect(modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
@@ -154,7 +162,7 @@ describe("Modifier", async () => {
      */
     it("reverts if caller is not the owner", async () => {
       const { modifier } = await loadFixture(setupTests);
-      const [, user2] = await hre.ethers.getSigners();
+      const [, user2] = await ethers.getSigners();
       await expect(
         modifier.connect(user2).disableModule(SENTINEL_MODULES, user2.address)
       )
@@ -187,7 +195,7 @@ describe("Modifier", async () => {
      */
     it("reverts if module is already disabled", async () => {
       const { modifier } = await loadFixture(setupTests);
-      const [user1] = await hre.ethers.getSigners();
+      const [user1] = await ethers.getSigners();
       await expect(modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
@@ -204,7 +212,7 @@ describe("Modifier", async () => {
      */
     it("disables a module", async () => {
       const { modifier } = await loadFixture(setupTests);
-      const [user1] = await hre.ethers.getSigners();
+      const [user1] = await ethers.getSigners();
       await expect(modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
@@ -242,7 +250,7 @@ describe("Modifier", async () => {
      */
     it("returns false if module is not enabled", async () => {
       const { modifier } = await loadFixture(setupTests);
-      const [user1] = await hre.ethers.getSigners();
+      const [user1] = await ethers.getSigners();
       await expect(await modifier.isModuleEnabled(user1.address)).to.be.equals(
         false
       );
@@ -254,7 +262,7 @@ describe("Modifier", async () => {
      */
     it("returns true if module is enabled", async () => {
       const { modifier } = await loadFixture(setupTests);
-      const [, user2] = await hre.ethers.getSigners();
+      const [, user2] = await ethers.getSigners();
 
       await expect(await modifier.enableModule(user2.address))
         .to.emit(modifier, "EnabledModule")
@@ -283,9 +291,11 @@ describe("Modifier", async () => {
      */
     it("requires start to be a module or start pointer", async () => {
       const { modifier } = await loadFixture(setupTests);
-      const [user1, user2] = await hre.ethers.getSigners();
+      const [user1, user2] = await ethers.getSigners();
 
-      await expect(modifier.getModulesPaginated(AddressZero, 1)).to.be.reverted;
+      await expect(modifier.getModulesPaginated(AddressZero, 1)).to.be.revert(
+        ethers
+      );
       await modifier.enableModule(user1.address);
 
       expect(
@@ -315,7 +325,7 @@ describe("Modifier", async () => {
      */
     it("returns one module if one module is enabled", async () => {
       const { modifier } = await loadFixture(setupTests);
-      const [user1] = await hre.ethers.getSigners();
+      const [user1] = await ethers.getSigners();
       await modifier.enableModule(user1.address);
       const result = await modifier.getModulesPaginated(SENTINEL_MODULES, 3);
 
@@ -328,7 +338,7 @@ describe("Modifier", async () => {
      */
     it("returns two modules if two modules are enabled", async () => {
       const { modifier } = await loadFixture(setupTests);
-      const [user1, user2] = await hre.ethers.getSigners();
+      const [user1, user2] = await ethers.getSigners();
 
       await expect(modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
@@ -351,7 +361,7 @@ describe("Modifier", async () => {
      */
     it("returns all modules over multiple pages", async () => {
       const { modifier } = await loadFixture(setupTests);
-      const [user1, user2, user3] = await hre.ethers.getSigners();
+      const [user1, user2, user3] = await ethers.getSigners();
 
       await modifier.enableModule(user1.address);
       await modifier.enableModule(user2.address);
@@ -416,7 +426,7 @@ describe("Modifier", async () => {
      */
     it("execute a transaction.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
-      const [user1] = await hre.ethers.getSigners();
+      const [user1] = await ethers.getSigners();
       await expect(await modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
@@ -433,7 +443,7 @@ describe("Modifier", async () => {
      */
     it("execute a transaction with signature.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
-      const [user1, relayer] = await hre.ethers.getSigners();
+      const [user1, relayer] = await ethers.getSigners();
       await expect(await modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
@@ -475,7 +485,7 @@ describe("Modifier", async () => {
      */
     it("reverts if signature not valid.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
-      const [user1, user2, relayer] = await hre.ethers.getSigners();
+      const [user1, user2, relayer] = await ethers.getSigners();
       await expect(await modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
@@ -530,7 +540,7 @@ describe("Modifier", async () => {
      */
     it("reverts if signature previously used for execution.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
-      const [user1, user2, relayer] = await hre.ethers.getSigners();
+      const [user1, user2, relayer] = await ethers.getSigners();
       await expect(await modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
@@ -589,7 +599,7 @@ describe("Modifier", async () => {
      */
     it("reverts if signature invalidated.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
-      const [user1, relayer] = await hre.ethers.getSigners();
+      const [user1, relayer] = await ethers.getSigners();
 
       await modifier.enableModule(user1.address);
 
@@ -631,7 +641,7 @@ describe("Modifier", async () => {
      * Verifies that execution reverts if the module is not enabled.
      */
     it("reverts if module is not enabled", async () => {
-      const [signer] = await hre.ethers.getSigners();
+      const [signer] = await ethers.getSigners();
       const { modifier, tx } = await loadFixture(setupTests);
       await expect(
         modifier
@@ -652,7 +662,7 @@ describe("Modifier", async () => {
      */
     it("execute a transaction.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
-      const [user1] = await hre.ethers.getSigners();
+      const [user1] = await ethers.getSigners();
       await expect(await modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
@@ -672,7 +682,7 @@ describe("Modifier", async () => {
      */
     it("execute a transaction with signature.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
-      const [user1, relayer] = await hre.ethers.getSigners();
+      const [user1, relayer] = await ethers.getSigners();
       await expect(await modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
@@ -714,7 +724,7 @@ describe("Modifier", async () => {
      */
     it("reverts if signature not valid.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
-      const [user1, user2, relayer] = await hre.ethers.getSigners();
+      const [user1, user2, relayer] = await ethers.getSigners();
       await expect(await modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
@@ -769,7 +779,7 @@ describe("Modifier", async () => {
      */
     it("reverts if signature previously used for execution.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
-      const [user1, user2, relayer] = await hre.ethers.getSigners();
+      const [user1, user2, relayer] = await ethers.getSigners();
       await expect(await modifier.enableModule(user1.address))
         .to.emit(modifier, "EnabledModule")
         .withArgs(user1.address);
@@ -828,7 +838,7 @@ describe("Modifier", async () => {
      */
     it("reverts if signature invalidated.", async () => {
       const { modifier, tx } = await loadFixture(setupTests);
-      const [user1, relayer] = await hre.ethers.getSigners();
+      const [user1, relayer] = await ethers.getSigners();
 
       await modifier.enableModule(user1.address);
 
@@ -921,7 +931,7 @@ describe("Modifier", async () => {
      */
     it("returns signer if signer is module", async () => {
       const { modifier, tx, alice } = await loadFixture(setupTests);
-      const [, , , relayer] = await hre.ethers.getSigners();
+      const [, , , relayer] = await ethers.getSigners();
 
       await modifier.enableModule(alice.address);
 
@@ -950,7 +960,7 @@ describe("Modifier", async () => {
      */
     it("returns zero if signer is not module and message sender not a module", async () => {
       const { modifier, tx, alice } = await loadFixture(setupTests);
-      const [, , , relayer] = await hre.ethers.getSigners();
+      const [, , , relayer] = await ethers.getSigners();
 
       // no modules enabled
 

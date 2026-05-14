@@ -1,9 +1,7 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { BigNumberish, ZeroAddress, keccak256, toUtf8Bytes } from "ethers";
-import hre from "hardhat";
+import { type BigNumberish, ZeroAddress, keccak256, toUtf8Bytes } from "ethers";
 
-import { TestSignature__factory } from "../typechain-types";
+import { network } from "hardhat";
 
 import typedDataForTransaction from "./typedDataForTransaction";
 
@@ -15,19 +13,26 @@ type ModuleTx = {
   salt: string;
 };
 
-const AddressZero = ZeroAddress;
+const connection = await network.create();
+const { ethers, networkHelpers } = connection;
+const { loadFixture } = networkHelpers;
 
-describe("SignatureChecker", async () => {
+describe("SignatureChecker", () => {
+  after(async () => {
+    await connection.close();
+  });
+
   async function setup() {
-    const [signer, relayer] = await hre.ethers.getSigners();
-    const TestSignature = await hre.ethers.getContractFactory("TestSignature");
+    const [signer, relayer] = await ethers.getSigners();
+    const TestSignature = await ethers.getContractFactory("TestSignature");
     const testSignature = await TestSignature.deploy();
 
     return {
-      testSignature: TestSignature__factory.connect(
+      testSignature: (await ethers.getContractAt(
+        "TestSignature",
         await testSignature.getAddress(),
         relayer
-      ),
+      )) as any,
       signer,
       relayer,
     };
@@ -45,7 +50,7 @@ describe("SignatureChecker", async () => {
   }
 
   async function signEOA(contract: string, tx: ModuleTx) {
-    const [signer] = await hre.ethers.getSigners();
+    const [signer] = await ethers.getSigners();
     const { domain, types, message } = typedDataForTransaction(
       { contract, chainId: 31337 },
       tx
@@ -72,7 +77,7 @@ describe("SignatureChecker", async () => {
       )
     )
       .to.emit(testSignature, "Recovered")
-      .withArgs(AddressZero);
+      .withArgs(ZeroAddress);
 
     await expect(
       relayer.sendTransaction(
@@ -130,7 +135,7 @@ describe("SignatureChecker", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
       const ContractSigner =
-        await hre.ethers.getContractFactory("ContractSignerYes");
+        await ethers.getContractFactory("ContractSignerYes");
       const signer = await (await ContractSigner.deploy()).getAddress();
 
       const tx = moduleTx();
@@ -154,7 +159,7 @@ describe("SignatureChecker", async () => {
         )
       )
         .to.emit(testSignature, "Recovered")
-        .withArgs(AddressZero);
+        .withArgs(ZeroAddress);
 
       await expect(
         relayer.sendTransaction(
@@ -175,7 +180,7 @@ describe("SignatureChecker", async () => {
     it("signer returns isValid maybe", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
-      const ContractSigner = await hre.ethers.getContractFactory(
+      const ContractSigner = await ethers.getContractFactory(
         "ContractSignerMaybe"
       );
       const contractSigner = await ContractSigner.deploy();
@@ -214,14 +219,14 @@ describe("SignatureChecker", async () => {
         )
       )
         .to.emit(testSignature, "Recovered")
-        .withArgs(AddressZero);
+        .withArgs(ZeroAddress);
     });
 
     it("signer returns isValid yes", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
       const ContractSigner =
-        await hre.ethers.getContractFactory("ContractSignerYes");
+        await ethers.getContractFactory("ContractSignerYes");
       const signer = await (await ContractSigner.deploy()).getAddress();
 
       const tx = moduleTx();
@@ -247,7 +252,7 @@ describe("SignatureChecker", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
       const ContractSigner =
-        await hre.ethers.getContractFactory("ContractSignerNo");
+        await ethers.getContractFactory("ContractSignerNo");
       const signer = await (await ContractSigner.deploy()).getAddress();
 
       const tx = moduleTx();
@@ -266,13 +271,13 @@ describe("SignatureChecker", async () => {
         )
       )
         .to.emit(testSignature, "Recovered")
-        .withArgs(AddressZero);
+        .withArgs(ZeroAddress);
     });
 
     it("signer returns isValid for empty specific signature only", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
-      const ContractSigner = await hre.ethers.getContractFactory(
+      const ContractSigner = await ethers.getContractFactory(
         "ContractSignerOnlyEmpty"
       );
       const signer = await (await ContractSigner.deploy()).getAddress();
@@ -309,13 +314,13 @@ describe("SignatureChecker", async () => {
         )
       )
         .to.emit(testSignature, "Recovered")
-        .withArgs(AddressZero);
+        .withArgs(ZeroAddress);
     });
 
     it("supports empty ERC1271 contract signatures", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
-      const ContractSigner = await hre.ethers.getContractFactory(
+      const ContractSigner = await ethers.getContractFactory(
         "ContractSignerOnlyEmpty"
       );
       const signer = await (await ContractSigner.deploy()).getAddress();
@@ -344,7 +349,7 @@ describe("SignatureChecker", async () => {
     it("signer bad return size", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
-      const Signer = await hre.ethers.getContractFactory(
+      const Signer = await ethers.getContractFactory(
         "ContractSignerReturnSize"
       );
       const signer = await (await Signer.deploy()).getAddress();
@@ -365,15 +370,13 @@ describe("SignatureChecker", async () => {
         )
       )
         .to.emit(testSignature, "Recovered")
-        .withArgs(AddressZero);
+        .withArgs(ZeroAddress);
     });
 
     it("signer with faulty entrypoint", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
-      const Signer = await hre.ethers.getContractFactory(
-        "ContractSignerFaulty"
-      );
+      const Signer = await ethers.getContractFactory("ContractSignerFaulty");
       const signer = await (await Signer.deploy()).getAddress();
 
       const tx = moduleTx();
@@ -392,14 +395,14 @@ describe("SignatureChecker", async () => {
         )
       )
         .to.emit(testSignature, "Recovered")
-        .withArgs(AddressZero);
+        .withArgs(ZeroAddress);
     });
 
     it("signer with no code deployed", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
       const signerAddress = "0x1234567890000000000000000000000123456789";
-      expect(await hre.ethers.provider.getCode(signerAddress)).to.equal("0x");
+      expect(await ethers.provider.getCode(signerAddress)).to.equal("0x");
 
       const tx = moduleTx();
       const sig = makeContractSignature("0xaabbccddeeff", signerAddress);
@@ -417,7 +420,7 @@ describe("SignatureChecker", async () => {
         )
       )
         .to.emit(testSignature, "Recovered")
-        .withArgs(AddressZero);
+        .withArgs(ZeroAddress);
     });
   });
 });
