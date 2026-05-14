@@ -113,11 +113,7 @@ abstract contract Modifier is
       salt,
       signature
     );
-    if (hash == bytes32(0) || signer == address(0)) {
-      revert NotAuthorized(msg.sender);
-    }
-
-    if (modules[signer] == address(0)) {
+    if (signer == address(0) || modules[signer] == address(0)) {
       revert NotAuthorized(msg.sender);
     }
 
