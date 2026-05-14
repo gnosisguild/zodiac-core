@@ -5,7 +5,6 @@ import {Guardable} from "../guard/Guardable.sol";
 import {IAvatar} from "../interfaces/IAvatar.sol";
 import {IModuleGuard} from "../interfaces/IGuard.sol";
 import {Modifier} from "./Modifier.sol";
-import {Module} from "./Module.sol";
 
 import "./Operation.sol";
 
