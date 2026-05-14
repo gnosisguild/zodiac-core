@@ -1,10 +1,10 @@
+import { existsSync } from "fs";
 import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
 import { defineConfig } from "hardhat/config";
 
-process.loadEnvFile?.(".env");
+if (existsSync(".env")) process.loadEnvFile(".env");
 
-const { INFURA_KEY, ETHERSCAN_API_KEY, PK, MNEMONIC, ALCHEMY_KEY } =
-  process.env;
+const { INFURA_KEY, PK, MNEMONIC, ALCHEMY_KEY } = process.env;
 
 const accounts = PK
   ? [PK]
