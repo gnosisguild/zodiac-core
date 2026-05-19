@@ -3,7 +3,7 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import {IERC165} from "../interfaces/IERC165.sol";
 
-import {BaseGuard} from "../guard/BaseGuard.sol";
+import {BaseModuleGuard} from "../guard/BaseGuard.sol";
 import {FactoryFriendly} from "../factory/FactoryFriendly.sol";
 import {GuardableModule} from "../core/GuardableModule.sol";
 
@@ -11,8 +11,8 @@ import "../core/Operation.sol";
 
 /* solhint-disable */
 
-contract TestGuard is FactoryFriendly, BaseGuard {
-  event PreChecked(address sender);
+contract TestGuard is FactoryFriendly, BaseModuleGuard {
+  event PreChecked(address module);
   event PostChecked(bool checked);
 
   address public module;
@@ -26,27 +26,22 @@ contract TestGuard is FactoryFriendly, BaseGuard {
     module = _module;
   }
 
-  function checkTransaction(
+  function checkModuleTransaction(
     address to,
     uint256 value,
     bytes memory data,
     Operation operation,
-    uint256,
-    uint256,
-    uint256,
-    address,
-    address payable,
-    bytes memory,
-    address sender
-  ) public override {
+    address _module
+  ) public override returns (bytes32) {
     require(to != address(0), "Cannot send to zero address");
     require(value != 1337, "Cannot send 1337");
     require(bytes3(data) != bytes3(0xbaddad), "Cannot call 0xbaddad");
     require(operation != Operation(1), "No delegate calls");
-    emit PreChecked(sender);
+    emit PreChecked(_module);
+    return keccak256(abi.encodePacked(to, value, data, operation, _module));
   }
 
-  function checkAfterExecution(bytes32, bool) public override {
+  function checkAfterModuleExecution(bytes32, bool) public override {
     require(
       GuardableModule(module).guard() == address(this),
       "Module cannot remove its own guard."
@@ -64,20 +59,4 @@ contract TestNonCompliantGuard is IERC165 {
   function supportsInterface(bytes4) external pure returns (bool) {
     return false;
   }
-
-  function checkTransaction(
-    address,
-    uint256,
-    bytes memory,
-    Operation,
-    uint256,
-    uint256,
-    uint256,
-    address,
-    address,
-    bytes memory,
-    address
-  ) public {}
-
-  function checkAfterExecution(bytes32, bool) public {}
 }

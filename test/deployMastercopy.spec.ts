@@ -1,22 +1,20 @@
-import { loadFixture, reset } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import hre from "hardhat";
+
+import { network } from "hardhat";
 
 import predictSingletonAddress from "../src/encoding/predictSingletonAddress";
 
-import { deployFactories, deployMastercopy } from "../src";
+import { deployFactories, deployMastercopy } from "../src/index";
 import createEIP1193 from "./createEIP1193";
 
-import { TestModule__factory } from "../typechain-types";
+const connection = await network.create();
+const { ethers, networkHelpers, provider: hardhatProvider } = connection;
+const { loadFixture } = networkHelpers;
 
-/**
- * Resets the test environment and deploys necessary factories.
- */
 async function setup() {
-  await reset();
-  const [signer] = await hre.ethers.getSigners();
+  const [signer] = await ethers.getSigners();
   await deployFactories({
-    provider: createEIP1193(hre.network.provider, signer),
+    provider: createEIP1193(hardhatProvider, signer),
   });
 }
 
@@ -24,17 +22,18 @@ const avatar = "0x0000000000000000000000000000000000000123";
 const target = "0x0000000000000000000000000000000000000456";
 
 describe("deployMastercopy", () => {
-  /**
-   * Tests the deployment of a mastercopy at the predicted address.
-   * Verifies that the mastercopy is deployed successfully and the predicted address is correct.
-   */
+  after(async () => {
+    await connection.close();
+  });
+
   it("Deploys a mastercopy, at the predicted address", async () => {
     await loadFixture(setup);
 
-    const { provider } = hre.ethers;
-    const [signer] = await hre.ethers.getSigners();
+    const { provider } = ethers;
+    const [signer] = await ethers.getSigners();
 
-    const bytecode = TestModule__factory.bytecode;
+    const TestModule = await ethers.getContractFactory("TestModule");
+    const bytecode = TestModule.bytecode;
     const salt =
       "0x0000000000000000000000000000000000000000000000000000000000000001";
     const constructorArgs = {
@@ -53,11 +52,15 @@ describe("deployMastercopy", () => {
       bytecode,
       constructorArgs,
       salt,
-      provider: createEIP1193(hre.network.provider, signer),
+      provider: createEIP1193(hardhatProvider, signer),
     });
     expect(await provider.getCode(address)).to.not.equal("0x");
 
-    const module = TestModule__factory.connect(address, provider);
+    const module = (await ethers.getContractAt(
+      "TestModule",
+      address,
+      signer
+    )) as any;
 
     expect(await module.avatar()).to.equal(avatar);
   });

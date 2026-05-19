@@ -2,8 +2,8 @@ import assert from "assert";
 import semver from "semver";
 import { existsSync, readFileSync } from "fs";
 
-import { defaultMastercopyArtifactsFile } from "./internal/paths";
-import { MastercopyArtifact } from "../types";
+import { defaultMastercopyArtifactsFile } from "./internal/paths.ts";
+import { MastercopyArtifact } from "../types.ts";
 
 /**
  * Extracts and returns Mastercopy artifact information from the specified artifacts file.

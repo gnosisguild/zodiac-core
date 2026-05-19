@@ -7,7 +7,7 @@ import {
   keccak256,
 } from "ethers";
 
-import { address as factoryAddress } from "../factory/proxyFactory";
+import { address as factoryAddress } from "../factory/proxyFactory.ts";
 
 /**
  * Predicts the address of a proxy contract deployed via ModuleProxyFactory.

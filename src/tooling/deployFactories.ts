@@ -4,24 +4,24 @@ import {
   deployer as nickDeployer,
   address as nickFactoryAddress,
   signedDeployTransaction as nickSignedDeployTransaction,
-} from "../factory/nickFactory";
+} from "../factory/nickFactory.ts";
 
 import {
   funding as erc2470Funding,
   deployer as erc2470Deployer,
   address as erc2470FactoryAddress,
   signedDeployTransaction as erc2470SignedDeployTransaction,
-} from "../factory/erc2470Factory";
+} from "../factory/erc2470Factory.ts";
 
 import {
   bytecode as proxyFactoryBytecode,
   salt as proxyFactorySalt,
-} from "../factory/proxyFactory";
+} from "../factory/proxyFactory.ts";
 
-import deployMastercopy from "./deployMastercopy";
-import waitForTransaction from "./waitForTransaction";
+import deployMastercopy from "./deployMastercopy.ts";
+import waitForTransaction from "./waitForTransaction.ts";
 
-import { EIP1193Provider } from "../types";
+import { EIP1193Provider } from "../types.ts";
 
 /**
  * Deploys all factories within a specified network.

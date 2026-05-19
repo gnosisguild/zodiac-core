@@ -3,8 +3,8 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import {Ownable} from "../factory/Ownable.sol";
 
-import {BaseGuard} from "../guard/BaseGuard.sol";
-import {IGuard} from "../interfaces/IGuard.sol";
+import {BaseModuleGuard} from "../guard/BaseGuard.sol";
+import {IModuleGuard} from "../interfaces/IGuard.sol";
 
 /// @title Guardable - A contract that manages fallback calls made to this contract
 contract Guardable is Ownable {
@@ -19,8 +19,11 @@ contract Guardable is Ownable {
   /// @param _guard The address of the guard to be used or the 0 address to disable the guard.
   function setGuard(address _guard) external onlyOwner {
     if (_guard != address(0)) {
-      if (!BaseGuard(_guard).supportsInterface(type(IGuard).interfaceId))
-        revert NotIERC165Compliant(_guard);
+      if (
+        !BaseModuleGuard(_guard).supportsInterface(
+          type(IModuleGuard).interfaceId
+        )
+      ) revert NotIERC165Compliant(_guard);
     }
     guard = _guard;
     emit ChangedGuard(guard);

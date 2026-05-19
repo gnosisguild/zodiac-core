@@ -1,142 +1,101 @@
-import "@nomicfoundation/hardhat-toolbox";
-import "hardhat-contract-sizer";
+import { existsSync } from "fs";
+import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
+import { defineConfig } from "hardhat/config";
 
-import dotenv from "dotenv";
+if (existsSync(".env")) process.loadEnvFile(".env");
 
-import type { HttpNetworkUserConfig } from "hardhat/types";
+const { INFURA_KEY, PK, MNEMONIC, ALCHEMY_KEY } = process.env;
 
-// Load environment variables.
-dotenv.config();
-const { INFURA_KEY, MNEMONIC, ETHERSCAN_API_KEY, PK, ALCHEMY_KEY } =
-  process.env;
+const accounts = PK
+  ? [PK]
+  : {
+      mnemonic:
+        MNEMONIC ??
+        "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
+    };
 
-const DEFAULT_MNEMONIC =
-  "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
-
-const sharedNetworkConfig: HttpNetworkUserConfig = {};
-if (PK) {
-  sharedNetworkConfig.accounts = [PK];
-} else {
-  sharedNetworkConfig.accounts = {
-    mnemonic: MNEMONIC || DEFAULT_MNEMONIC,
-  };
-}
-
-export default {
+export default defineConfig({
+  plugins: [hardhatToolboxMochaEthersPlugin],
   paths: {
     artifacts: "build/artifacts",
     cache: "build/cache",
-    deploy: "src/deploy",
     sources: "contracts",
   },
   solidity: {
-    compilers: [
-      {
+    profiles: {
+      default: {
         version: "0.8.30",
         settings: {
           evmVersion: "cancun",
-          optimizer: {
-            enabled: true,
-            runs: 100,
-          },
+          optimizer: { enabled: true, runs: 100 },
         },
       },
-    ],
+    },
+  },
+  typechain: {
+    outDir: "typechain-types",
   },
   networks: {
     mainnet: {
-      ...sharedNetworkConfig,
+      type: "http",
       url: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+      accounts,
     },
     gnosis: {
-      ...sharedNetworkConfig,
+      type: "http",
       url: "https://rpc.gnosischain.com",
-    },
-    goerli: {
-      ...sharedNetworkConfig,
-      url: `https://goerli.infura.io/v3/${INFURA_KEY}`,
+      accounts,
     },
     sepolia: {
-      ...sharedNetworkConfig,
+      type: "http",
       url: `https://sepolia.infura.io/v3/${INFURA_KEY}`,
+      accounts,
     },
     arbitrum: {
-      ...sharedNetworkConfig,
+      type: "http",
       url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`,
+      accounts,
     },
     optimism: {
-      ...sharedNetworkConfig,
+      type: "http",
       url: `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`,
+      accounts,
     },
     polygon: {
-      ...sharedNetworkConfig,
+      type: "http",
       url: "https://rpc.ankr.com/polygon",
-    },
-    mumbai: {
-      ...sharedNetworkConfig,
-      url: `https://polygon-mumbai.g.alchemy.com/v2/${ALCHEMY_KEY}`,
+      accounts,
     },
     avalanche: {
-      ...sharedNetworkConfig,
+      type: "http",
       url: `https://avalanche-mainnet.infura.io/v3/${INFURA_KEY}`,
+      accounts,
     },
     bsc: {
-      ...sharedNetworkConfig,
+      type: "http",
       url: "https://bsc-dataseed.binance.org",
-    },
-    lineaGoerli: {
-      ...sharedNetworkConfig,
-      url: `https://linea-goerli.infura.io/v3/${INFURA_KEY}`,
-    },
-    core: {
-      ...sharedNetworkConfig,
-      url: "https://rpc.coredao.org",
-    },
-    coreTestnet: {
-      ...sharedNetworkConfig,
-      url: "https://rpc.test.btcs.network",
+      accounts,
     },
     base: {
-      ...sharedNetworkConfig,
+      type: "http",
       url: "https://mainnet.base.org",
+      accounts,
     },
-    hardhat: {
-      ...sharedNetworkConfig,
+    core: {
+      type: "http",
+      url: "https://rpc.coredao.org",
+      accounts,
+    },
+    coreTestnet: {
+      type: "http",
+      url: "https://rpc.test.btcs.network",
+      accounts,
     },
   },
-  namedAccounts: {
-    deployer: 0,
+
+  test: {
+    mocha: {
+      timeout: 2_000_000,
+    },
   },
-  mocha: {
-    timeout: 2000000,
-  },
-  etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
-    customChains: [
-      {
-        network: "coreTestnet",
-        chainId: 1115,
-        urls: {
-          apiURL: "https://api.test.btcs.network/api",
-          browserURL: "https://scan.test.btcs.network/",
-        },
-      },
-      {
-        network: "core",
-        chainId: 1116,
-        urls: {
-          apiURL: "https://openapi.coredao.org/api",
-          browserURL: "https://scan.coredao.org/",
-        },
-      },
-      {
-        network: "base",
-        chainId: 8453,
-        urls: {
-          apiURL: "https://api.basescan.org/api",
-          browserURL: "https://basescan.org/",
-        },
-      },
-    ],
-  },
-};
+});

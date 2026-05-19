@@ -20,3 +20,18 @@ interface IGuard {
 
   function checkAfterExecution(bytes32 txHash, bool success) external;
 }
+
+interface IModuleGuard {
+  function checkModuleTransaction(
+    address to,
+    uint256 value,
+    bytes memory data,
+    Operation operation,
+    address module
+  ) external returns (bytes32 moduleTxHash);
+
+  function checkAfterModuleExecution(
+    bytes32 moduleTxHash,
+    bool success
+  ) external;
+}

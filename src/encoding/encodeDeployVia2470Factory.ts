@@ -2,8 +2,8 @@ import { AbiCoder, concat, TransactionRequest } from "ethers";
 import {
   address as factoryAddress,
   iface as factoryInterface,
-} from "../factory/erc2470Factory";
-import { Create2Args } from "../types";
+} from "../factory/erc2470Factory.ts";
+import { Create2Args } from "../types.ts";
 
 /**
  * Encodes the transaction request for deploying a Singleton via ERC2470Factory.

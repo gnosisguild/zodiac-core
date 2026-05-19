@@ -18,6 +18,8 @@ abstract contract Modifier is
   address internal constant SENTINEL_MODULES = address(0x1);
   /// Mapping of modules.
   mapping(address => address) internal modules;
+  /// Authenticated module for the current moduleOnly call.
+  address private transient _authenticatedModule;
 
   /// `sender` is not an authorized module.
   /// @param sender The address of the sender.
@@ -38,12 +40,15 @@ abstract contract Modifier is
   /// @dev `setModules()` was already called.
   error SetupModulesAlreadyCalled();
 
+  /// @dev A module authentication context is already active.
+  error AlreadyAuthenticated();
+
   /*
     --------------------------------------------------
     You must override both of the following virtual functions,
     execTransactionFromModule() and execTransactionFromModuleReturnData().
-    It is recommended that implementations of both functions make use the 
-    onlyModule modifier.
+    It is recommended that implementations of both functions use the
+    parameterless moduleOnly() modifier.
     */
 
   /// @dev Passes a transaction to the modifier.
@@ -72,42 +77,62 @@ abstract contract Modifier is
     Operation operation
   ) public virtual returns (bool success, bytes memory returnData);
 
-  /*
-    --------------------------------------------------
-    */
-
+  /// @dev Authenticates a direct call from an enabled module.
+  /// @notice Can only be called by enabled modules.
   modifier moduleOnly() {
-    if (modules[msg.sender] == address(0)) {
-      (bytes32 hash, address signer) = moduleTxSignedBy();
-
-      // is the signer a module?
-      if (modules[signer] == address(0)) {
-        revert NotAuthorized(msg.sender);
-      }
-
-      // is the provided signature fresh?
-      if (consumed[signer][hash]) {
-        revert HashAlreadyConsumed(hash);
-      }
-
-      consumed[signer][hash] = true;
-      emit HashExecuted(hash);
+    if (_authenticatedModule != address(0)) {
+      revert AlreadyAuthenticated();
     }
 
+    if (modules[msg.sender] == address(0)) {
+      revert NotAuthorized(msg.sender);
+    }
+
+    _authenticatedModule = msg.sender;
     _;
+    _authenticatedModule = address(0);
   }
 
+  /// @dev Authenticates a relayed call signed by an enabled module.
+  ///      The signed message is the EIP-712 ModuleTx struct over the call's
+  ///      (to, value, data, operation, salt). See SignatureChecker.
+  /// @param moduleTx Module transaction that was signed.
+  /// @param salt Salt value included in the signed ModuleTx.
+  /// @param signature Signature over the ModuleTx.
+  modifier moduleOnlySigned(
+    ModuleTx memory moduleTx,
+    bytes32 salt,
+    bytes calldata signature
+  ) {
+    if (_authenticatedModule != address(0)) {
+      revert AlreadyAuthenticated();
+    }
+
+    (address signer, bytes32 hash) = moduleTxSignedBy(
+      moduleTx,
+      salt,
+      signature
+    );
+    if (signer == address(0) || modules[signer] == address(0)) {
+      revert NotAuthorized(msg.sender);
+    }
+
+    if (consumed[signer][hash]) {
+      revert HashAlreadyConsumed(hash);
+    }
+
+    consumed[signer][hash] = true;
+    emit HashExecuted(hash);
+
+    _authenticatedModule = signer;
+    _;
+    _authenticatedModule = address(0);
+  }
+
+  /// @dev Returns the module authenticated for the current execution context.
+  /// @return The module that directly called or signed the current execution.
   function sentOrSignedByModule() internal view returns (address) {
-    if (modules[msg.sender] != address(0)) {
-      return msg.sender;
-    }
-
-    (, address signer) = moduleTxSignedBy();
-    if (modules[signer] != address(0)) {
-      return signer;
-    }
-
-    return address(0);
+    return _authenticatedModule;
   }
 
   /// @dev Disables a module on the modifier.

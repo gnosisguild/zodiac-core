@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
     "declaration": true,
+    "allowImportingTsExtensions": true,
     "esModuleInterop": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "preserve",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2020",
-    "types": []
+    "target": "es2023",
+    "types": [],
+    "noEmit": true
   },
-  "include": ["hardhat.config.ts", "src", "sdk", "tasks", "test"]
+  "include": ["hardhat.config.ts", "src", "tasks", "test"]
 }

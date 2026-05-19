@@ -1,562 +1,426 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import {
-  TransactionLike,
-  AbiCoder,
-  keccak256,
-  solidityPacked,
-  toUtf8Bytes,
-  Signer,
-} from "ethers";
-import hre from "hardhat";
+import { type BigNumberish, ZeroAddress, keccak256, toUtf8Bytes } from "ethers";
 
-import { TestSignature__factory } from "../typechain-types";
+import { network } from "hardhat";
 
 import typedDataForTransaction from "./typedDataForTransaction";
 
-describe("SignatureChecker", async () => {
-  /**
-   * Sets up the test environment by deploying the necessary contracts.
-   *
-   * @returns {Promise<{ testSignature: any, signer: any, relayer: any }>} The deployed contract instance and test signers.
-   */
+type ModuleTx = {
+  to: string;
+  value: BigNumberish;
+  data: string;
+  operation: number;
+  salt: string;
+};
+
+const connection = await network.create();
+const { ethers, networkHelpers } = connection;
+const { loadFixture } = networkHelpers;
+
+describe("SignatureChecker", () => {
+  after(async () => {
+    await connection.close();
+  });
+
   async function setup() {
-    const [signer, relayer] = await hre.ethers.getSigners();
-    const TestSignature = await hre.ethers.getContractFactory("TestSignature");
+    const [signer, relayer] = await ethers.getSigners();
+    const TestSignature = await ethers.getContractFactory("TestSignature");
     const testSignature = await TestSignature.deploy();
 
     return {
-      testSignature: TestSignature__factory.connect(
+      testSignature: (await ethers.getContractAt(
+        "TestSignature",
         await testSignature.getAddress(),
         relayer
-      ),
+      )) as any,
       signer,
       relayer,
     };
   }
 
-  const AddressZero = "0x0000000000000000000000000000000000000000";
+  function moduleTx(overrides: Partial<ModuleTx> = {}): ModuleTx {
+    return {
+      to: "0x0000000000000000000000000000000000000099",
+      value: 0,
+      data: "0x",
+      operation: 0,
+      salt: keccak256(toUtf8Bytes("default salt")),
+      ...overrides,
+    };
+  }
 
-  /**
-   * Tests the detection of an appended signature for an entrypoint with no arguments.
-   * Verifies that the signature is correctly appended and the transaction emits the expected event.
-   */
-  it("correctly detects an appended signature, for an entrypoint no arguments", async () => {
+  async function signEOA(contract: string, tx: ModuleTx) {
+    const [signer] = await ethers.getSigners();
+    const { domain, types, message } = typedDataForTransaction(
+      { contract, chainId: 31337 },
+      tx
+    );
+    return signer.signTypedData(domain, types, message);
+  }
+
+  it("recovers an EOA signature", async () => {
     const { testSignature, signer, relayer } = await loadFixture(setup);
 
-    const transaction = await testSignature.hello.populateTransaction();
-    const signature = await sign(
-      await testSignature.getAddress(),
-      transaction,
-      keccak256(toUtf8Bytes("Hello this is a salt")),
-      signer
-    );
-    const transactionWithSig = {
-      ...transaction,
-      data: `${transaction.data}${signature.slice(2)}`,
-    };
+    const tx = moduleTx({ salt: keccak256(toUtf8Bytes("hello salt")) });
+    const sig = await signEOA(await testSignature.getAddress(), tx);
 
-    await expect(await relayer.sendTransaction(transaction))
-      .to.emit(testSignature, "Hello")
-      .withArgs(AddressZero);
+    await expect(
+      relayer.sendTransaction(
+        await testSignature.check.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          tx.salt,
+          "0x"
+        )
+      )
+    )
+      .to.emit(testSignature, "Recovered")
+      .withArgs(ZeroAddress);
 
-    await expect(await relayer.sendTransaction(transactionWithSig))
-      .to.emit(testSignature, "Hello")
+    await expect(
+      relayer.sendTransaction(
+        await testSignature.check.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          tx.salt,
+          sig
+        )
+      )
+    )
+      .to.emit(testSignature, "Recovered")
       .withArgs(signer.address);
   });
 
-  /**
-   * Tests the detection of an appended signature for an entrypoint with arguments.
-   * Verifies that the signature is correctly appended and the transaction emits the expected event.
-   */
-  it("correctly detects an appended signature, entrypoint with arguments", async () => {
+  it("recovers a signature over non-trivial ModuleTx fields", async () => {
     const { testSignature, signer, relayer } = await loadFixture(setup);
 
-    const transaction = await testSignature.goodbye.populateTransaction(
-      0,
-      "0xbadfed"
-    );
-    const signature = await sign(
-      await testSignature.getAddress(),
-      transaction,
-      keccak256(toUtf8Bytes("salt")),
-      signer
-    );
-    const transactionWithSig = {
-      ...transaction,
-      data: `${transaction.data}${signature.slice(2)}`,
-    };
+    const tx = moduleTx({
+      to: "0x000000000000000000000000000000000000DEAD",
+      value: 12345n,
+      data: "0xbadfed",
+      operation: 1,
+      salt: keccak256(toUtf8Bytes("nontrivial")),
+    });
+    const sig = await signEOA(await testSignature.getAddress(), tx);
 
-    await expect(await relayer.sendTransaction(transaction))
-      .to.emit(testSignature, "Goodbye")
-      .withArgs(AddressZero);
-
-    await expect(await relayer.sendTransaction(transactionWithSig))
-      .to.emit(testSignature, "Goodbye")
+    await expect(
+      relayer.sendTransaction(
+        await testSignature.check.populateTransaction(
+          tx.to,
+          tx.value,
+          tx.data,
+          tx.operation,
+          tx.salt,
+          sig
+        )
+      )
+    )
+      .to.emit(testSignature, "Recovered")
       .withArgs(signer.address);
   });
 
   describe("contract signature", () => {
-    /**
-     * Tests that a signature pointing out of bounds fails.
-     * Verifies that the transaction is reverted if the signature is invalid.
-     */
-    it("s pointing out of bounds fails", async () => {
+    function makeContractSignature(
+      signerSpecificSignature: string,
+      signer: string
+    ) {
+      return `0x${signer.slice(2)}${signerSpecificSignature.slice(2)}`;
+    }
+
+    it("uses the first 20 bytes as ERC1271 signer", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
       const ContractSigner =
-        await hre.ethers.getContractFactory("ContractSignerYes");
+        await ethers.getContractFactory("ContractSignerYes");
       const signer = await (await ContractSigner.deploy()).getAddress();
 
-      const transaction = await testSignature.hello.populateTransaction();
+      const tx = moduleTx();
 
-      let signature = makeContractSignature(
-        transaction,
+      const sigUnknown = makeContractSignature(
         "0xdddddd",
-        keccak256(toUtf8Bytes("salt")),
-        signer,
-        AbiCoder.defaultAbiCoder().encode(["uint256"], [1000])
+        "0x1234567890000000000000000000000123456789"
       );
+      const sigKnown = makeContractSignature("0xdddddd", signer);
 
       await expect(
-        await relayer.sendTransaction({
-          ...transaction,
-          data: `${transaction.data}${signature.slice(2)}`,
-        })
+        relayer.sendTransaction(
+          await testSignature.check.populateTransaction(
+            tx.to,
+            tx.value,
+            tx.data,
+            tx.operation,
+            tx.salt,
+            sigUnknown
+          )
+        )
       )
-        .to.emit(testSignature, "Hello")
-        .withArgs(AddressZero);
-
-      signature = makeContractSignature(
-        transaction,
-        "0xdddddd",
-        keccak256(toUtf8Bytes("salt")),
-        signer,
-        AbiCoder.defaultAbiCoder().encode(["uint256"], [6])
-      );
+        .to.emit(testSignature, "Recovered")
+        .withArgs(ZeroAddress);
 
       await expect(
-        await relayer.sendTransaction({
-          ...transaction,
-          data: `${transaction.data}${signature.slice(2)}`,
-        })
+        relayer.sendTransaction(
+          await testSignature.check.populateTransaction(
+            tx.to,
+            tx.value,
+            tx.data,
+            tx.operation,
+            tx.salt,
+            sigKnown
+          )
+        )
       )
-        .to.emit(testSignature, "Hello")
+        .to.emit(testSignature, "Recovered")
         .withArgs(signer);
     });
 
-    /**
-     * Tests that a signature pointing to the selector fails.
-     * Verifies that the transaction is reverted if the signature points to the selector.
-     */
-    it("s pointing to selector fails", async () => {
-      const { testSignature, relayer } = await loadFixture(setup);
-
-      const ContractSigner =
-        await hre.ethers.getContractFactory("ContractSignerYes");
-      const signer = await (await ContractSigner.deploy()).getAddress();
-
-      const transaction = await testSignature.hello.populateTransaction();
-
-      let signature = makeContractSignature(
-        transaction,
-        "0xdddddd",
-        keccak256(toUtf8Bytes("salt")),
-        signer,
-        AbiCoder.defaultAbiCoder().encode(["uint256"], [3])
-      );
-
-      await expect(
-        await relayer.sendTransaction({
-          ...transaction,
-          data: `${transaction.data}${signature.slice(2)}`,
-        })
-      )
-        .to.emit(testSignature, "Hello")
-        .withArgs(AddressZero);
-
-      signature = makeContractSignature(
-        transaction,
-        "0xdddddd",
-        keccak256(toUtf8Bytes("salt")),
-        signer,
-        AbiCoder.defaultAbiCoder().encode(["uint256"], [4])
-      );
-
-      await expect(
-        await relayer.sendTransaction({
-          ...transaction,
-          data: `${transaction.data}${signature.slice(2)}`,
-        })
-      )
-        .to.emit(testSignature, "Hello")
-        .withArgs(signer);
-    });
-
-    /**
-     * Tests that a signature pointing to the signature fails.
-     * Verifies that the transaction is reverted if the signature points to the signature.
-     */
-    it("s pointing to signature fails", async () => {
-      const { testSignature, relayer } = await loadFixture(setup);
-
-      const ContractSigner =
-        await hre.ethers.getContractFactory("ContractSignerYes");
-      const signer = await (await ContractSigner.deploy()).getAddress();
-
-      const transaction = await testSignature.hello.populateTransaction();
-
-      let signature = makeContractSignature(
-        transaction,
-        "0xdddddd",
-        keccak256(toUtf8Bytes("salt")),
-        signer,
-        AbiCoder.defaultAbiCoder().encode(["uint256"], [60])
-      );
-
-      await expect(
-        await relayer.sendTransaction({
-          ...transaction,
-          data: `${transaction.data}${signature.slice(2)}`,
-        })
-      )
-        .to.emit(testSignature, "Hello")
-        .withArgs(AddressZero);
-
-      signature = makeContractSignature(
-        transaction,
-        "0xdddddd",
-        keccak256(toUtf8Bytes("salt")),
-        signer,
-        AbiCoder.defaultAbiCoder().encode(["uint256"], [6])
-      );
-
-      await expect(
-        await relayer.sendTransaction({
-          ...transaction,
-          data: `${transaction.data}${signature.slice(2)}`,
-        })
-      )
-        .to.emit(testSignature, "Hello")
-        .withArgs(signer);
-    });
-
-    /**
-     * Tests that a contract signer returns maybe for a signature.
-     * Verifies that the transaction emits the expected event based on the signature's validity.
-     */
     it("signer returns isValid maybe", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
-      const ContractSigner = await hre.ethers.getContractFactory(
+      const ContractSigner = await ethers.getContractFactory(
         "ContractSignerMaybe"
       );
       const contractSigner = await ContractSigner.deploy();
+      const signer = await contractSigner.getAddress();
 
-      const transaction = await testSignature.goodbye.populateTransaction(
-        0,
-        "0xbadfed"
-      );
+      const tx = moduleTx();
 
-      const signatureGood = makeContractSignature(
-        transaction,
-        "0x001122334455",
-        keccak256(toUtf8Bytes("some irrelevant salt")),
-        await contractSigner.getAddress()
-      );
+      const sigGood = makeContractSignature("0x001122334455", signer);
+      const sigBad = makeContractSignature("0x00112233445566", signer);
 
-      const signatureBad = makeContractSignature(
-        transaction,
-        "0x00112233445566",
-        keccak256(toUtf8Bytes("some irrelevant salt")),
-        await contractSigner.getAddress()
-      );
+      await expect(
+        relayer.sendTransaction(
+          await testSignature.check.populateTransaction(
+            tx.to,
+            tx.value,
+            tx.data,
+            tx.operation,
+            tx.salt,
+            sigGood
+          )
+        )
+      )
+        .to.emit(testSignature, "Recovered")
+        .withArgs(signer);
 
-      const transactionWithGoodSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureGood.slice(2)}`,
-      };
-      const transactionWithBadSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureBad.slice(2)}`,
-      };
-
-      await expect(await relayer.sendTransaction(transaction))
-        .to.emit(testSignature, "Goodbye")
-        .withArgs(AddressZero);
-
-      await expect(await relayer.sendTransaction(transactionWithGoodSig))
-        .to.emit(testSignature, "Goodbye")
-        .withArgs(await contractSigner.getAddress());
-
-      await expect(await relayer.sendTransaction(transactionWithBadSig))
-        .to.emit(testSignature, "Goodbye")
-        .withArgs(AddressZero);
+      await expect(
+        relayer.sendTransaction(
+          await testSignature.check.populateTransaction(
+            tx.to,
+            tx.value,
+            tx.data,
+            tx.operation,
+            tx.salt,
+            sigBad
+          )
+        )
+      )
+        .to.emit(testSignature, "Recovered")
+        .withArgs(ZeroAddress);
     });
 
-    /**
-     * Tests that a contract signer returns yes for a valid signature.
-     * Verifies that the transaction emits the expected event based on the signature's validity.
-     */
     it("signer returns isValid yes", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
       const ContractSigner =
-        await hre.ethers.getContractFactory("ContractSignerYes");
-      const contractSigner = await ContractSigner.deploy();
+        await ethers.getContractFactory("ContractSignerYes");
+      const signer = await (await ContractSigner.deploy()).getAddress();
 
-      const transaction = await testSignature.goodbye.populateTransaction(
-        0,
-        "0xbadfed"
-      );
+      const tx = moduleTx();
+      const sig = makeContractSignature("0xaabbccddeeff", signer);
 
-      const signature = makeContractSignature(
-        transaction,
-        "0xaabbccddeeff",
-        keccak256(toUtf8Bytes("salt")),
-        await contractSigner.getAddress()
-      );
-
-      const transactionWithSig = {
-        ...transaction,
-        data: `${transaction.data}${signature.slice(2)}`,
-      };
-
-      await expect(await relayer.sendTransaction(transaction))
-        .to.emit(testSignature, "Goodbye")
-        .withArgs(AddressZero);
-
-      await expect(await relayer.sendTransaction(transactionWithSig))
-        .to.emit(testSignature, "Goodbye")
-        .withArgs(await contractSigner.getAddress());
+      await expect(
+        relayer.sendTransaction(
+          await testSignature.check.populateTransaction(
+            tx.to,
+            tx.value,
+            tx.data,
+            tx.operation,
+            tx.salt,
+            sig
+          )
+        )
+      )
+        .to.emit(testSignature, "Recovered")
+        .withArgs(signer);
     });
 
-    /**
-     * Tests that a contract signer returns no for an invalid signature.
-     * Verifies that the transaction emits the expected event based on the signature's validity.
-     */
     it("signer returns isValid no", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
-      const Signer = await hre.ethers.getContractFactory("ContractSignerNo");
-      const signer = await Signer.deploy();
+      const ContractSigner =
+        await ethers.getContractFactory("ContractSignerNo");
+      const signer = await (await ContractSigner.deploy()).getAddress();
 
-      const transaction = await testSignature.hello.populateTransaction();
+      const tx = moduleTx();
+      const sig = makeContractSignature("0xaabbccddeeff", signer);
 
-      const signature = makeContractSignature(
-        transaction,
-        "0xaabbccddeeff",
-        keccak256(toUtf8Bytes("salt")),
-        await signer.getAddress()
-      );
-
-      const transactionWithSig = {
-        ...transaction,
-        data: `${transaction.data}${signature.slice(2)}`,
-      };
-
-      await expect(await relayer.sendTransaction(transactionWithSig))
-        .to.emit(testSignature, "Hello")
-        .withArgs(AddressZero);
+      await expect(
+        relayer.sendTransaction(
+          await testSignature.check.populateTransaction(
+            tx.to,
+            tx.value,
+            tx.data,
+            tx.operation,
+            tx.salt,
+            sig
+          )
+        )
+      )
+        .to.emit(testSignature, "Recovered")
+        .withArgs(ZeroAddress);
     });
 
-    /**
-     * Tests that a contract signer returns isValid for an empty specific signature only.
-     * Verifies that the transaction emits the expected event based on the signature's validity.
-     */
     it("signer returns isValid for empty specific signature only", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
-      const ContractSigner = await hre.ethers.getContractFactory(
+      const ContractSigner = await ethers.getContractFactory(
         "ContractSignerOnlyEmpty"
       );
-      const contractSigner = await ContractSigner.deploy();
+      const signer = await (await ContractSigner.deploy()).getAddress();
 
-      const transaction = await testSignature.goodbye.populateTransaction(
-        0,
-        "0xbadfed"
-      );
+      const tx = moduleTx();
+      const sigGood = makeContractSignature("0x", signer);
+      const sigBad = makeContractSignature("0xffff", signer);
 
-      const signatureGood = makeContractSignature(
-        transaction,
-        "0x",
-        keccak256(toUtf8Bytes("some irrelevant salt")),
-        await contractSigner.getAddress()
-      );
+      await expect(
+        relayer.sendTransaction(
+          await testSignature.check.populateTransaction(
+            tx.to,
+            tx.value,
+            tx.data,
+            tx.operation,
+            tx.salt,
+            sigGood
+          )
+        )
+      )
+        .to.emit(testSignature, "Recovered")
+        .withArgs(signer);
 
-      const signatureBad = makeContractSignature(
-        transaction,
-        "0xffff",
-        keccak256(toUtf8Bytes("some irrelevant salt")),
-        await contractSigner.getAddress()
-      );
-
-      const transactionWithGoodSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureGood.slice(2)}`,
-      };
-      const transactionWithBadSig = {
-        ...transaction,
-        data: `${transaction.data}${signatureBad.slice(2)}`,
-      };
-
-      await expect(await relayer.sendTransaction(transaction))
-        .to.emit(testSignature, "Goodbye")
-        .withArgs(AddressZero);
-
-      await expect(await relayer.sendTransaction(transactionWithGoodSig))
-        .to.emit(testSignature, "Goodbye")
-        .withArgs(await contractSigner.getAddress());
-
-      await expect(await relayer.sendTransaction(transactionWithBadSig))
-        .to.emit(testSignature, "Goodbye")
-        .withArgs(AddressZero);
+      await expect(
+        relayer.sendTransaction(
+          await testSignature.check.populateTransaction(
+            tx.to,
+            tx.value,
+            tx.data,
+            tx.operation,
+            tx.salt,
+            sigBad
+          )
+        )
+      )
+        .to.emit(testSignature, "Recovered")
+        .withArgs(ZeroAddress);
     });
 
-    /**
-     * Tests that a signer with a bad return size fails.
-     * Verifies that the transaction emits the expected event based on the signature's validity.
-     */
+    it("supports empty ERC1271 contract signatures", async () => {
+      const { testSignature, relayer } = await loadFixture(setup);
+
+      const ContractSigner = await ethers.getContractFactory(
+        "ContractSignerOnlyEmpty"
+      );
+      const signer = await (await ContractSigner.deploy()).getAddress();
+
+      const tx = moduleTx();
+      const sig = makeContractSignature("0x", signer);
+
+      expect((sig.length - 2) / 2).to.equal(20);
+
+      await expect(
+        relayer.sendTransaction(
+          await testSignature.check.populateTransaction(
+            tx.to,
+            tx.value,
+            tx.data,
+            tx.operation,
+            tx.salt,
+            sig
+          )
+        )
+      )
+        .to.emit(testSignature, "Recovered")
+        .withArgs(signer);
+    });
+
     it("signer bad return size", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
-      const Signer = await hre.ethers.getContractFactory(
+      const Signer = await ethers.getContractFactory(
         "ContractSignerReturnSize"
       );
-      const signer = await Signer.deploy();
+      const signer = await (await Signer.deploy()).getAddress();
 
-      const transaction = await testSignature.hello.populateTransaction();
+      const tx = moduleTx();
+      const sig = makeContractSignature("0xaabbccddeeff", signer);
 
-      const signature = makeContractSignature(
-        transaction,
-        "0xaabbccddeeff",
-        keccak256(toUtf8Bytes("salt")),
-        await signer.getAddress()
-      );
-
-      const transactionWithSig = {
-        ...transaction,
-        data: `${transaction.data}${signature.slice(2)}`,
-      };
-
-      await expect(await relayer.sendTransaction(transactionWithSig))
-        .to.emit(testSignature, "Hello")
-        .withArgs(AddressZero);
+      await expect(
+        relayer.sendTransaction(
+          await testSignature.check.populateTransaction(
+            tx.to,
+            tx.value,
+            tx.data,
+            tx.operation,
+            tx.salt,
+            sig
+          )
+        )
+      )
+        .to.emit(testSignature, "Recovered")
+        .withArgs(ZeroAddress);
     });
 
-    /**
-     * Tests that a signer with a faulty entrypoint fails.
-     * Verifies that the transaction emits the expected event based on the signature's validity.
-     */
     it("signer with faulty entrypoint", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
-      const Signer = await hre.ethers.getContractFactory(
-        "ContractSignerFaulty"
-      );
-      const signer = await Signer.deploy();
+      const Signer = await ethers.getContractFactory("ContractSignerFaulty");
+      const signer = await (await Signer.deploy()).getAddress();
 
-      const transaction = await testSignature.hello.populateTransaction();
+      const tx = moduleTx();
+      const sig = makeContractSignature("0xaabbccddeeff", signer);
 
-      const signature = makeContractSignature(
-        transaction,
-        "0xaabbccddeeff",
-        keccak256(toUtf8Bytes("salt")),
-        await signer.getAddress()
-      );
-
-      const transactionWithSig = {
-        ...transaction,
-        data: `${transaction.data}${signature.slice(2)}`,
-      };
-
-      await expect(await relayer.sendTransaction(transactionWithSig))
-        .to.emit(testSignature, "Hello")
-        .withArgs(AddressZero);
+      await expect(
+        relayer.sendTransaction(
+          await testSignature.check.populateTransaction(
+            tx.to,
+            tx.value,
+            tx.data,
+            tx.operation,
+            tx.salt,
+            sig
+          )
+        )
+      )
+        .to.emit(testSignature, "Recovered")
+        .withArgs(ZeroAddress);
     });
 
-    /**
-     * Tests that a signer with no code deployed fails.
-     * Verifies that the transaction emits the expected event based on the signature's validity.
-     */
     it("signer with no code deployed", async () => {
       const { testSignature, relayer } = await loadFixture(setup);
 
       const signerAddress = "0x1234567890000000000000000000000123456789";
+      expect(await ethers.provider.getCode(signerAddress)).to.equal("0x");
 
-      await expect(await hre.ethers.provider.getCode(signerAddress)).to.equal(
-        "0x"
-      );
+      const tx = moduleTx();
+      const sig = makeContractSignature("0xaabbccddeeff", signerAddress);
 
-      const transaction = await testSignature.hello.populateTransaction();
-
-      const signature = makeContractSignature(
-        transaction,
-        "0xaabbccddeeff",
-        keccak256(toUtf8Bytes("salt")),
-        signerAddress
-      );
-
-      const transactionWithSig = {
-        ...transaction,
-        data: `${transaction.data}${signature.slice(2)}`,
-      };
-
-      await expect(await relayer.sendTransaction(transactionWithSig))
-        .to.emit(testSignature, "Hello")
-        .withArgs(AddressZero);
+      await expect(
+        relayer.sendTransaction(
+          await testSignature.check.populateTransaction(
+            tx.to,
+            tx.value,
+            tx.data,
+            tx.operation,
+            tx.salt,
+            sig
+          )
+        )
+      )
+        .to.emit(testSignature, "Recovered")
+        .withArgs(ZeroAddress);
     });
   });
 });
-/**
- *	Signs a transaction using the given signer.
- *
- *	@param {string} contract - The contract address.
- *	@param {TransactionLike} transaction - The transaction to be signed.
- *	@param {string} salt - The salt used for signing.
- *	@param {Signer} signer - The signer used to sign the transaction.
- *	@returns {Promise} The signed transaction.
- */
-async function sign(
-  contract: string,
-  transaction: TransactionLike,
-  salt: string,
-  signer: Signer
-) {
-  const { domain, types, message } = typedDataForTransaction(
-    { contract, chainId: 31337, salt },
-    transaction.data || "0x"
-  );
-
-  const signature = await signer.signTypedData(domain, types, message);
-
-  return `${salt}${signature.slice(2)}`;
-}
-
-/**
- *	Constructs a contract signature from the given parameters.
- *
- *	@param {TransactionLike} transaction - The transaction to be signed.
- *	@param {string} signerSpecificSignature - The signer-specific signature.
- *	@param {string} salt - The salt used for signing.
- *	@param {string} r - The r value of the signature.
- *	@param {string} [s] - The s value of the signature.
- *	@returns {string} The constructed contract signature.
- */
-function makeContractSignature(
-  transaction: TransactionLike,
-  signerSpecificSignature: string,
-  salt: string,
-  r: string,
-  s?: string
-) {
-  const dataBytesLength = ((transaction.data?.length as number) - 2) / 2;
-
-  r = AbiCoder.defaultAbiCoder().encode(["address"], [r]);
-  s = s || AbiCoder.defaultAbiCoder().encode(["uint256"], [dataBytesLength]);
-  const v = solidityPacked(["uint8"], [0]);
-
-  return `${signerSpecificSignature}${salt.slice(2)}${r.slice(2)}${s.slice(
-    2
-  )}${v.slice(2)}`;
-}

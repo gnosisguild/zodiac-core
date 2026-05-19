@@ -67,6 +67,64 @@ contract TestModifier is Modifier {
     );
   }
 
+  function execTransactionFromModuleSigned(
+    ModuleTx memory moduleTx,
+    bytes32 salt,
+    bytes calldata signature
+  ) public moduleOnlySigned(moduleTx, salt, signature) returns (bool success) {
+    success = _execTransactionFromModuleSigned(moduleTx);
+  }
+
+  function _execTransactionFromModuleSigned(
+    ModuleTx memory moduleTx
+  ) private returns (bool success) {
+    success = exec(
+      moduleTx.to,
+      moduleTx.value,
+      moduleTx.data,
+      moduleTx.operation
+    );
+    emit Executed(
+      moduleTx.to,
+      moduleTx.value,
+      moduleTx.data,
+      moduleTx.operation,
+      success
+    );
+  }
+
+  function execTransactionFromModuleReturnDataSigned(
+    ModuleTx memory moduleTx,
+    bytes32 salt,
+    bytes calldata signature
+  )
+    public
+    moduleOnlySigned(moduleTx, salt, signature)
+    returns (bool, bytes memory)
+  {
+    return _execTransactionFromModuleReturnDataSigned(moduleTx);
+  }
+
+  function _execTransactionFromModuleReturnDataSigned(
+    ModuleTx memory moduleTx
+  ) private returns (bool, bytes memory) {
+    (bool success, bytes memory returnData) = execAndReturnData(
+      moduleTx.to,
+      moduleTx.value,
+      moduleTx.data,
+      moduleTx.operation
+    );
+    emit ExecutedAndReturnedData(
+      moduleTx.to,
+      moduleTx.value,
+      moduleTx.data,
+      moduleTx.operation,
+      returnData,
+      success
+    );
+    return (success, returnData);
+  }
+
   function setUp(bytes memory initializeParams) public override initializer {
     (address _avatar, address _target) = abi.decode(
       initializeParams,
@@ -79,6 +137,38 @@ contract TestModifier is Modifier {
   }
 
   function exposeSentOrSignedByModule() external view returns (address) {
+    return sentOrSignedByModule();
+  }
+
+  function exposeSentOrSignedByModuleDirect()
+    external
+    moduleOnly
+    returns (address)
+  {
+    return sentOrSignedByModule();
+  }
+
+  function exposeNestedSentOrSignedByModuleDirect()
+    external
+    moduleOnly
+    returns (address)
+  {
+    return _exposeSentOrSignedByModuleDirect();
+  }
+
+  function _exposeSentOrSignedByModuleDirect()
+    internal
+    moduleOnly
+    returns (address)
+  {
+    return sentOrSignedByModule();
+  }
+
+  function exposeSentOrSignedByModuleSigned(
+    ModuleTx memory moduleTx,
+    bytes32 salt,
+    bytes calldata signature
+  ) external moduleOnlySigned(moduleTx, salt, signature) returns (address) {
     return sentOrSignedByModule();
   }
 

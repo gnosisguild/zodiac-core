@@ -65,6 +65,64 @@ contract TestGuardableModifier is GuardableModifier {
     );
   }
 
+  function execTransactionFromModuleSigned(
+    ModuleTx memory moduleTx,
+    bytes32 salt,
+    bytes calldata signature
+  ) public moduleOnlySigned(moduleTx, salt, signature) returns (bool success) {
+    success = _execTransactionFromModuleSigned(moduleTx);
+  }
+
+  function _execTransactionFromModuleSigned(
+    ModuleTx memory moduleTx
+  ) private returns (bool success) {
+    success = exec(
+      moduleTx.to,
+      moduleTx.value,
+      moduleTx.data,
+      moduleTx.operation
+    );
+    emit Executed(
+      moduleTx.to,
+      moduleTx.value,
+      moduleTx.data,
+      moduleTx.operation,
+      success
+    );
+  }
+
+  function execTransactionFromModuleReturnDataSigned(
+    ModuleTx memory moduleTx,
+    bytes32 salt,
+    bytes calldata signature
+  )
+    public
+    moduleOnlySigned(moduleTx, salt, signature)
+    returns (bool, bytes memory)
+  {
+    return _execTransactionFromModuleReturnDataSigned(moduleTx);
+  }
+
+  function _execTransactionFromModuleReturnDataSigned(
+    ModuleTx memory moduleTx
+  ) private returns (bool, bytes memory) {
+    (bool success, bytes memory returnData) = execAndReturnData(
+      moduleTx.to,
+      moduleTx.value,
+      moduleTx.data,
+      moduleTx.operation
+    );
+    emit ExecutedAndReturnedData(
+      moduleTx.to,
+      moduleTx.value,
+      moduleTx.data,
+      moduleTx.operation,
+      returnData,
+      success
+    );
+    return (success, returnData);
+  }
+
   function setUp(bytes memory initializeParams) public override initializer {
     setupModules();
     _transferOwnership(msg.sender);

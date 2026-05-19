@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-only
-pragma solidity >=0.8.0;
+pragma solidity ^0.8.28;
 
 import "../signature/SignatureChecker.sol";
 
@@ -26,8 +26,9 @@ contract ContractSignerMaybe is IERC1271 {
     bytes32,
     bytes memory contractSpecificSignature
   ) external pure override returns (bytes4) {
-    bool isValid = contractSpecificSignature.length == 6 &&
-      bytes6(contractSpecificSignature) == 0x001122334455;
+    bool isValid =
+      contractSpecificSignature.length == 6 &&
+        bytes6(contractSpecificSignature) == 0x001122334455;
 
     return isValid ? bytes4(0x1626ba7e) : bytes4(0x33333333);
   }
@@ -55,17 +56,21 @@ contract ContractSignerReturnSize {
 }
 
 contract TestSignature is SignatureChecker {
-  event Hello(address signer);
+  event Recovered(address signer);
 
-  event Goodbye(address signer);
-
-  function hello() public {
-    (, address signer) = moduleTxSignedBy();
-    emit Hello(signer);
-  }
-
-  function goodbye(uint256, bytes memory) public {
-    (, address signer) = moduleTxSignedBy();
-    emit Goodbye(signer);
+  function check(
+    address to,
+    uint256 value,
+    bytes calldata data,
+    Operation operation,
+    bytes32 salt,
+    bytes calldata signature
+  ) public {
+    (address signer, ) = moduleTxSignedBy(
+      ModuleTx(to, value, data, operation),
+      salt,
+      signature
+    );
+    emit Recovered(signer);
   }
 }

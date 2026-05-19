@@ -1,7 +1,7 @@
 import { AbiCoder } from "ethers";
 
-import { sourcePathFromSourceCode } from "./getBuildArtifact";
-import { resolveApiUrl } from "./etherscanApiUrl";
+import { sourcePathFromSourceCode } from "./getBuildArtifact.ts";
+import { resolveApiUrl } from "./etherscanApiUrl.ts";
 
 /**
  * Verifies the contract on a blockchain explorer using the provided API.

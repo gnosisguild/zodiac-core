@@ -1,19 +1,19 @@
 // encoding
-import encodeDeployProxy from "./encoding/encodeDeployProxy";
-import predictProxyAddress from "./encoding/predictProxyAddress";
-import encodeDeploySingleton from "./encoding/encodeDeploySingleton";
-import predictSingletonAddress from "./encoding/predictSingletonAddress";
+import encodeDeployProxy from "./encoding/encodeDeployProxy.ts";
+import predictProxyAddress from "./encoding/predictProxyAddress.ts";
+import encodeDeploySingleton from "./encoding/encodeDeploySingleton.ts";
+import predictSingletonAddress from "./encoding/predictSingletonAddress.ts";
 
 // tooling
-import deployFactories from "./tooling/deployFactories";
-import deployMastercopy from "./tooling/deployMastercopy";
-import deployProxy from "./tooling/deployProxy";
-import verifyMastercopy from "./tooling/verifyMastercopy";
+import deployFactories from "./tooling/deployFactories.ts";
+import deployMastercopy from "./tooling/deployMastercopy.ts";
+import deployProxy from "./tooling/deployProxy.ts";
+import verifyMastercopy from "./tooling/verifyMastercopy.ts";
 
 // artifact
-import readMastercopies from "./artifact/readMastercopies";
-import writeMastercopyFromBuild from "./artifact/writeMastercopyFromBuild";
-import writeMastercopyFromExplorer from "./artifact/writeMastercopyFromExplorer";
+import readMastercopies from "./artifact/readMastercopies.ts";
+import writeMastercopyFromBuild from "./artifact/writeMastercopyFromBuild.ts";
+import writeMastercopyFromExplorer from "./artifact/writeMastercopyFromExplorer.ts";
 
 export {
   // encoding
@@ -34,6 +34,6 @@ export {
   writeMastercopyFromExplorer,
 };
 
-import type { EIP1193Provider } from "./types";
+import type { EIP1193Provider } from "./types.ts";
 
 export type { EIP1193Provider };

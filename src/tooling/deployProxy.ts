@@ -1,8 +1,8 @@
-import populateDeployProxy from "../encoding/encodeDeployProxy";
-import predictProxyAddress from "../encoding/predictProxyAddress";
-import waitForTransaction from "./waitForTransaction";
+import populateDeployProxy from "../encoding/encodeDeployProxy.ts";
+import predictProxyAddress from "../encoding/predictProxyAddress.ts";
+import waitForTransaction from "./waitForTransaction.ts";
 
-import { EIP1193Provider } from "../types";
+import { EIP1193Provider } from "../types.ts";
 
 /**
  * Deploys a Mod instance as a MinimalProxy via ZodiacModProxyFactory

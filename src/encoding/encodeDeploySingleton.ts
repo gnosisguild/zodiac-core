@@ -1,8 +1,8 @@
 import { getAddress } from "ethers";
-import encodeDeployViaNickFactory from "./encodeDeployViaNickFactory";
-import encodeDeployVia2470Factory from "./encodeDeployVia2470Factory";
-import { address as nickFactoryAddress } from "../factory/nickFactory";
-import { address as erc2470FactoryAddress } from "../factory/erc2470Factory";
+import encodeDeployViaNickFactory from "./encodeDeployViaNickFactory.ts";
+import encodeDeployVia2470Factory from "./encodeDeployVia2470Factory.ts";
+import { address as nickFactoryAddress } from "../factory/nickFactory.ts";
+import { address as erc2470FactoryAddress } from "../factory/erc2470Factory.ts";
 
 /**
  * Encodes the transaction payload for deploying a singleton contract using the specified factory address.
