@@ -5,19 +5,13 @@
   "author": "Auryn Macmillan <auryn@gnosisguild.org>",
   "license": "LGPL-3.0+",
   "type": "module",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "./dist/cjs/index.d.ts",
+  "main": "./dist/esm/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/esm/index.d.ts",
-        "default": "./dist/esm/index.js"
-      },
-      "require": {
-        "types": "./dist/cjs/index.d.ts",
-        "default": "./dist/cjs/index.js"
-      }
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js"
     }
   },
   "engines": {
@@ -31,10 +25,7 @@
     "contracts"
   ],
   "scripts": {
-    "build": "yarn build:contracts && yarn build:cjs && yarn build:esm",
-    "build:contracts": "hardhat compile",
-    "build:cjs": "tsc -p tsconfig.cjs.json",
-    "build:esm": "tsc -p tsconfig.esm.json --emitDeclarationOnly && esbuild src/index.ts --bundle --format=esm --platform=node --target=es2020 --packages=external --outfile=dist/esm/index.js",
+    "build": "hardhat compile && tsc -p tsconfig.build.json",
     "clean": "rm -rf dist build typechain-types",
     "test": "hardhat test",
     "coverage": "hardhat --coverage test",
@@ -68,7 +59,6 @@
     "@types/node": "22.19.17",
     "@types/semver": "7.7.1",
     "chai": "6.2.2",
-    "esbuild": "~0.27.0",
     "hardhat": "3.4.4",
     "mocha": "11.7.5",
     "prettier": "3.8.3",

@@ -3,7 +3,7 @@ import path from "path";
 import { isAddress } from "ethers";
 import { readdirSync, readFileSync, statSync } from "fs";
 
-import { BuildArtifact, MastercopyArtifact } from "../../types";
+import { BuildArtifact, MastercopyArtifact } from "../../types.ts";
 
 /**
  * Retrieves the build artifact for a specified contract.

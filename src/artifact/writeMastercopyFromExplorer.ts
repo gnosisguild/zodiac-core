@@ -1,13 +1,13 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import semver from "semver";
 
-import { address as erc2470FactoryAddress } from "../factory/erc2470Factory";
-import predictSingletonAddress from "../encoding/predictSingletonAddress";
+import { address as erc2470FactoryAddress } from "../factory/erc2470Factory.ts";
+import predictSingletonAddress from "../encoding/predictSingletonAddress.ts";
 
-import { defaultMastercopyArtifactsFile } from "./internal/paths";
-import { getSourceCode } from "./internal/etherscan";
+import { defaultMastercopyArtifactsFile } from "./internal/paths.ts";
+import { getSourceCode } from "./internal/etherscan.ts";
 
-import { MastercopyArtifact } from "../types";
+import { MastercopyArtifact } from "../types.ts";
 
 /**
  * Extracts and stores the Mastercopy result from a contract deployed on the blockchain by querying an Etherscan-like explorer.

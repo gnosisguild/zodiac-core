@@ -1,7 +1,7 @@
 import assert from "assert";
 import { isAddress } from "ethers";
 
-import { BuildArtifact, MastercopyArtifact } from "../../types";
+import { BuildArtifact, MastercopyArtifact } from "../../types.ts";
 
 /**
  * Resolves library links in a build artifact

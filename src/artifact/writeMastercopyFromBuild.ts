@@ -1,17 +1,17 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import semver from "semver";
 
-import { address as erc2470FactoryAddress } from "../factory/erc2470Factory";
-import predictSingletonAddress from "../encoding/predictSingletonAddress";
+import { address as erc2470FactoryAddress } from "../factory/erc2470Factory.ts";
+import predictSingletonAddress from "../encoding/predictSingletonAddress.ts";
 
 import {
   defaultBuildDir,
   defaultMastercopyArtifactsFile,
-} from "./internal/paths";
-import getBuildArtifact from "./internal/getBuildArtifact";
-import linkBuildArtifact from "./internal/linkBuildArtifact";
+} from "./internal/paths.ts";
+import getBuildArtifact from "./internal/getBuildArtifact.ts";
+import linkBuildArtifact from "./internal/linkBuildArtifact.ts";
 
-import { MastercopyArtifact } from "../types";
+import { MastercopyArtifact } from "../types.ts";
 
 /**
  * Extracts and stores current Mastercopy result from current contract build, and stores it in the artifacts file.

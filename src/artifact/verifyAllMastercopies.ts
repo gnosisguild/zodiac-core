@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "fs";
 
-import { defaultMastercopyArtifactsFile } from "./internal/paths";
-import { verifySourceCode } from "./internal/etherscan";
+import { defaultMastercopyArtifactsFile } from "./internal/paths.ts";
+import { verifySourceCode } from "./internal/etherscan.ts";
 
-import { MastercopyArtifact } from "../types";
+import { MastercopyArtifact } from "../types.ts";
 
 /**
  * Iterates through each entry in the mastercopy artifacts file and verifies the mastercopy on an Etherscan-compatible block explorer.
