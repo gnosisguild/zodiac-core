@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 
 /// @title Zodiac Avatar - A contract that manages modules that can execute transactions via this contract.
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity ^0.8.24;
 
 import "../core/Operation.sol";
 
