@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-only
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity ^0.8.24;
 
 import {Operation} from "../core/Operation.sol";
 import {IERC1271} from "./IERC1271.sol";
