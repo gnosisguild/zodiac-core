@@ -12,7 +12,8 @@
     ".": {
       "types": "./dist/esm/index.d.ts",
       "import": "./dist/esm/index.js"
-    }
+    },
+    "./contracts/*": "./contracts/*"
   },
   "engines": {
     "node": ">=22.10.0"
