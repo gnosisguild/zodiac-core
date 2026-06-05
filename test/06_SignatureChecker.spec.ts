@@ -445,6 +445,37 @@ describe("SignatureChecker", async () => {
     });
 
     /**
+     * Tests that a signer which reverts with the EIP-1271 magic value fails.
+     * Verifies that reverted return data is not accepted as a valid signature.
+     */
+    it("signer reverts with magic value and revert call", async () => {
+      const { testSignature, relayer } = await loadFixture(setup);
+
+      const Signer = await hre.ethers.getContractFactory(
+        "ContractSignerRevertsWithMagic"
+      );
+      const signer = await Signer.deploy();
+
+      const transaction = await testSignature.hello.populateTransaction();
+
+      const signature = makeContractSignature(
+        transaction,
+        "0xaabbccddeeff",
+        keccak256(toUtf8Bytes("salt")),
+        await signer.getAddress()
+      );
+
+      const transactionWithSig = {
+        ...transaction,
+        data: `${transaction.data}${signature.slice(2)}`,
+      };
+
+      await expect(await relayer.sendTransaction(transactionWithSig))
+        .to.emit(testSignature, "Hello")
+        .withArgs(AddressZero);
+    });
+
+    /**
      * Tests that a signer with a faulty entrypoint fails.
      * Verifies that the transaction emits the expected event based on the signature's validity.
      */

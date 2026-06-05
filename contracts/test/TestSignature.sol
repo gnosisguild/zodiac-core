@@ -54,6 +54,18 @@ contract ContractSignerReturnSize {
   }
 }
 
+contract ContractSignerRevertsWithMagic is IERC1271 {
+  function isValidSignature(
+    bytes32,
+    bytes memory
+  ) external pure override returns (bytes4) {
+    assembly {
+      mstore(0, shl(224, 0x1626ba7e))
+      revert(0, 4)
+    }
+  }
+}
+
 contract TestSignature is SignatureChecker {
   event Hello(address signer);
 
