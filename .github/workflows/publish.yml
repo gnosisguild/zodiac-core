@@ -32,7 +32,20 @@ jobs:
           scope: "@gnosis-guild"
       - run: yarn
       - run: yarn build
-      - run: npm publish --access public --non-interactive
+      - name: Publish to npm
+        run: |
+          # If the release is marked as latest on GitHub, omit the npm tag and
+          # let npm default to latest. Otherwise publish under the major version
+          # line, for example v-3.
+          latest_tag="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq .tag_name 2>/dev/null || true)"
+
+          if [ "$GITHUB_REF_NAME" = "$latest_tag" ]; then
+            npm publish --access public --non-interactive
+          else
+            major="$(echo "$GITHUB_REF_NAME" | sed -E 's/^v?([0-9]+).*/\1/')"
+            npm publish --access public --tag "v-${major}" --non-interactive
+          fi
         env:
+          GH_TOKEN: ${{ github.token }}
           NPM_AUTH_TOKEN: ${{secrets.PUBLISH_NPM_TOKEN}}
           NODE_AUTH_TOKEN: ${{secrets.PUBLISH_NPM_TOKEN}}
