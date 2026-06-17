@@ -1,6 +1,6 @@
 import { AbiCoder, concat, TransactionRequest } from "ethers";
-import { address as factoryAddress } from "../factory/nickFactory.ts";
-import { Create2Args } from "../types.ts";
+import { address as factoryAddress } from "../factory/nickFactory.js";
+import { Create2Args } from "../types.js";
 
 /**
  * Encodes the transaction request for deploying a Singleton via Nick factory.
