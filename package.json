@@ -28,7 +28,8 @@
     "contracts"
   ],
   "scripts": {
-    "build": "hardhat compile && tsc -p tsconfig.build.json && tsc -p tsconfig.cjs.json && node scripts/postbuild.mjs",
+    "build": "hardhat compile && tsc -p tsconfig.build.json && tsc -p tsconfig.cjs.json",
+    "postbuild": "node postbuild.mjs",
     "clean": "rm -rf dist build typechain-types",
     "test": "hardhat test",
     "coverage": "hardhat --coverage test",
