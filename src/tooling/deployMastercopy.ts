@@ -1,13 +1,13 @@
-import { address as erc2470FactoryAddress } from "../factory/erc2470Factory.ts";
+import { address as erc2470FactoryAddress } from "../factory/erc2470Factory.js";
 
-import encodeDeploySingleton from "../encoding/encodeDeploySingleton.ts";
+import encodeDeploySingleton from "../encoding/encodeDeploySingleton.js";
 import predictSingletonAddress, {
   creationBytecode,
-} from "../encoding/predictSingletonAddress.ts";
+} from "../encoding/predictSingletonAddress.js";
 
-import waitForTransaction from "./waitForTransaction.ts";
+import waitForTransaction from "./waitForTransaction.js";
 
-import { Create2Args, EIP1193Provider } from "../types.ts";
+import { Create2Args, EIP1193Provider } from "../types.js";
 
 /**
  * Deploys a Mastercopy via a SingletonFactory

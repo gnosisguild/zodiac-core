@@ -3,7 +3,7 @@ import { AbiCoder, BigNumberish, Interface, TransactionRequest } from "ethers";
 import {
   address as factoryAddress,
   iface as factoryIFace,
-} from "../factory/proxyFactory.ts";
+} from "../factory/proxyFactory.js";
 
 /**
  * Encodes the transaction payload for deploying a Mod instance.

@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "module": "preserve",
     "moduleResolution": "bundler",

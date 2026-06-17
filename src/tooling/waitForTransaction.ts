@@ -1,4 +1,4 @@
-import { EIP1193Provider } from "../types.ts";
+import { EIP1193Provider } from "../types.js";
 
 /**
  * Waits for a transaction to be mined and returns the transaction receipt.

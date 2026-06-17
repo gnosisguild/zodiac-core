@@ -1,6 +1,6 @@
 import { AbiCoder, concat, getCreate2Address, keccak256 } from "ethers";
-import { address as erc2470FactoryAddress } from "../factory/erc2470Factory.ts";
-import { Create2Args } from "../types.ts";
+import { address as erc2470FactoryAddress } from "../factory/erc2470Factory.js";
+import { Create2Args } from "../types.js";
 
 /**
  * Predicts the address of a proxy contract deployed via SingletonFactory.

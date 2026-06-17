@@ -1,5 +1,5 @@
-import { MastercopyArtifact } from "../types.ts";
-import { verifySourceCode } from "../artifact/internal/etherscan.ts";
+import { MastercopyArtifact } from "../types.js";
+import { verifySourceCode } from "../artifact/internal/etherscan.js";
 
 /**
  * Pauses the execution for a specified amount of time.
