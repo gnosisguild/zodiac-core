@@ -8,16 +8,14 @@ import deployProxy from "./tooling/deployProxy.js";
 import verifyMastercopy from "./tooling/verifyMastercopy.js";
 
 // artifact
-import readMastercopies from "./artifact/readMastercopies.js";
+import readMastercopy from "./artifact/readMastercopy.js";
 import writeMastercopyFromBuild from "./artifact/writeMastercopyFromBuild.js";
-import writeMastercopyFromExplorer from "./artifact/writeMastercopyFromExplorer.js";
 
 export {
   deployFactories,
   deployMastercopy,
   deployProxy,
-  readMastercopies,
+  readMastercopy,
   verifyMastercopy,
   writeMastercopyFromBuild,
-  writeMastercopyFromExplorer,
 };

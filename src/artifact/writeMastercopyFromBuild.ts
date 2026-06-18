@@ -1,20 +1,18 @@
-import { existsSync, readFileSync, writeFileSync } from "fs";
-import semver from "semver";
+import { existsSync, writeFileSync } from "fs";
 
 import { address as erc2470FactoryAddress } from "../factory/erc2470Factory.js";
 import predictSingletonAddress from "../encoding/predictSingletonAddress.js";
 
-import {
-  defaultBuildDir,
-  defaultMastercopyArtifactsFile,
-} from "./internal/paths.js";
+import { defaultBuildDir, defaultMastercopyFile } from "./internal/paths.js";
 import getBuildArtifact from "./internal/getBuildArtifact.js";
-import linkBuildArtifact from "./internal/linkBuildArtifact.js";
+import linkBuildArtifact, {
+  LibraryLinks,
+} from "./internal/linkBuildArtifact.js";
 
 import { MastercopyArtifact } from "./types.js";
 
 /**
- * Extracts and stores current Mastercopy result from current contract build, and stores it in the artifacts file.
+ * Extracts and stores one Mastercopy artifact from the current contract build.
  *
  * It is recommended to provide `compilerInput`, as the internal code will include all generated sources in the verification, rather than just the sources reached by the current contract through graph traversal.
  *
@@ -27,8 +25,9 @@ import { MastercopyArtifact } from "./types.js";
  * @param {string} params.salt - A 32-byte value used for mastercopy deployment.
  * @param {string} [params.factory=erc2470FactoryAddress] - The address of the factory contract used to deploy the mastercopy. Optional.
  * @param {any} [params.compilerInput] - The minimal compiler input. Optional.
+ * @param {Record<string, string> | MastercopyArtifact[]} [params.libraries] - Library addresses or artifacts used to link the build artifact. Optional.
  * @param {string} [params.buildDirPath=defaultBuildDir()] - The path to the build directory. Optional.
- * @param {string} [params.mastercopyArtifactsFile=defaultMastercopyArtifactsFile()] - The path to the mastercopy artifacts file. Optional.
+ * @param {string} [params.mastercopyFile=defaultMastercopyFile()] - The path to the mastercopy artifact file. Optional.
  */
 export default function writeMastercopyFromBuild({
   contractVersion,
@@ -37,8 +36,9 @@ export default function writeMastercopyFromBuild({
   factory = erc2470FactoryAddress,
   constructorArgs,
   salt,
+  libraries,
   buildDirPath = defaultBuildDir(),
-  mastercopyArtifactsFile = defaultMastercopyArtifactsFile(),
+  mastercopyFile = defaultMastercopyFile(),
 }: {
   contractVersion: string;
   contractName: string;
@@ -46,24 +46,23 @@ export default function writeMastercopyFromBuild({
   constructorArgs: { types: any[]; values: any[] };
   salt: string;
   compilerInput?: any;
+  libraries?: LibraryLinks;
   buildDirPath?: string;
-  mastercopyArtifactsFile?: string;
+  mastercopyFile?: string;
 }): MastercopyArtifact {
   const buildArtifact = getBuildArtifact(contractName, buildDirPath);
 
-  const mastercopies = existsSync(mastercopyArtifactsFile)
-    ? JSON.parse(readFileSync(mastercopyArtifactsFile, "utf8"))
-    : {};
-
-  if (mastercopies[contractVersion]) {
-    console.warn(`Warning: overriding artifact for ${contractVersion}`);
+  if (existsSync(mastercopyFile)) {
+    console.warn(
+      `Warning: overriding mastercopy artifact at ${mastercopyFile}`
+    );
   }
 
   const artifact = linkBuildArtifact({
     artifact: buildArtifact,
     contractVersion,
     minimalCompilerInput,
-    mastercopies,
+    libraries,
   });
 
   const mastercopyArtifact: MastercopyArtifact = {
@@ -85,30 +84,9 @@ export default function writeMastercopyFromBuild({
     compilerInput: artifact.compilerInput,
   };
 
-  const nextMastercopies = {
-    ...mastercopies,
-    [contractName]: {
-      ...(mastercopies[contractName] || {}),
-      [contractVersion]: mastercopyArtifact,
-    },
-  };
-
-  let sortedMastercopies: Record<
-    string,
-    Record<string, MastercopyArtifact>
-  > = {};
-
-  for (const name of Object.keys(nextMastercopies)) {
-    sortedMastercopies[name] = {};
-    const versions = semver.sort(Object.keys(nextMastercopies[name]));
-    for (const version of versions) {
-      sortedMastercopies[name][version] = nextMastercopies[name][version];
-    }
-  }
-
   writeFileSync(
-    mastercopyArtifactsFile,
-    JSON.stringify(sortedMastercopies, null, 2),
+    mastercopyFile,
+    JSON.stringify(mastercopyArtifact, null, 2),
     "utf8"
   );
 

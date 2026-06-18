@@ -3,6 +3,8 @@ import { isAddress } from "ethers";
 
 import { BuildArtifact, MastercopyArtifact } from "../types.js";
 
+export type LibraryLinks = Record<string, string> | MastercopyArtifact[];
+
 /**
  * Resolves library links in a build artifact
  *
@@ -11,19 +13,19 @@ export default function linkBuildArtifact({
   artifact,
   contractVersion,
   minimalCompilerInput,
-  mastercopies,
+  libraries,
 }: {
   artifact: BuildArtifact;
   contractVersion: string;
   minimalCompilerInput?: string;
-  mastercopies: Record<string, Record<string, MastercopyArtifact>>;
+  libraries?: LibraryLinks;
 }): BuildArtifact {
-  const bytecode = linkBytecode(artifact, contractVersion, mastercopies);
+  const libraryAddresses = normalizeLibraryLinks(libraries, contractVersion);
+  const bytecode = linkBytecode(artifact, libraryAddresses);
   const compilerInput = linkCompilerInput(
     artifact,
-    contractVersion,
     minimalCompilerInput || artifact.compilerInput,
-    mastercopies
+    libraryAddresses
   );
 
   return {
@@ -49,8 +51,7 @@ export default function linkBuildArtifact({
  */
 function linkBytecode(
   artifact: BuildArtifact,
-  contractVersion: string,
-  mastercopies: Record<string, Record<string, MastercopyArtifact>>
+  libraryAddresses: Record<string, string>
 ): string {
   let bytecode = artifact.bytecode;
 
@@ -60,17 +61,13 @@ function linkBytecode(
     )) {
       console.log(`libraryPath ${libraryPath} libraryName ${libraryName}`);
 
-      if (
-        !mastercopies[libraryName] ||
-        !mastercopies[libraryName][contractVersion]
-      ) {
+      const libraryAddress = libraryAddresses[libraryName];
+
+      if (!libraryAddress) {
         throw new Error(
           `Could not link ${libraryName} for ${artifact.contractName}`
         );
       }
-
-      let { address: libraryAddress } =
-        mastercopies[libraryName][contractVersion];
 
       assert(isAddress(libraryAddress));
 
@@ -97,17 +94,15 @@ function linkBytecode(
 
 function linkCompilerInput(
   artifact: BuildArtifact,
-  contractVersion: string,
   compilerInput: any,
-  mastercopies: Record<string, Record<string, MastercopyArtifact>>
+  libraryAddresses: Record<string, string>
 ): any {
   const result = { ...compilerInput };
   for (const libraryPath of Object.keys(artifact.linkReferences)) {
     for (const libraryName of Object.keys(
       artifact.linkReferences[libraryPath]
     )) {
-      const libraryAddress =
-        mastercopies[libraryName]?.[contractVersion]?.address;
+      const libraryAddress = libraryAddresses[libraryName];
       if (!libraryAddress) {
         continue;
       }
@@ -125,4 +120,20 @@ function linkCompilerInput(
   }
 
   return result;
+}
+
+function normalizeLibraryLinks(
+  libraries: LibraryLinks = {},
+  contractVersion: string
+): Record<string, string> {
+  if (Array.isArray(libraries)) {
+    return libraries.reduce<Record<string, string>>((result, artifact) => {
+      if (artifact.contractVersion === contractVersion) {
+        result[artifact.contractName] = artifact.address;
+      }
+      return result;
+    }, {});
+  }
+
+  return libraries;
 }

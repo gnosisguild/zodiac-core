@@ -2,12 +2,12 @@ import path from "path";
 import { cwd } from "process";
 
 /**
- * Returns the default path to the mastercopy artifacts file.
+ * Returns the default path to the mastercopy artifact file.
  *
- * @returns {string} The absolute path to the mastercopy artifacts file.
+ * @returns {string} The absolute path to the mastercopy artifact file.
  */
-export function defaultMastercopyArtifactsFile() {
-  return path.join(cwd(), "mastercopies.json");
+export function defaultMastercopyFile() {
+  return path.join(cwd(), "mastercopy.json");
 }
 
 /**
