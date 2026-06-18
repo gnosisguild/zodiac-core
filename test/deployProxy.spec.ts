@@ -4,12 +4,8 @@ import { network } from "hardhat";
 
 import createEIP1193 from "./createEIP1193";
 
-import {
-  deployFactories,
-  deployMastercopy,
-  deployProxy,
-  predictProxyAddress,
-} from "../src/index";
+import { deployFactories, deployMastercopy, deployProxy } from "../src/tooling";
+import { predictProxyAddress } from "../src/index";
 
 const connection = await network.create();
 const { ethers, networkHelpers, provider: hardhatProvider } = connection;

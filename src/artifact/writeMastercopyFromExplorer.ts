@@ -7,7 +7,7 @@ import predictSingletonAddress from "../encoding/predictSingletonAddress.js";
 import { defaultMastercopyArtifactsFile } from "./internal/paths.js";
 import { getSourceCode } from "./internal/etherscan.js";
 
-import { MastercopyArtifact } from "../types.js";
+import { MastercopyArtifact } from "./types.js";
 
 /**
  * Extracts and stores the Mastercopy result from a contract deployed on the blockchain by querying an Etherscan-like explorer.

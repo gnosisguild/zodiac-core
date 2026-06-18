@@ -6,7 +6,7 @@ import { address as erc2470FactoryAddress } from "../src/factory/erc2470Factory"
 import { address as moduleFactoryAddress } from "../src/factory/proxyFactory";
 import { address as nickFactoryAddress } from "../src/factory/nickFactory";
 
-import { deployFactories } from "../src/index";
+import { deployFactories } from "../src/tooling";
 
 import createEIP1193 from "./createEIP1193";
 

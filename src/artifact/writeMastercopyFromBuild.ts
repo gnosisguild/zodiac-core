@@ -11,7 +11,7 @@ import {
 import getBuildArtifact from "./internal/getBuildArtifact.js";
 import linkBuildArtifact from "./internal/linkBuildArtifact.js";
 
-import { MastercopyArtifact } from "../types.js";
+import { MastercopyArtifact } from "./types.js";
 
 /**
  * Extracts and stores current Mastercopy result from current contract build, and stores it in the artifacts file.

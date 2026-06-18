@@ -3,7 +3,7 @@ import semver from "semver";
 import { existsSync, readFileSync } from "fs";
 
 import { defaultMastercopyArtifactsFile } from "./internal/paths.js";
-import { MastercopyArtifact } from "../types.js";
+import { MastercopyArtifact } from "./types.js";
 
 /**
  * Extracts and returns Mastercopy artifact information from the specified artifacts file.
