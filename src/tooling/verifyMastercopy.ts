@@ -1,4 +1,4 @@
-import { MastercopyArtifact } from "../types.js";
+import { MastercopyArtifact } from "../artifact/types.js";
 import { verifySourceCode } from "../artifact/internal/etherscan.js";
 
 /**

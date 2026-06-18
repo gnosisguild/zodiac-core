@@ -4,7 +4,7 @@ import { network } from "hardhat";
 
 import predictSingletonAddress from "../src/encoding/predictSingletonAddress";
 
-import { deployFactories, deployMastercopy } from "../src/index";
+import { deployFactories, deployMastercopy } from "../src/tooling";
 import createEIP1193 from "./createEIP1193";
 
 const connection = await network.create();

@@ -1,6 +1,6 @@
 {
   "name": "@gnosis-guild/zodiac-core",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "Zodiac is a composable design philosophy and collection of standards for building DAO ecosystem tooling.",
   "author": "Auryn Macmillan <auryn@gnosisguild.org>",
   "license": "LGPL-3.0+",
@@ -8,11 +8,23 @@
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/esm/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "tooling": [
+        "dist/esm/tooling.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "types": "./dist/esm/index.d.ts",
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js"
+    },
+    "./tooling": {
+      "types": "./dist/esm/tooling.d.ts",
+      "import": "./dist/esm/tooling.js",
+      "require": "./dist/cjs/tooling.js"
     },
     "./contracts/*": "./contracts/*",
     "./package.json": "./package.json"
@@ -61,7 +73,6 @@
     "@types/chai": "5.2.3",
     "@types/mocha": "10.0.10",
     "@types/node": "22.19.17",
-    "@types/semver": "7.7.1",
     "chai": "6.2.2",
     "hardhat": "3.4.4",
     "mocha": "11.7.5",
@@ -70,8 +81,7 @@
     "typescript": "6.0.3"
   },
   "dependencies": {
-    "ethers": "6.16.0",
-    "semver": "7.7.4"
+    "ethers": "6.16.0"
   },
   "packageManager": "yarn@1.22.19+sha512.ff4579ab459bb25aa7c0ff75b62acebe576f6084b36aa842971cf250a5d8c6cd3bc9420b22ce63c7f93a0857bc6ef29291db39c3e7a23aab5adfd5a4dd6c5d71"
 }

@@ -1,9 +1,7 @@
-import assert from "assert";
 import path from "path";
-import { isAddress } from "ethers";
 import { readdirSync, readFileSync, statSync } from "fs";
 
-import { BuildArtifact, MastercopyArtifact } from "../../types.js";
+import { BuildArtifact } from "../types.js";
 
 /**
  * Retrieves the build artifact for a specified contract.
