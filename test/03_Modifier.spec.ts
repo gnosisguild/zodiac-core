@@ -6,6 +6,7 @@ import {
   AbiCoder,
   ZeroAddress,
   type Signer,
+  TypedDataEncoder,
 } from "ethers";
 
 import { network } from "hardhat";
@@ -952,6 +953,47 @@ describe("Modifier", () => {
       expect(await relayer.call(transactionWithSig)).to.equal(
         AbiCoder.defaultAbiCoder().encode(["address"], [alice.address])
       );
+    });
+
+    it("authenticates a modifier-defined EIP-712 digest", async () => {
+      const { modifier, alice } = await loadFixture(setupTests);
+      const [, , , relayer] = await ethers.getSigners();
+
+      await modifier.enableModule(alice.address);
+
+      const domain = {
+        chainId: 31337,
+        verifyingContract: await modifier.getAddress(),
+      };
+      const types = {
+        ScopedTx: [{ name: "scope", type: "bytes32" }],
+      };
+      const message = { scope: keccak256(toUtf8Bytes("scope")) };
+      const structHash = TypedDataEncoder.hashStruct(
+        "ScopedTx",
+        types,
+        message
+      );
+      const signature = await alice.signTypedData(domain, types, message);
+
+      expect(
+        await modifier
+          .connect(relayer)
+          .exposeSentOrSignedByModuleSignedStructHash.staticCall(
+            structHash,
+            signature
+          )
+      ).to.equal(alice.address);
+
+      await modifier
+        .connect(relayer)
+        .exposeSentOrSignedByModuleSignedStructHash(structHash, signature);
+
+      await expect(
+        modifier
+          .connect(relayer)
+          .exposeSentOrSignedByModuleSignedStructHash(structHash, signature)
+      ).to.be.revertedWithCustomError(modifier, "HashAlreadyConsumed");
     });
 
     /**

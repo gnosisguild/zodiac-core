@@ -2,6 +2,8 @@
 pragma solidity ^0.8.28;
 
 import "../signature/SignatureChecker.sol";
+import {Operation} from "../core/Operation.sol";
+import {ModuleTx, moduleTxStructHash} from "./TestTypedData.sol";
 
 contract ContractSignerYes is IERC1271 {
   function isValidSignature(
@@ -66,9 +68,10 @@ contract TestSignature is SignatureChecker {
     bytes32 salt,
     bytes calldata signature
   ) public {
-    (address signer, ) = moduleTxSignedBy(
-      ModuleTx(to, value, data, operation),
-      salt,
+    address signer = signedBy(
+      hashTypedData(
+        moduleTxStructHash(ModuleTx(to, value, data, operation), salt)
+      ),
       signature
     );
     emit Recovered(signer);
