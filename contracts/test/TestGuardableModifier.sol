@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "../core/GuardableModifier.sol";
+import {ModuleTx, moduleTxStructHash} from "./TestTypedData.sol";
 
 contract TestGuardableModifier is GuardableModifier {
   event Executed(
@@ -69,7 +70,11 @@ contract TestGuardableModifier is GuardableModifier {
     ModuleTx memory moduleTx,
     bytes32 salt,
     bytes calldata signature
-  ) public moduleOnlySigned(moduleTx, salt, signature) returns (bool success) {
+  )
+    public
+    moduleOnlySigned(moduleTxStructHash(moduleTx, salt), signature)
+    returns (bool success)
+  {
     success = _execTransactionFromModuleSigned(moduleTx);
   }
 
@@ -97,7 +102,7 @@ contract TestGuardableModifier is GuardableModifier {
     bytes calldata signature
   )
     public
-    moduleOnlySigned(moduleTx, salt, signature)
+    moduleOnlySigned(moduleTxStructHash(moduleTx, salt), signature)
     returns (bool, bytes memory)
   {
     return _execTransactionFromModuleReturnDataSigned(moduleTx);

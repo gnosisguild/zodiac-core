@@ -4,6 +4,7 @@
 pragma solidity ^0.8.24;
 
 import "../core/Modifier.sol";
+import {ModuleTx, moduleTxStructHash} from "./TestTypedData.sol";
 
 contract TestModifier is Modifier {
   event Executed(
@@ -71,7 +72,11 @@ contract TestModifier is Modifier {
     ModuleTx memory moduleTx,
     bytes32 salt,
     bytes calldata signature
-  ) public moduleOnlySigned(moduleTx, salt, signature) returns (bool success) {
+  )
+    public
+    moduleOnlySigned(moduleTxStructHash(moduleTx, salt), signature)
+    returns (bool success)
+  {
     success = _execTransactionFromModuleSigned(moduleTx);
   }
 
@@ -99,7 +104,7 @@ contract TestModifier is Modifier {
     bytes calldata signature
   )
     public
-    moduleOnlySigned(moduleTx, salt, signature)
+    moduleOnlySigned(moduleTxStructHash(moduleTx, salt), signature)
     returns (bool, bytes memory)
   {
     return _execTransactionFromModuleReturnDataSigned(moduleTx);
@@ -168,8 +173,26 @@ contract TestModifier is Modifier {
     ModuleTx memory moduleTx,
     bytes32 salt,
     bytes calldata signature
-  ) external moduleOnlySigned(moduleTx, salt, signature) returns (address) {
+  )
+    external
+    moduleOnlySigned(moduleTxStructHash(moduleTx, salt), signature)
+    returns (address)
+  {
     return sentOrSignedByModule();
+  }
+
+  function exposeSentOrSignedByModuleSignedStructHash(
+    bytes32 structHash,
+    bytes calldata signature
+  ) external moduleOnlySigned(structHash, signature) returns (address) {
+    return sentOrSignedByModule();
+  }
+
+  function moduleTxHash(
+    ModuleTx memory moduleTx,
+    bytes32 salt
+  ) external view returns (bytes32) {
+    return hashTypedData(moduleTxStructHash(moduleTx, salt));
   }
 
   function attemptToSetupModules() public {

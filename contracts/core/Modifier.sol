@@ -93,26 +93,20 @@ abstract contract Modifier is
     _authenticatedModule = address(0);
   }
 
-  /// @dev Authenticates a relayed call signed by an enabled module.
-  ///      The signed message is the EIP-712 ModuleTx struct over the call's
-  ///      (to, value, data, operation, salt). See SignatureChecker.
-  /// @param moduleTx Module transaction that was signed.
-  /// @param salt Salt value included in the signed ModuleTx.
-  /// @param signature Signature over the ModuleTx.
-  modifier moduleOnlySigned(
-    ModuleTx memory moduleTx,
-    bytes32 salt,
-    bytes calldata signature
-  ) {
+  /// @dev Authenticates a relayed call signed by an enabled module using EIP-712.
+  ///      The inheriting contract defines the typed message and supplies its struct
+  ///      hash. This contract applies its domain separator (chain ID and verifying
+  ///      contract) to produce the EIP-712 digest before verification.
+  /// @param structHash EIP-712 struct hash (`hashStruct(message)`) supplied by the
+  ///        inheriting contract.
+  /// @param signature Signature over the EIP-712 digest.
+  modifier moduleOnlySigned(bytes32 structHash, bytes calldata signature) {
     if (_authenticatedModule != address(0)) {
       revert AlreadyAuthenticated();
     }
 
-    (address signer, bytes32 hash) = moduleTxSignedBy(
-      moduleTx,
-      salt,
-      signature
-    );
+    bytes32 hash = hashTypedData(structHash);
+    address signer = signedBy(hash, signature);
     if (signer == address(0) || modules[signer] == address(0)) {
       revert NotAuthorized(msg.sender);
     }
