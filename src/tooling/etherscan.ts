@@ -1,8 +1,5 @@
 import { AbiCoder } from "ethers";
 
-import { sourcePathFromSourceCode } from "./getBuildArtifact.js";
-import { resolveApiUrl } from "./etherscanApiUrl.js";
-
 /**
  * Verifies the contract on a blockchain explorer using the provided API.
  *
@@ -10,11 +7,11 @@ import { resolveApiUrl } from "./etherscanApiUrl.js";
  * @param {string} params.contractName - The name of the contract.
  * @param {string} params.sourceName - The source name of the contract.
  * @param {string} params.compilerVersion - The version of the compiler used.
- * @param {string} params.compilerInput - The compiler input in JSON format.
+ * @param {Object} params.compilerInput - The compiler input in standard JSON format.
  * @param {string} params.address - The address of the deployed contract.
  * @param {Object} params.constructorArgs - The constructor arguments of the contract.
- * @param {any[]} params.constructorArgs.types - The types of the constructor arguments.
- * @param {any[]} params.constructorArgs.values - The values of the constructor arguments.
+ * @param {string[]} params.constructorArgs.types - The types of the constructor arguments.
+ * @param {unknown[]} params.constructorArgs.values - The values of the constructor arguments.
  * @param {number} chainId - The chain ID.
  * @param {string} apiKey - The API key for the blockchain explorer.
  * @param {string} [apiUrl] - Optional custom API URL. If not provided, will use the default for the chain.
@@ -36,9 +33,12 @@ export async function verifySourceCode({
   contractName: string;
   sourceName: string;
   compilerVersion: string;
-  compilerInput: string;
+  compilerInput: unknown;
   address: string;
-  constructorArgs: { types: any[]; values: any[] };
+  constructorArgs: {
+    types: readonly string[];
+    values: readonly unknown[];
+  };
   chainId: number;
   apiKey: string;
   apiUrl?: string;
@@ -92,72 +92,6 @@ export async function verifySourceCode({
 
   return {
     noop: false,
-  };
-}
-
-export async function getSourceCode({
-  address,
-  chainId,
-  apiKey,
-  apiUrl,
-}: {
-  address: string;
-  chainId: number;
-  apiKey: string;
-  apiUrl?: string;
-}) {
-  const url = resolveApiUrl(chainId, apiUrl);
-
-  if (!(await isLiveUrl(url))) {
-    throw new Error(`Couldn't reach ${url}`);
-  }
-
-  if (!(await isValidApiKey({ url, apiKey, chainId }))) {
-    throw new Error(`Invalid Api Key`);
-  }
-
-  const parameters = new URLSearchParams({
-    chainid: chainId.toString(),
-    apikey: apiKey,
-    module: "contract",
-    action: "getsourcecode",
-    address,
-  });
-
-  const urlWithParams = new URL(url);
-  urlWithParams.search = parameters.toString();
-
-  const response = await fetch(urlWithParams, {
-    method: "GET",
-  });
-
-  const { status, message, result } = (await response.json()) as {
-    status: number;
-    message: string;
-    result: any;
-  };
-
-  if (!isOk(status)) {
-    throw new Error(`Retrieve Error: ${status} ${message}`);
-  }
-
-  const abi = safeJsonParse(result[0].ABI);
-  const compilerInput = safeJsonParse(result[0].SourceCode) as any;
-  const contractName = result[0].ContractName as string;
-  const sourceName = sourcePathFromSourceCode(compilerInput, contractName);
-
-  if (!sourceName) {
-    throw new Error(
-      `Could not find a sourceName for contractName ${contractName}`
-    );
-  }
-
-  return {
-    compilerInput,
-    compilerVersion: result[0].CompilerVersion,
-    contractName,
-    sourceName,
-    abi,
   };
 }
 
@@ -275,20 +209,28 @@ function isOk(status: number): boolean {
   return String(status) === "1";
 }
 
-/**
- * Parses a JSON string, handling cases where the string may be
- * improperly wrapped with extra braces `{}`.
- *
- * If the JSON is valid, it will be parsed directly.
- *
- */
-function safeJsonParse(input: string): any {
-  input = input.trim();
+const apiUrls: Record<number, string | undefined> = {
+  [77]: "https://blockscout.com/poa/sokol/api",
+  [128]: "https://api.hecoinfo.com/api",
+  [250]: "https://api.ftmscan.com/api",
+  [256]: "https://api-testnet.hecoinfo.com/api",
+  [1135]: "https://blockscout.lisk.com/api",
+  [10200]: "https://gnosis-chiado.blockscout.com/api",
+  [43113]: "https://api-testnet.snowtrace.io/api",
+  [60808]: "https://explorer.gobob.xyz/api",
+  [80001]: "https://api-testnet.polygonscan.com/api",
+  [80002]: "https://api-amoy.polygonscan.com/api",
+  [808813]: "https://bob-sepolia.explorer.gobob.xyz/api",
+  [1313161554]: "https://explorer.mainnet.aurora.dev/api",
+  [1313161555]: "https://explorer.testnet.aurora.dev/api",
+  [1666600000]: "https://ctrver.t.hmny.io/verify",
+  [1666700000]: "https://ctrver.t.hmny.io/verify?network=testnet",
+};
 
-  try {
-    return JSON.parse(input);
-  } catch {
-    input = input.replace(/^\{|\}$/g, "").trim();
-    return JSON.parse(input);
-  }
+function resolveApiUrl(chainId: number, apiUrl?: string) {
+  return (
+    apiUrl ||
+    apiUrls[chainId] ||
+    `https://api.etherscan.io/v2/api?chainid=${chainId}`
+  );
 }
