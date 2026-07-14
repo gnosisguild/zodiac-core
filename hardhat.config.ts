@@ -1,5 +1,8 @@
 import { existsSync } from "fs";
-import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
+import hardhatEthersPlugin from "@nomicfoundation/hardhat-ethers";
+import hardhatChaiMatchersPlugin from "@nomicfoundation/hardhat-ethers-chai-matchers";
+import hardhatMochaPlugin from "@nomicfoundation/hardhat-mocha";
+import hardhatNetworkHelpersPlugin from "@nomicfoundation/hardhat-network-helpers";
 import { defineConfig } from "hardhat/config";
 
 if (existsSync(".env")) process.loadEnvFile(".env");
@@ -15,7 +18,12 @@ const accounts = PK
     };
 
 export default defineConfig({
-  plugins: [hardhatToolboxMochaEthersPlugin],
+  plugins: [
+    hardhatEthersPlugin,
+    hardhatChaiMatchersPlugin,
+    hardhatMochaPlugin,
+    hardhatNetworkHelpersPlugin,
+  ],
   paths: {
     artifacts: "build/artifacts",
     cache: "build/cache",
@@ -31,9 +39,6 @@ export default defineConfig({
         },
       },
     },
-  },
-  typechain: {
-    outDir: "typechain-types",
   },
   networks: {
     mainnet: {
